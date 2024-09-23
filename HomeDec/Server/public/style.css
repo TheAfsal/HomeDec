@@ -1,0 +1,310 @@
+@import url('https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Titillium+Web:ital,wght@0,200;0,300;0,400;0,600;0,700;0,900;1,200;1,300;1,400;1,600;1,700&display=swap');
+
+* {
+    margin: 0px;
+    padding: 0px;
+    font-family: "Titillium Web", sans-serif;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* overflow: hidden; */
+}
+
+
+/* Login Page */
+.main-section {
+    height: 100vh;
+    width: 100vw;
+    background-image: url("assets/sky.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.login-container {
+    position: relative;
+    border: 0.2rem solid rgba(207, 204, 204, 0.43);
+    color: rgb(62, 52, 52);
+    padding: 0.5rem;
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(5px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.form-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.input-container {
+    margin: 0.5rem 0.4rem;
+    padding: .7rem;
+    border-radius: 10px;
+    border: 0px;
+    color: rgb(62, 52, 52);
+}
+
+.form-container button {
+    margin: 0rem .4rem 1rem;
+    padding: 10px;
+}
+
+.login-container h2 {
+    margin: 1.5rem 1rem 2rem;
+}
+
+.login-submit-btn {
+    color: rgb(228, 226, 226) !important;
+    background-color: rgb(62, 52, 52) !important;
+}
+
+.moveTo-signup {
+    margin: 2rem 0.5rem 1rem;
+}
+
+.moveTo-signup-a {
+    letter-spacing: 0.5px;
+    color: rgb(62, 52, 52);
+    text-underline-offset: 2px;
+    font-weight: 600;
+}
+
+/* NavBar */
+.navbar-container {
+    margin: 0% 20%;
+    width: 85%;
+    display: flex;
+    justify-content: center;
+}
+
+.navbar-contents {
+    border: 1px solid black;
+    border-radius: 50px;
+    padding: 5px 25px !important;
+}
+
+.nav-item {
+    background-color: #677689 !important;
+    border-radius: 100px !important;
+    padding: 0px 20px !important;
+    outline: none;
+}
+
+.nav-item a {
+    color: white !important;
+}
+
+.navbar-brand img {
+    height: 2rem;
+    width: auto;
+    object-fit: cover;
+}
+
+/* Search Bar in Nav */
+.search-container {
+    position: relative;
+    display: inline-block;
+    border-radius: 100px !important;
+    width: 100%;
+}
+
+.userDetails-search-inputContainer {
+    width: 100%;
+    height: 43px;
+    color: white !important;
+    border-radius: 50px !important;
+    padding-right: 40px;
+    width: 100%;
+    border: none;
+    background-color: #677689;
+}
+
+.userDetails-search-inputContainer::placeholder {
+    color: white !important;
+}
+
+.search-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: auto;
+    pointer-events: none;
+}
+
+/* Home Section  */
+.home-section {
+    width: 100%;
+    background: white;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.home-section-content {
+    position: absolute;
+    top: 25rem;
+    left: 35%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+}
+
+
+.back-circle {
+    background-color: #FFF6E3;
+    height: 30vw;
+    width: 30vw;
+    border-radius: 1000px;
+    object-fit: contain;
+}
+
+.home-section-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: absolute;
+    z-index: 12;
+    left: 35%;
+}
+
+.home-section-text h2 {
+    font-size: 6vw;
+    letter-spacing: 3px;
+    width: max-content;
+    font-family: "Dancing Script", cursive;
+    color: #27303B;
+    margin: 0px;
+    padding: 0px;
+}
+
+.home-section-text h1 {
+    font-size: 6vw;
+    font-weight: bold;
+    color: transparent;
+    -webkit-text-stroke: 2px #27303B;
+    width: max-content;
+    font-family: "Kanit", sans-serif;
+    margin: 0px;
+    padding: 0px;
+}
+
+.home-section-text-special {
+    font-size: 6vw;
+    font-weight: bold;
+    color: transparent;
+    width: max-content;
+    -webkit-text-stroke: 2px rgb(0, 0, 0);
+    font-family: "Kanit", sans-serif;
+}
+
+/* Error Section */
+.error-section {
+    width: 200px;
+    background-color: red;
+    position: absolute;
+    border-radius: 20px;
+    bottom: 3rem;
+    left: 0rem;
+    color: white;
+    font-weight: 600;
+    font-size: 1.5rem;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    text-align: center;
+    padding-top: 10px;
+}
+
+/* Class to trigger the animation */
+.animate-left {
+    display: block;
+    animation: moveLeft 8s forwards;
+    overflow: hidden;
+}
+
+/*  */
+/* Admin Home Page */
+
+/* Search Info */
+.searchInfo {
+    height: 50px;
+    margin-bottom: 10px;
+    background-color: #69778d66;
+    border-radius: 10px;
+    border: 1px solid rgba(236, 231, 231, 0.2);
+    box-shadow: 0 0 5px rgba(110, 109, 109, 0.2);
+}
+
+/* User details  */
+.userInfo {
+    height: 70px;
+    margin-bottom: 10px;
+    background-color: #69778d2a;
+    border-radius: 10px;
+    border: 1px solid rgba(236, 231, 231, 0.2);
+    box-shadow: 0 0 5px rgba(110, 109, 109, 0.2);
+}
+
+.userInfo-item {
+    font-weight: 500;
+    font-size: 1.1rem;
+}
+
+.userInfo-item.icons {
+    height: 30px;
+}
+
+.editUserForm,
+#createUserForm {
+    height: 60px;
+    margin-bottom: 10px;
+    background-color: #69778d66;
+    border-radius: 10px;
+    border: 1px solid rgba(236, 231, 231, 0.2);
+    box-shadow: 0 0 5px rgba(110, 109, 109, 0.2);
+    display: flex;
+    align-items: center;
+}
+
+.userDetails-edit-icons img {
+    height: 25px !important;
+}
+
+.userDetails-edit-inputContainer {
+    padding: .7rem;
+    border-radius: 10px;
+    border: 0px;
+    color: rgb(62, 52, 52);
+}
+
+.add-user-icon {
+    height: 3rem;
+    width: 7.5rem;
+    background-color: #677689;
+    color: white;
+    font-weight: 600;
+}
+
+.add-user-icon img {
+    height: 1.7rem;
+    width: 1.7rem;
+}
+
+#search-results {
+    display: none;
+    width: 100%;
+    overflow-x: hidden;
+}
+

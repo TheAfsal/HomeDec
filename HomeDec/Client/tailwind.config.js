@@ -1,0 +1,42 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  theme: {
+    extend: {
+      fontFamily: {
+        roboto: ["Roboto", "sans-serif"],
+        nunito: ["Nunito Sans", "sans-serif"],
+      },
+      colors: {
+        blackLikeBlue: "#313957",
+        inputField: "#f7fbff",
+        splashBlue: "#1e4ae9",
+        errorRed: "#d93322",
+        purple: "#6226ef",
+        green_50: "#eef3f2",
+        green_100: "#c9d9d8",
+        green_200: "#afc7c5",
+        green_300: "#8aadab",
+        green_400: "#749d9a",
+        green_500: "#518581",
+        green_600: "#4a7975",
+        green_700: "#3a5e5c",
+        green_800: "#2d4947",
+        green_900: "#223836",
+        pure_white: "#ffffff",
+        background_grey: "#F5F6FA",
+        border_stroke_grey: "#D5D5D5",
+        table_header_grey: "#fcfdfd",
+        status_succes_background_green: "#ccf0eb",
+        status_succes_text_green: "#00b69b",
+        status_failed_background_red: "#ef3826",
+        status_failed_text_red: "#fcd7d4",
+        form_label_grey: "#ADADAD",
+        form_inputFeild_background_grey: "#F5F6FA",
+        form_inputFeild_stroke_grey: "#D5D5D5",
+        
+      },
+    },
+  },
+  plugins: [],
+};
