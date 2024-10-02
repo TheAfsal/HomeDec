@@ -2,69 +2,43 @@ const express = require("express");
 const {
   loginSeller,
   fetchProducts,
+  toggleProductStatus,
+  addNewProduct,
+  listCategory,
+  EditNewProduct,
+  listOrders,
+  updateOrderStatus,
 } = require("../controllers/sellerController");
-const run = require("../Utils/multerImageUplaod");
-const uploadProductImages = require("../middleware/uploadProductImages");
-const uploadSingleProductImage = require("../middleware/uploadProductImages");
 const router = express.Router();
 
 const multer = require("multer");
 const cloudinary = require("../database/cloudinaryConfig");
 const Product = require("../models/productModel");
-
-// Use memory storage for Cloudinary uploads
-const storage = multer.diskStorage({
-  filename: function (req, file, cb) {
-    cb(null, file.originalname);
-  },
-});
-const upload = multer({ storage });
+const verifyTokenSeller = require("../middleware/authSellerMiddleware");
 
 router.post("/login", loginSeller);
 
-router.post("/products/add", async (req, res) => {
-  try {
-    console.log(req.body);
+const upload = multer({ dest: "uploads/" });
 
-    const productData = {
-      category: req.body.data.category,
-      subCategory: req.body.data.subCategory,
-      title: req.body.data.title,
-      description: req.body.data.description,
-      variants: req.body.variants.map((variant) => ({
-        color: variant.color,
-        colorHex: variant.colorHex,
-        stock: Number(variant.stock), 
-        price: Number(variant.price), 
-        images: variant.images.map((image) => image.imageUrl), // Get image URLs from the image objects
-      })),
-      itemProperties: req.body.data.itemProperties.map((prop) => ({
-        field: prop.field,
-        value: prop.value,
-      })),
-      deliveryCondition: req.body.data.deliveryCondition,
-      warranty: req.body.data.warranty,
-      relatedKeywords: req.body.data.relatedKeywords,
-    };
-    const product = new Product(productData);
-    await product.save();
-    res.status(201).send(product);
-  } catch (error) {
-    console.log(error);
+router.post("/products/add", verifyTokenSeller, upload.any(), addNewProduct);
 
-    res.status(400).send(error);
-  }
-});
+router.post("/products/edit", verifyTokenSeller, upload.any(), EditNewProduct);
 
-router.post(
-  "/products/add-product-image",
-  upload.single("image"),
-  uploadSingleProductImage
+router.get("/category/list", verifyTokenSeller, listCategory);
+
+router.get("/products/list", verifyTokenSeller, fetchProducts);
+
+router.patch(
+  "/products/toggle-status/:productId/:variantId",
+  verifyTokenSeller,
+  toggleProductStatus
 );
 
-router.delete("/products/delete-product-image", deleteImageFromCloudinary);
+//Orders
+router.get("/orders/list", verifyTokenSeller, listOrders);
 
-router.get("/products/list", fetchProducts);
+router.patch("/orders/update-status", verifyTokenSeller, updateOrderStatus);
+
 
 async function deleteImageFromCloudinary(req, res) {
   const { publicId } = req.body;

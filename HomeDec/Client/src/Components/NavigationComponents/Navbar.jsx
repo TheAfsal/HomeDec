@@ -1,6 +1,15 @@
 import React from 'react';
+import { useDispatch } from 'react-redux';
+import { logoutAdmin } from '../../redux/slices/authSlice';
 
 const Navbar = () => {
+
+    const dispatch = useDispatch();
+
+    const handleLogout = () => {
+        dispatch(logoutAdmin());
+    };
+
     return (
         <header className="bg-white p-4 flex justify-between items-center border">
             <input
@@ -8,9 +17,14 @@ const Navbar = () => {
                 placeholder="Search..."
                 className="border border-gray-300 rounded-lg p-2 w-1/3"
             />
-            <div className="flex items-center">
-                <span className="mr-3">Admin Name</span>
-                <img src="/path/to/profile-icon.png" alt="Profile" className="w-10 h-10 rounded-full" />
+            <div className='flex items-center gap-3'>
+                <div className="flex items-center">
+                    {/* <span className="mr-3">Admin</span>
+                    <img src="/path/to/profile-icon.png" alt="Profile" className="w-10 h-10 rounded-full" /> */}
+                </div>
+                <button className='bg-green_300 px-2 h-[30px] rounded-md text-white text-xs hover:bg-green_500' onClick={handleLogout}>
+                    Log Out
+                </button>
             </div>
         </header>
     );

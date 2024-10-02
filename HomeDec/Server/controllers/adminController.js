@@ -4,9 +4,10 @@ const User = require("../models/userModel");
 const adminServices = require("../services/adminServices");
 const userService = require("../services/userService");
 const authServices = require("../services/authServices");
-const errorHandler = require("../Utils/errorHandler");
 const categoryServices = require("../services/categoryServices");
 const sellerServices = require("../services/sellerServices");
+const { handleLoginError } = require("../Utils/authErrorHandler");
+const orderService = require("../services/orderService");
 
 module.exports = {
   loginAdmin: async (req, res) => {
@@ -15,10 +16,11 @@ module.exports = {
       const result = await authServices.loginAdmin({ email, password });
       res.status(200).json(result);
     } catch (error) {
-      errorHandler.handleLoginError(error, res);
+      handleLoginError(error, res);
     }
   },
 
+  // Users Related
   listUsers: async (req, res) => {
     try {
       const users = await adminServices.listUsers();
@@ -38,7 +40,6 @@ module.exports = {
       return res.status(200).json(result);
     } catch (error) {
       console.log(error);
-
       if (error.message === "User not found") {
         return res.status(404).json({ error: error.message });
       } else {
@@ -47,23 +48,25 @@ module.exports = {
     }
   },
 
+  // Category Related
   listCategory: async (req, res) => {
     try {
-      const result = await categoryServices.listCategory();
+      const result = await categoryServices.listCategory(
+        "name description isActive"
+      );
       return res.status(200).json(result);
     } catch (error) {
       return res.status(500).json({ error: "Failed to fetch categories" });
     }
   },
-
+  // Category Add
   addCategory: async (req, res) => {
-    const { newCategory, newSubCategory } = req.body;
-    console.log(req.body);
-    console.log(newCategory, newSubCategory);
+    const { newCategory, description, newSubCategory } = req.body;
 
     try {
       const result = await categoryServices.addCategory(
         newCategory,
+        description,
         newSubCategory
       );
       return res.status(200).json(result);
@@ -74,6 +77,51 @@ module.exports = {
     }
   },
 
+  // Toggle Category Status
+  toggleCategoryStatus: async (req, res) => {
+    const catId = req.params.catId;
+
+    try {
+      const result = await categoryServices.toggleCategoryStatus(catId);
+      return res.status(200).json(result);
+    } catch (error) {
+      console.log(error);
+      if (error.message) {
+        return res.status(404).json({ error: error.message });
+      } else {
+        return res
+          .status(500)
+          .json({ error: "Error toggling category status" });
+      }
+    }
+  },
+
+  // edit Category
+  editCategory: async (req, res) => {
+    const { categoryName, categoryId, subCategoryName, subCategoryId } =
+      req.body;
+
+    try {
+      const result = await categoryServices.editCategory(
+        categoryName,
+        categoryId,
+        subCategoryName,
+        subCategoryId
+      );
+      return res.status(200).json(result);
+    } catch (error) {
+      console.log(error);
+      if (error.message) {
+        return res.status(404).json({ error: error.message });
+      } else {
+        return res
+          .status(500)
+          .json({ error: "Error toggling category status" });
+      }
+    }
+  },
+
+  //Seller Related
   listSellers: async (req, res) => {
     try {
       const result = await sellerServices.listSellers();
@@ -112,77 +160,17 @@ module.exports = {
       });
       res.status(201).json(result);
     } catch (error) {
-      console.log(error);
-
-      if (error.code === 11000) {
-        return res.status(400).json({ error: "Seller already exists" });
-      } else {
-        return res
-          .status(500)
-          .json({ error: "An error occurred during login" });
-      }
+      return res.status(error.statusCode || 500).json({ error: error.message });
     }
   },
 
-
-  // unwnated below items
-  editUser: async (req, res) => {
-    console.log(req.file);
+  listOrders: async (req, res) => {
     try {
-      const { name, email, id } = req.body;
-      var image = "";
-      if (req.file) {
-        image = req.file.path;
-      }
-      const details = await userService.updateProfile(id, name, email, image);
-      res.status(200).json(details);
+      const result = await orderService.ListOrdersForAdmin();
+      return res.status(200).json(result);
     } catch (error) {
-      if (error.message === "User does not exist") {
-        return res.status(404).json({ error: error.message });
-      } else {
-        return res
-          .status(500)
-          .json({ message: "Failed to update profile", error: error.message });
-      }
+      return res.status(500).json({ error: "Failed to fetch Orders" });
     }
   },
-
-  addUser: async (name, email, password) => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        await User.save({ name, email, password });
-        resolve();
-      } catch (error) {
-        if (error.code == 11000) {
-          console.error("Email already in use");
-          reject("Email already in use");
-        } else {
-          console.error("Error creating user:", error.message);
-          reject("Error creating user");
-        }
-      }
-    });
-  },
-
-  searchKey: async (searchKey) => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const result = await User.find({
-          $or: [
-            { name: { $regex: searchKey, $options: "i" } },
-            { email: { $regex: searchKey, $options: "i" } },
-          ],
-        });
-        resolve(result);
-      } catch (error) {
-        // if (error.code == 11000) {
-        //   console.error("Email already in use");
-        //   reject("Email already in use");
-        // } else {
-        console.error("Error creating user:", error.message);
-        reject("Error searching user");
-        // }
-      }
-    });
-  },
+  
 };

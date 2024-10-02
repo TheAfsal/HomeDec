@@ -1,10 +1,25 @@
 // AdminLoginPage.js
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import LoginImage from '../../../assets/Images/userLoginHeroImage.jpg';
 import webIcon from '../../../assets/Images/HomeDec.png';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 
 const AuthPage = () => {
+
+    const [loading,setLoading] = useState(true)
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+  useEffect(() => {
+    const key = localStorage.getItem("key");
+    if (key) {
+      navigate("/")
+    }
+    setLoading(false)
+  }, [dispatch]);
+
+  if (loading) return <>Loading...</>
 
     return (
         <div className="h-screen flex flex-col-reverse mx-5 md:flex-row md:m-0">

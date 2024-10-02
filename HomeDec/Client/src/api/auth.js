@@ -1,4 +1,4 @@
-import api from "./apiConfig";
+import api from "./apiConfigAdmin";
 
 export const userLogin = async (credentials) => {
   try {
@@ -17,7 +17,6 @@ export const registerUser = async (credentials) => {
     console.log(credentials);
     const response = await api.post("/register", credentials);
     return response.data;
-
   } catch (error) {
     throw new Error(error?.response?.data?.error);
   }
@@ -27,9 +26,8 @@ export const verifyEmail = async (credentials) => {
   try {
     console.log("credentials");
     console.log(credentials);
-    const response = await api.post("/verify-email", {email:credentials});
+    const response = await api.post("/verify-email", { email: credentials });
     return response.data;
-
   } catch (error) {
     throw new Error(error?.response?.data?.error);
   }
@@ -55,7 +53,8 @@ export const createSeller = async (credentials) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    
+    // console.log(error?.response?.data?.error);
+
     throw new Error(error?.response?.data?.error);
   }
 };

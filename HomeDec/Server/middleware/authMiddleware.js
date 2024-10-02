@@ -10,7 +10,7 @@ const verifyToken = (req, res, next) => {
   }
 
   try {
-    const secretKey = process.env.JWT_SECRET;
+    const secretKey = process.env.JWT_SECRET_USER;
     const decoded = jwt.verify(token, secretKey);
 
     req.user = decoded;

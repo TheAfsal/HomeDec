@@ -24,7 +24,7 @@ export default {
         green_800: "#2d4947",
         green_900: "#223836",
         pure_white: "#ffffff",
-        background_grey: "#F5F6FA",
+        background_grey: "#fbfbfb",
         border_stroke_grey: "#D5D5D5",
         table_header_grey: "#fcfdfd",
         status_succes_background_green: "#ccf0eb",
@@ -34,7 +34,7 @@ export default {
         form_label_grey: "#ADADAD",
         form_inputFeild_background_grey: "#F5F6FA",
         form_inputFeild_stroke_grey: "#D5D5D5",
-        
+        order_card_background: "#f5f7fa",
       },
     },
   },

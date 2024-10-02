@@ -19,7 +19,7 @@ const LoginForm = () => {
     const onSubmit = async (credentials) => {
         try {
             const response = await userLogin(credentials);
-            localStorage.setItem("token", response.token)
+            localStorage.setItem("key", response.token)
             dispatch(loginSuccess({
                 user: response.user,
                 token: response.token,
@@ -77,7 +77,7 @@ const LoginForm = () => {
                 </div>
                 <GoogleLoginButton />
                 <p className="mt-4 text-md">Don't have an account?
-                    <Link to={"/auth/register"} className=" text-splashBlue hover:text-black hover:cursor-pointer"> Sign up</Link>
+                    <Link to={"/register"} className=" text-splashBlue hover:text-black hover:cursor-pointer"> Sign up</Link>
                 </p>
             </div>
         </>

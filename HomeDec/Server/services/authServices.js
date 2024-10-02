@@ -1,32 +1,52 @@
 const bcrypt = require("bcrypt");
 const User = require("../models/userModel");
+const Cart = require("../models/cartModel");
 const generateToken = require("../Utils/jwt");
 const Admin = require("../models/adminModel");
 const Seller = require("../models/sellerModel");
+const { handleError } = require("../Utils/handleError");
+const Address = require("../models/addressModel");
 
 module.exports = {
   createUser: async ({ firstName, lastName, email, password }) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    let user = new User({
+    const user = await User.create({
       firstName,
       lastName,
       email,
       password: hashedPassword,
     });
 
+    console.log(user);
+    
+    
+    // Create cart for the new user
+    const cart = new Cart({ userId: user._id, products: [] });
+    const address = new Address({ userId: user._id, addresses: [] });
+    await cart.save();
+    await address.save();
+    
+    console.log("------");
+    
+    user.cartId = cart._id;
+    user.addressId = address._id;
     await user.save();
-
+    
+    console.log("-))))");
+    console.log("------");
     const payload = {
       user: {
         _id: user._id,
-        name: user.name,
         email: user.email,
+        cartId: cart._id,
+        addressId: address._id,
       },
     };
-
+    
     const token = generateToken(payload.user, false, true);
+    console.log("#####");
     return { token, role: "user" };
   },
 
@@ -51,6 +71,8 @@ module.exports = {
         _id: user._id,
         name: user.name,
         email: user.email,
+        cartId: user.cartId,
+        addressId: user.addressId,
       },
       false,
       true
@@ -60,7 +82,7 @@ module.exports = {
 
   isUserExist: async (email) => {
     try {
-      const user = await User.find({email});
+      const user = await User.find({ email });
       return user[0];
     } catch (error) {
       console.log(error);
@@ -69,12 +91,12 @@ module.exports = {
 
   registerWithGoogle: async (email) => {
     try {
-      const user = await User.find({email});
+      const user = await User.find({ email });
       return user[0];
     } catch (error) {
       console.log(error);
     }
-  },  
+  },
 
   loginAdmin: async ({ email, password }) => {
     const admin = await Admin.findOne({ email });
@@ -139,11 +161,6 @@ module.exports = {
     taxId,
   }) => {
     try {
-      let existingSeller = await Seller.findOne({ email });
-      if (existingSeller) {
-        throw new Error("Seller already exists with this email");
-      }
-
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -153,18 +170,26 @@ module.exports = {
         email,
         password: hashedPassword,
         contactNumber,
-        altContactNumber,
-        taxId,
+        alternateContactNumber: altContactNumber,
+        TIN: taxId,
         address,
         commissionRate,
       });
+      console.log(
+        sellerName,
+        businessName,
+        email,
+        contactNumber,
+        altContactNumber,
+        taxId,
+        address,
+        commissionRate
+      );
 
       await seller.save();
-
       return { message: "Seller created successfully" };
     } catch (error) {
-      console.error(error);
-      throw new Error("Error creating seller: " + error.message);
+      throw handleError(error);
     }
   },
 };

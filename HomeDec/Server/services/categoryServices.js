@@ -2,9 +2,7 @@ const mongoose = require("mongoose");
 const { Category, SubCategory } = require("../models/categoryModel");
 
 module.exports = {
-  addCategory: async (categoryName, subCategoryName) => {
-    console.log(categoryName, subCategoryName);
-
+  addCategory: async (categoryName, description, subCategoryName) => {
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -13,7 +11,7 @@ module.exports = {
         session
       );
       if (!category) {
-        category = new Category({ name: categoryName });
+        category = new Category({ name: categoryName, description });
         await category.save({ session });
       }
       console.log(category._id);
@@ -40,7 +38,7 @@ module.exports = {
       await session.commitTransaction();
       session.endSession();
 
-      return;
+      return { categoryName, description, subCategoryName };
     } catch (error) {
       await session.abortTransaction();
       session.endSession();
@@ -48,15 +46,83 @@ module.exports = {
     }
   },
 
-  listCategory: async () => {
+  listCategory: async (itemsNeeded) => {
     try {
-      const categories = await Category.find()
-        .populate("subcategories", "name description")
+      const categories = await Category.find({ isActive: true }) // Filter categories to only active ones
+        .populate({
+          path: "subcategories",
+          match: { isActive: true }, // Only populate active subcategories
+          select: itemsNeeded, // Specify fields to include from subcategories
+        })
         .exec();
       return categories;
-
     } catch (error) {
-      throw new Error("Failed to fetch categories")
+      throw new Error("Failed to fetch categories");
+    }
+  },
+
+  toggleCategoryStatus: async (catId) => {
+    console.log(catId);
+
+    const subCategory = await SubCategory.findById({ _id: catId });
+    console.log(subCategory);
+
+    if (!subCategory) {
+      throw new Error("Category not found");
+    }
+
+    subCategory.isActive = !subCategory.isActive;
+
+    await subCategory.save();
+
+    const status = subCategory.isActive ? "activated" : "deactivated";
+    return { message: `Category successfully ${status}`, subCategory };
+  },
+
+  editCategory: async (
+    categoryName,
+    categoryId,
+    subcategoryName,
+    subcategoryId
+  ) => {
+    try {
+      console.log(categoryName, categoryId, subcategoryName, subcategoryId);
+
+      // Update category name
+      var updatedCategory;
+      if (categoryId) {
+        updatedCategory = await Category.findByIdAndUpdate(
+          categoryId,
+          { name: categoryName },
+          { new: true, runValidators: true } // new: true returns the updated document
+        );
+
+        if (!updatedCategory) {
+          throw new Error("Category not found");
+        }
+      }
+
+      // Update subcategory name
+      var updatedSubcategory;
+      if (subcategoryId) {
+        updatedSubcategory = await SubCategory.findByIdAndUpdate(
+          subcategoryId,
+          { name: subcategoryName },
+          { new: true, runValidators: true }
+        );
+
+        if (!updatedSubcategory) {
+          throw new Error("Subcategory not found");
+        }
+      }
+
+      return {
+        message: "Update successful",
+        updatedCategory,
+        updatedSubcategory,
+      };
+    } catch (error) {
+      throw new Error(`Update failed: ${error.message}`);
     }
   },
 };

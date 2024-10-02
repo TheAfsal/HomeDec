@@ -1,74 +1,83 @@
 const express = require("express");
-const router = express.Router();
-
-const {
-  createUser,
-  loginUser,
-  verifyEmail,
-} = require("../controllers/userController");
+const userController = require("../controllers/userController");
 const verifyToken = require("../middleware/authMiddleware");
+const router = express.Router();
+const multer = require("multer");
+const { updateOrderStatus } = require("../controllers/sellerController");
+const upload = multer({ dest: "uploads/" });
 
+//Role
+router.get("/verify-me", verifyToken, userController.userVerified);
 
+router.post("/register", userController.createUser);
 
-router.post("/register", createUser);
+router.post("/verify-email", userController.verifyEmail);
 
-router.post("/verify-email", verifyEmail);
+router.post("/login", userController.loginUser);
 
-router.post("/login", loginUser);
+router.get("/product/details/:id", userController.fetchProductDetails);
 
-// unwanted from below
-// router.get("/profile",verifyToken );
+router.get("/products/list", userController.fetchProducts);
 
-// router.post("/profile/update",verifyToken ,updateProfile);
+router.get("/cart/list", verifyToken, userController.fetchMyCart);
 
+router.put("/cart/add-product", verifyToken, userController.addToCart);
 
+router.post(
+  "/cart/checkout/create-new-order",
+  verifyToken,
+  userController.placeNewOrder
+);
 
+router.post(
+  "/cart/checkout/update-existing-order",
+  verifyToken,
+  userController.updateExistingOrder
+);
 
+router.patch(
+  "/cart/remove-product",
+  verifyToken,
+  userController.removeFromCart
+);
 
+router.get("/account/profile", verifyToken, userController.fetchProfileDetails);
 
+router.post(
+  "/account/profile/edit-basic-details",
+  verifyToken,
+  upload.any(),
+  userController.updateBasicDetails
+);
 
+router.patch(
+  "/account/profile/edit-contact-details",
+  verifyToken,
+  userController.updateContactDetails
+);
 
+router.patch(
+  "/account/profile/change-password",
+  verifyToken,
+  userController.changePassword
+);
 
+router.get("/account/address/list", verifyToken, userController.fetchAddresses);
 
+router.put("/account/address/add-new", verifyToken, userController.addAdress);
 
+router.delete("/account/address/delete/:id", verifyToken, userController.removeAdress);
 
+router.get("/account/orders/list", verifyToken, userController.fetchUserOrders);
 
+router.get(
+  "/account/orders/details/:orderId",
+  verifyToken,
+  userController.fetchOrderDetail
+);
 
+router.patch("/orders/update-status", verifyToken, updateOrderStatus);
 
-
-// Middleware to check if user is logged in
-// function redirectToHomeIfLoggedIn(req, res, next) {
-// if (req.session.user) {
-//   return res.redirect("/");
-// }
-// next();
-// }
-
-router.get("/", async (req, res) => {
-  // if (!req.session.user) {
-  //   return res.redirect("/login");
-  // }
-  try {
-    const details = await getMyData(req.session.user.email);
-    res.render("user/home", { details });
-  } catch (error) {
-    return res.redirect("/login");
-  }
-});
-
-
-
-router.get("/logout", (req, res) => {
-  // if (req.session.user) {
-  //   delete req.session.user;
-  // }
-  res.redirect("/login");
-  // req.session.destroy((err) => {
-  //   if (err) {
-  //     return res.status(500).send("Error logging out");
-  //   }
-  //   res.redirect("/login");
-  // });
-});
+router.get("/products/search", userController.searchProduct);
 
 module.exports = router;

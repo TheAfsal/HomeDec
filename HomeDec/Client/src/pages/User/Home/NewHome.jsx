@@ -115,3 +115,6 @@ const HeroSection = () => {
 };
 
 
+export {WhyChooseUs,HeroSection}
+
+

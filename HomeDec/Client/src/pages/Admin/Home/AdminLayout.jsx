@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import SideNavbar from '../../../Components/NavigationComponents/SideNavBar';
 import Navbar from '../../../Components/NavigationComponents/Navbar';
 import { useDispatch, useSelector } from 'react-redux';
@@ -7,19 +7,27 @@ import { fetchUserRole } from '../../../redux/slices/authSlice';
 
 const AdminHomePage = () => {
 
-    const { authState, loading } = useSelector(state => state.auth);
+    const { loading, isAuthenticated } = useSelector(state => state.auth);
+    const navigate = useNavigate();
     const dispatch = useDispatch();
-
+    const urlRole = useLocation();
 
     useEffect(() => {
-        console.log(loading);
+        console.log(urlRole);
+
         const token = localStorage.getItem("token");
-
         if (token) {
-            dispatch(fetchUserRole());
+            dispatch(fetchUserRole()).then((data) => {
+                // console.log(data.payload.role);
+                navigate(`/${data.payload.role}/`)
+            });
         }
-
-    }, [dispatch]);
+        else {
+            // console.log(loading);
+            if (urlRole.pathname.includes("admin")) navigate(`/auth/admin`)
+            else navigate(`/auth/seller`)
+        }
+    }, [dispatch, isAuthenticated]);
 
     if (loading) return <>Loading...</>
 

@@ -8,11 +8,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginFailure, loginSuccess } from '../../../../redux/slices/authSlice';
 import OtpModal from './OtpForm';
+import CircularLoader from '../../../../Components/Loading/CircularLoader';
 
 const RegisterForm = () => {
 
     const { register, handleSubmit, formState: { errors } } = useForm();
     const dispatch = useDispatch();
+    const [loading, setLoading] = useState(false)
     const authState = useSelector(state => state.auth);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -40,13 +42,17 @@ const RegisterForm = () => {
 
     const onSubmit = async (credentials) => {
         try {
+            setLoading(true);
             let response = await verifyEmail(credentials.email)
             console.log(response);
+            setLoading(false);
             setIsModalOpen(credentials);
         } catch (error) {
             dispatch(loginFailure(error.message));
         }
     };
+
+    if (loading) return (<CircularLoader />)
 
 
 
@@ -65,7 +71,11 @@ const RegisterForm = () => {
                     placeholder="John"
                     register={register('firstName', {
                         required: 'First name is required',
-                        minLength: { value: 2, message: 'First name must be at least 2 characters' }
+                        minLength: { value: 2, message: 'First name must be at least 2 characters' },
+                        pattern: {
+                            value: /^[A-Za-z\s]+$/, // Only allows letters and spaces
+                            message: 'First name must contain only letters and spaces'
+                        }
                     })}
                     error={errors.firstName}
                 />
@@ -76,10 +86,15 @@ const RegisterForm = () => {
                     placeholder="Doe"
                     register={register('lastName', {
                         required: 'Last name is required',
-                        minLength: { value: 2, message: 'Last name must be at least 2 characters' }
+                        minLength: { value: 2, message: 'Last name must be at least 2 characters' },
+                        pattern: {
+                            value: /^[A-Za-z\s]+$/, // Only allows letters and spaces
+                            message: 'Last name must contain only letters and spaces'
+                        }
                     })}
                     error={errors.lastName}
                 />
+
                 <TextInput
                     type="text"
                     label="Email"
@@ -114,7 +129,7 @@ const RegisterForm = () => {
                 </div>
                 <GoogleLoginButton />
                 <p className="mt-4 text-md">Already have an account?
-                    <Link to={"/auth/login"} className=" text-splashBlue hover:text-black hover:cursor-pointer"> Sign in</Link>
+                    <Link to={"/login"} className=" text-splashBlue hover:text-black hover:cursor-pointer"> Sign in</Link>
                 </p>
             </div>
         </>

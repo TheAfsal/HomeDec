@@ -2,72 +2,44 @@ const express = require("express");
 const {
   loginAdmin,
   listUsers,
-  editUser,
   toggleUserStatus,
   addCategory,
   listCategory,
   addSeller,
   listSellers,
+  toggleCategoryStatus,
+  editCategory,
+  listOrders,
 } = require("../controllers/adminController");
-const verifyToken = require("../middleware/authAdminMiddleware");
+const { verifyRoleToken, verifyTokenAdmin } = require("../middleware/authAdminMiddleware");
 const router = express.Router();
 
 router.post("/login", loginAdmin);
 
-router.get("/users/list", listUsers);
+router.get("/users/list",verifyTokenAdmin, listUsers);
 
-router.patch("/users/toggle-status/:userId", toggleUserStatus);
+router.patch("/users/toggle-status/:userId",verifyTokenAdmin, toggleUserStatus);
 
 //Category
-router.get("/category/list", listCategory);
+router.get("/category/list",verifyTokenAdmin, listCategory);
 
-router.post("/category/add", addCategory);
+router.post("/category/add",verifyTokenAdmin, addCategory);
+
+router.put("/category/edit",verifyTokenAdmin, editCategory);
+
+router.patch("/category/toggle-status/:catId",verifyTokenAdmin, toggleCategoryStatus);
 
 //Seller
-router.get("/seller/list", listSellers);
+router.get("/seller/list",verifyTokenAdmin, listSellers);
 
-router.post("/seller/add", addSeller);
+router.post("/seller/add",verifyTokenAdmin, addSeller);
 
 //Role
-router.get('/role', verifyToken.verifyRoleToken);
+router.get("/role", verifyRoleToken);
+
+//Orders
+router.get("/orders/list", listOrders);
 
 
-
-//////////////////////////////////////
-// router.post("/edit-user", upload.single("image"), verifyToken, editUser);
-
-// router.post("/add-user", async (req, res) => {
-//   const { name, email, password } = req.body;
-//   console.log(name, email, password);
-//   try {
-//     await createUser(name, email, password);
-//     res.redirect("/admin");
-//   } catch (error) {
-//     console.log(error);
-//   }
-// });
-
-// router.get("/search", async (req, res) => {
-//   try {
-//     const results = await searchKey(req.query.searchKey);
-//     res.json(results);
-//     // res.render('admin/home', { searchResults: results });
-//   } catch (error) {
-//     console.log(error);
-//   }
-// });
-
-// router.get("/logout", (req, res) => {
-//   // if (req.session.admin) {
-//   //   delete req.session.admin;
-//   // }
-//   res.redirect("/admin/login");
-//   // req.session.destroy((err) => {
-//   //   if (err) {
-//   //     return res.status(500).send("Error logging out");
-//   //   }
-//   //   res.redirect("/admin/login");
-//   // });
-// });
 
 module.exports = router;

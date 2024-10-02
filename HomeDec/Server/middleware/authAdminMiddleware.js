@@ -1,8 +1,8 @@
 const jwt = require("jsonwebtoken");
 
-const verifyToken = (req, res, next) => {
+const verifyTokenAdmin = (req, res, next) => {
   const token = req.headers["authorization"].split(" ")[1];
-
+  console.log(token);
   if (!token) {
     return res
       .status(401)
@@ -10,11 +10,13 @@ const verifyToken = (req, res, next) => {
   }
 
   try {
-    const secretKey = process.env.JWT_SECRET;
+    const secretKey = process.env.JWT_SECRET_ADMIN;
     const decoded = jwt.verify(token, secretKey);
     console.log(decoded.admin);
 
     if (decoded.admin) {
+      console.log("admin");
+
       next();
     } else {
       res.status(400).json({ message: "Invalid request" });
@@ -24,27 +26,25 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-
 const verifyRoleToken = (req, res, next) => {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) {
-        return res.status(403).send('Token is required');
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) {
+    return res.status(403).send("Token is required");
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET_ADMIN, (err, decoded) => {
+    if (decoded) {
+      return res.status(200).json({ role: "admin" });
     }
 
-    jwt.verify(token, process.env.JWT_SECRET_ADMIN, (err, decoded) => {
-        if (decoded) {
-          return res.status(200).json({role : 'admin'});
-        }
+    jwt.verify(token, process.env.JWT_SECRET_SELLER, (err, decoded) => {
+      if (decoded) {
+        return res.status(200).json({ role: "seller" });
+      }
 
-        jwt.verify(token, process.env.JWT_SECRET_SELLER, (err, decoded) => {
-            if (decoded) {
-                return res.status(200).json({role : 'seller'});
-            }
-
-            return res.status(401).send('Invalid token');
-        });
+      return res.status(401).send("Invalid token");
     });
+  });
 };
 
-
-module.exports = { verifyToken, verifyRoleToken };
+module.exports = { verifyTokenAdmin, verifyRoleToken };
