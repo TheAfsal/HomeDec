@@ -4,7 +4,7 @@ const verifyToken = require("../middleware/authMiddleware");
 const router = express.Router();
 const multer = require("multer");
 const { updateOrderStatus } = require("../controllers/sellerController");
-const upload = multer({ dest: "uploads/" });
+const upload = multer({ dest: "./uploads/" });
 
 //Role
 router.get("/verify-me", verifyToken, userController.userVerified);

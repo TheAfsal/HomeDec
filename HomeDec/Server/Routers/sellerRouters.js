@@ -18,7 +18,7 @@ const verifyTokenSeller = require("../middleware/authSellerMiddleware");
 
 router.post("/login", loginSeller);
 
-const upload = multer({ dest: "uploads/" });
+const upload = multer({ dest: "./uploads/" });
 
 router.post("/products/add", verifyTokenSeller, upload.any(), addNewProduct);
 

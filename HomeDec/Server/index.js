@@ -160,9 +160,7 @@ app.use("/seller", sellerRouters);
 // });
 
 app.use(express.static(path.join(__dirname, "./uploads")));
-// app.get("*", (req, res) => {
-//   res.sendFile(path.join(__dirname, "./dist/index.html"));
-// });
+
 
 //Listenin on the port
 app.listen(PORT, () => {
