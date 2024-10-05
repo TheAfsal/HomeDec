@@ -16,9 +16,11 @@ const cloudinary = require("../database/cloudinaryConfig");
 const Product = require("../models/productModel");
 const verifyTokenSeller = require("../middleware/authSellerMiddleware");
 
-router.post("/login", loginSeller);
+const storage = multer.memoryStorage(); // Change to memory storage
+const upload = multer({ storage: storage });
 
-const upload = multer({ dest: "./uploads/" });
+//
+router.post("/login", loginSeller);
 
 router.post("/products/add", verifyTokenSeller, upload.any(), addNewProduct);
 
@@ -38,7 +40,6 @@ router.patch(
 router.get("/orders/list", verifyTokenSeller, listOrders);
 
 router.patch("/orders/update-status", verifyTokenSeller, updateOrderStatus);
-
 
 async function deleteImageFromCloudinary(req, res) {
   const { publicId } = req.body;

@@ -4,7 +4,10 @@ const verifyToken = require("../middleware/authMiddleware");
 const router = express.Router();
 const multer = require("multer");
 const { updateOrderStatus } = require("../controllers/sellerController");
-const upload = multer({ dest: "./uploads/" });
+
+const storage = multer.memoryStorage(); // Change to memory storage
+const upload = multer({ storage: storage });
+
 
 //Role
 router.get("/verify-me", verifyToken, userController.userVerified);
