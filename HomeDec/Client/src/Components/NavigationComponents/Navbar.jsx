@@ -1,13 +1,17 @@
 import React from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { logoutAdmin } from '../../redux/slices/authSlice';
+import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
 
     const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const role = useSelector((state) => state.auth.role)
 
     const handleLogout = () => {
         dispatch(logoutAdmin());
+        navigate(`/auth/${role}`)
     };
 
     return (

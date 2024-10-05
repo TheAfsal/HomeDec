@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { listSellers } from '../../../../api/administrator/sellerManagement';
+import { MANAGEMENT_ROUTES } from '../../../../config/routerConstants';
 
 const SellerListPage = () => {
 
@@ -12,7 +13,7 @@ const SellerListPage = () => {
                 const list = await listSellers()
                 console.log(list);
                 setSellers(list);
-                
+
             } catch (error) {
                 console.error('Error fetching sellers:', error);
             }
@@ -32,7 +33,7 @@ const SellerListPage = () => {
         <div className="p-8">
             <div className='flex justify-between'>
                 <h1 className="text-2xl font-semibold mb-2 font-nunito">Sellers Management</h1>
-                <Link to={"/admin/sellers/add"} >
+                <Link to={`/${MANAGEMENT_ROUTES.MANAGEMENT}/${MANAGEMENT_ROUTES.SELLERS}/${MANAGEMENT_ROUTES.SELLERS_ADD}`} >
                     <button
                         type="submit"
                         className=" bg-green_700 text-white font-semibold py-2 px-4 mb-2 rounded-2xl hover:bg-green_800 focus:outline-none focus:ring-2 focus:ring-green_500 focus:ring-opacity-50"
@@ -94,7 +95,7 @@ const SellerListPage = () => {
                                                         ? 'bg-green-500 hover:bg-green-600'
                                                         : 'bg-red-500 hover:bg-red-600'
                                                         } text-white p-2 rounded`}
-                                                    onClick={() => 
+                                                    onClick={() =>
                                                         (user?._id)}
                                                 >
                                                     {sellers.isActive ? (

@@ -4,10 +4,11 @@ import UserFooter from '../../../Components/NavigationComponents/UserFooter'
 import { Outlet } from 'react-router-dom'
 import { verifyUserRole } from '../../../redux/slices/authSlice'
 import { useDispatch, useSelector } from 'react-redux'
+import CircularLoader from '../../../Components/Loading/CircularLoader'
 
 const UserLayout = () => {
 
-  const [loading,setLoading] = useState(true)
+  const [loading, setLoading] = useState(true)
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -20,7 +21,7 @@ const UserLayout = () => {
     setLoading(false)
   }, [dispatch]);
 
-  if (loading) return <>Loading...</>
+  if (loading) return (<CircularLoader />)
 
   return (
     <div>

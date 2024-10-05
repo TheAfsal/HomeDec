@@ -81,8 +81,14 @@ const orderSchema = mongoose.Schema(
       },
     ],
     paymentMethod: {
-      type: String,
-      enum: ["pending", "online", "wallet", "cod"],
+      method: {
+        type: String,
+        enum: ["pending", "online", "cod", "wallet"],
+        default: "pending",
+      },
+      transactionId: {
+        type: String,
+      },
     },
     shippingCharge: {
       type: Number,

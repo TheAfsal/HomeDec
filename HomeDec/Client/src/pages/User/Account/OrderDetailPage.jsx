@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { changeOrderStatusByUser, fetchOrder } from '../../../api/administrator/orderManagement';
 import { IoIosArrowRoundBack } from 'react-icons/io';
+import { USER_ROUTES } from '../../../config/routerConstants';
 
 const OrderDetailPage = () => {
 
@@ -54,7 +55,7 @@ const OrderDetailPage = () => {
 
     return (
         <div className="max-w-5xl mx-auto p-10 bg-white shadow-md rounded-lg">
-            <Link to={"/account/orders"}>
+            <Link to={`/${USER_ROUTES.ACCOUNT}/${USER_ROUTES.ORDERS}`}>
                 <IoIosArrowRoundBack size={30} color='' />
             </Link>
             <h1 className="text-2xl font-bold my-4 text-green_800">Order Details</h1>
@@ -83,7 +84,7 @@ const OrderDetailPage = () => {
                         {order?.orderItems?.map((item, index) => (
                             <tr key={index} className="hover:bg-gray-100 font-nunito">
                                 <td className="p-4">
-                                    <Link to={`/shop/${item?.productId?._id}`} className='flex items-center'>
+                                    <Link to={`/${USER_ROUTES.SHOP}/${item?.productId?._id}`} className='flex items-center'>
                                         <img
                                             src={item.variantDetails.firstImage?.secure_url}
                                             alt="Product"

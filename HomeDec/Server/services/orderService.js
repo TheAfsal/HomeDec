@@ -4,6 +4,11 @@ const Order = require("../models/orderModel");
 const calculateTotalAmount = require("../Utils/calculateTotalPrice");
 const generateOrderLabel = require("../Utils/generateOrderLabel");
 const Product = require("../models/productModel");
+const createOrder = require("../Utils/razorpay");
+const Transaction = require("../models/transactionModel");
+const { getCurrentWalletBalance } = require("./walletService");
+const Wallet = require("../models/walletTransaction");
+const User = require("../models/userModel");
 
 module.exports = {
   AddNewOrder: async (userId, cartItems) => {
@@ -21,7 +26,6 @@ module.exports = {
         finalTotal: total,
         userId,
         orderLabel,
-        paymentMethod: "pending",
       });
 
       await order.save();
@@ -34,33 +38,23 @@ module.exports = {
   },
 
   updateExistingOrder: async (
-    orderId,
+    _id,
     shippingAddress,
     paymentMethod,
     userId,
     cartId
   ) => {
     try {
-      const orderDoc = await Order.findOne({ _id: orderId });
-      console.log("Order Document:", orderDoc);
-      console.log("User ID:", userId);
+      const orderDoc = await Order.findOne({ _id });
 
-      if (paymentMethod !== "cod")
-        throw { message: "Only Cash on delivery is available" };
-
-      // Calculate the total amount and updated order collection
       const { total, orderCollection } = await calculateTotalAmount(
         orderDoc.orderItems
       );
-      console.log("Total Amount:", total);
-      console.log("Updated Order Collection:", orderCollection);
 
-      // Prepare the updates
       const orderUpdates = {
         orderItems: orderCollection,
         totalAmount: total,
         finalTotal: total,
-        paymentMethod,
         street: shippingAddress.street,
         city: shippingAddress.city,
         state: shippingAddress.state,
@@ -69,15 +63,94 @@ module.exports = {
         userId,
       };
 
-      // Update the existing order
-      const updatedOrder = await Order.findByIdAndUpdate(
-        orderId,
-        orderUpdates,
-        {
-          new: true,
-          runValidators: true,
+      let orderId;
+
+      if (paymentMethod === "online") {
+        try {
+          orderId = await createOrder(total);
+          console.log("Online Order ID:", orderId);
+
+          const transactionDoc = new Transaction({
+            userId,
+            orderId: _id,
+            transactionId: `txn_${Date.now()}`,
+            amount: total,
+          });
+
+          const transactionDetails = await transactionDoc.save();
+          orderUpdates.paymentMethod = {
+            method: "online",
+            transactionId: transactionDetails._id,
+          };
+          console.log("Transaction saved successfully:", transactionDoc);
+        } catch (error) {
+          console.log(error);
+          throw { status: 500, message: error.message };
         }
-      );
+      } else if (paymentMethod === "wallet") {
+        try {
+          const currentWalletBalance = await getCurrentWalletBalance(userId);
+
+          // Check if the current wallet balance is sufficient
+          if (currentWalletBalance < total) {
+            throw { status: 400, message: "Insufficient Wallet balance" };
+          }
+
+          // Create the wallet transaction document
+          const walletTransactionDoc = new Wallet({
+            userId,
+            amount: total,
+            transactionType: "debit",
+            orderId: _id,
+            paymentMethod: {
+              method: "wallet",
+              details: {
+                transactionId: `txn_wallet_${Date.now()}`, // Unique transaction ID for the wallet transaction
+                walletBalanceAfter: currentWalletBalance - total, // This will be updated after the transaction
+                transactionDate: new Date(),
+              },
+            },
+          });
+
+          await walletTransactionDoc.save();
+          console.log(
+            "Wallet transaction saved successfully:",
+            walletTransactionDoc
+          );
+
+          const updatedBalance = currentWalletBalance - total;
+
+          const userUpdate = await User.findByIdAndUpdate(
+            userId,
+            { walletBalance: updatedBalance },
+            { new: true }
+          );
+
+          orderUpdates.paymentMethod = {
+            method: "wallet",
+            transactionId: walletTransactionDoc._id,
+          };
+
+          console.log(
+            "User wallet balance updated successfully:",
+            userUpdate.walletBalance
+          );
+        } catch (error) {
+          console.log(error);
+          throw { status: 500, message: error.message };
+        }
+      } else if (paymentMethod === "cod") {
+        orderUpdates.paymentMethod = {
+          method: "cod",
+          transactionId: null,
+        };
+      }
+
+      // Update the existing order
+      const updatedOrder = await Order.findByIdAndUpdate(_id, orderUpdates, {
+        new: true,
+        runValidators: true,
+      });
 
       // Decrement the stock for each product variant in the order
       for (const item of orderCollection) {
@@ -110,11 +183,47 @@ module.exports = {
       const cart = await Cart.findById({ _id: cartId });
       cart.products = [];
       await cart.save();
+
       console.log("Order updated successfully:", updatedOrder);
-      return updatedOrder;
+
+      if (paymentMethod === "online") {
+        return { orderId: orderId.id, paymentMethod };
+      } else if (paymentMethod === "cod") {
+        return { updatedOrder, paymentMethod };
+      } else if (paymentMethod === "wallet") {
+        return { updatedOrder, paymentMethod };
+      } else {
+        throw new Error("Internal server error");
+      }
     } catch (error) {
+      console.log(error);
       if (error.status) throw error;
       else throw new Error(error);
+    }
+  },
+
+  addTransactionId: async (userId, orderId, razorpayPaymentId) => {
+    try {
+      const transactionDoc = await Transaction.findOne({ orderId, userId });
+
+      if (!transactionDoc) {
+        throw { status: 404, message: "Transaction not found for this order." };
+      }
+
+      // Step 2: Update the transaction document with the Razorpay payment ID
+      transactionDoc.transactionId = razorpayPaymentId; // Store Razorpay payment ID
+      transactionDoc.paymentStatus = "Completed"; // Update payment status
+      transactionDoc.paymentDate = new Date(); // Update payment date
+
+      // Step 3: Save the updated transaction document
+      await transactionDoc.save();
+      console.log(
+        "Transaction updated with Razorpay payment ID:",
+        transactionDoc
+      );
+    } catch (error) {
+      onsole.log(error);
+      throw new Error("Failed to fetch Orders");
     }
   },
 

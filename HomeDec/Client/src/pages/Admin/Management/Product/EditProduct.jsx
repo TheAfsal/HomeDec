@@ -3,6 +3,9 @@ import ImageCrop from '../../../Test/ImageCrop';
 import { useNavigate, useParams } from 'react-router-dom';
 import { GiCancel } from 'react-icons/gi';
 import { useSelector } from 'react-redux';
+import { listCategory } from '../../../../api/administrator/categoryManagement';
+import { fetchDetails } from '../../../../api/administrator/productManagement';
+import { MANAGEMENT_ROUTES } from '../../../../config/routerConstants';
 
 const EditProduct = () => {
     const [error, setError] = useState("");
@@ -70,7 +73,7 @@ const EditProduct = () => {
             ...prev,
             [name]: value
         }));
-        setValidationErrors(prev => ({ ...prev, [name]: '' })); // Clear previous error
+        setValidationErrors(prev => ({ ...prev, [name]: '' }));
     };
 
     const handleAddVariant = () => {
@@ -125,7 +128,7 @@ const EditProduct = () => {
         try {
             const response = await api.post('/seller/products/edit', { ...formData, variants });
             console.log('Product updated successfully:', response.data);
-            navigate("/seller/products/list");
+            navigate(`/${MANAGEMENT_ROUTES.PRODUCTS}/${MANAGEMENT_ROUTES.PRODUCTS_LIST}`)
         } catch (error) {
             setError("Failed to update product.");
             console.error('Error:', error);
@@ -289,7 +292,7 @@ const EditProduct = () => {
                 {/* Submit and Error Handling */}
                 {error && <p className="text-red-500">{error}</p>}
                 <div className="flex justify-between mt-5">
-                    <button type="button" onClick={() => navigate("/seller/products/list")} className="px-6 py-3 rounded-3xl bg-red-500 text-white hover:bg-red-600">Cancel</button>
+                    <button type="button" onClick={() => navigate(`/${MANAGEMENT_ROUTES.PRODUCTS}/${MANAGEMENT_ROUTES.PRODUCTS_LIST}`)} className="px-6 py-3 rounded-3xl bg-red-500 text-white hover:bg-red-600">Cancel</button>
                     <button type="submit" className="px-6 py-3 rounded-3xl bg-green_500 text-white hover:bg-green_600">Save</button>
                 </div>
             </form>

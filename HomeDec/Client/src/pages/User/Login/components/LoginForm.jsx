@@ -7,11 +7,12 @@ import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginFailure, loginSuccess } from '../../../../redux/slices/authSlice';
+import { AUTH_ROUTES } from '../../../../config/routerConstants';
 
 const LoginForm = () => {
 
     const { register, handleSubmit, formState: { errors } } = useForm();
-    const navigate = useNavigate()
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     const authState = useSelector(state => state.auth);
 
@@ -30,7 +31,6 @@ const LoginForm = () => {
         } catch (error) {
             dispatch(loginFailure(error.message));
         }
-
     };
 
     return (
@@ -77,7 +77,7 @@ const LoginForm = () => {
                 </div>
                 <GoogleLoginButton />
                 <p className="mt-4 text-md">Don't have an account?
-                    <Link to={"/register"} className=" text-splashBlue hover:text-black hover:cursor-pointer"> Sign up</Link>
+                    <Link to={`/${AUTH_ROUTES.REGISTER_USER}`} className=" text-splashBlue hover:text-black hover:cursor-pointer"> Sign up</Link>
                 </p>
             </div>
         </>

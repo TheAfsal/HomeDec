@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { fetchUserOrders } from '../../../api/administrator/orderManagement';
 import { Link } from 'react-router-dom';
+import { USER_ROUTES } from '../../../config/routerConstants';
 
 
 const Orders = () => {
@@ -48,17 +49,17 @@ const Orders = () => {
                     {orders.map((order, index) => (
                         <tr key={index} className="w-full border-b hover:bg-gray-50">
                             <td className="p-4">
-                                <Link to={`/account/orders/in-detail/${order._id}`} className="flex items-center w-full">
+                                <Link to={`/${USER_ROUTES.ACCOUNT}/${USER_ROUTES.ORDER_DETAILS}/${order._id}`} className="flex items-center w-full">
                                     {order?.orderLabel}
                                 </Link>
                             </td>
                             <td className="p-4">
-                                <Link to={`/account/orders/in-detail/${order._id}`} className="flex items-center w-full">
+                                <Link to={`/${USER_ROUTES.ACCOUNT}/${USER_ROUTES.ORDER_DETAILS}/${order._id}`} className="flex items-center w-full">
                                     {order?.dateOrdered?.toString().split('T')[0]}
                                 </Link>
                             </td>
                             <td className="p-4">
-                                <Link to={`/account/orders/in-detail/${order._id}`} className="flex items-center w-full">
+                                <Link to={`/${USER_ROUTES.ACCOUNT}/${USER_ROUTES.ORDER_DETAILS}/${order._id}`} className="flex items-center w-full">
                                     <div>
                                         {order?.orderItems?.some(item => item.status === ("Pending" || "Processing" || "On Hold" || "Shipping"))
                                             ? "In Progress"
@@ -67,12 +68,12 @@ const Orders = () => {
                                 </Link>
                             </td>
                             <td className="p-4">
-                                <Link to={`/account/orders/in-detail/${order._id}`} className="flex items-center w-full">
+                                <Link to={`/${USER_ROUTES.ACCOUNT}/${USER_ROUTES.ORDER_DETAILS}/${order._id}`} className="flex items-center w-full">
                                     {order?.finalTotal}
                                 </Link>
                             </td>
                             <td className="p-4">
-                                <Link to={`/account/orders/in-detail/${order._id}`} className="flex items-center w-full">
+                                <Link to={`/${USER_ROUTES.ACCOUNT}/${USER_ROUTES.ORDER_DETAILS}/${order._id}`} className="flex items-center w-full">
                                     <div className="flex space-x-2">
                                         {order?.orderItems?.map((variant, i) => (
                                             <img key={i} src={variant.variantDetails.firstImage?.secure_url} alt="Product" className="w-12 h-12 rounded object-cover" />

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { logout, verifyUserRole } from '../../../redux/slices/authSlice'
+import { USER_ROUTES } from '../../../config/routerConstants'
 
 const AccountLayout = () => {
 
@@ -11,14 +12,14 @@ const AccountLayout = () => {
 
 
   const account = [
-    { content: "Orders", link: "orders" },
-    { content: "Wishlist", link: "wishlist" },
+    { content: "Orders", link: USER_ROUTES.ORDERS },
+    { content: "Wishlist", link: USER_ROUTES.WISHLIST },
     { content: "Payment methods", link: "--" },
-    { content: "My reviews", link: "my-reviews" }
+    { content: "My reviews", link: USER_ROUTES.MY_REVIEWS }
   ]
   const manageAccount = [
-    { content: "Personal info", link: "personal-info" },
-    { content: "Addresses", link: "my-addresses" },
+    { content: "Personal info", link: USER_ROUTES.PROFILE },
+    { content: "Addresses", link: USER_ROUTES.MY_ADDRESS },
     { content: "Notifications", link: "--" }
   ]
   const service = [
@@ -64,7 +65,7 @@ const AccountLayout = () => {
         <div className="space-y-2">
           {
             account.map((item, index) => (
-              <NavLink to={`/account/${item.link}`}
+              <NavLink to={`/${USER_ROUTES.ACCOUNT}/${item.link}`}
                 className={({ isActive }) =>
                   `flex items-center space-x-2 rounded-lg p-2 ${isActive ? 'bg-gray-100' : 'hover:bg-gray-100'
                   }`
@@ -80,7 +81,7 @@ const AccountLayout = () => {
           <h5 className="text-gray-500 text-sm mt-6 mb-2">Manage account</h5>
           {
             manageAccount.map((item, index) => (
-              <NavLink to={`/account/${item.link}`}
+              <NavLink to={`/${USER_ROUTES.ACCOUNT}/${item.link}`}
                 className={({ isActive }) =>
                   `flex items-center space-x-2 rounded-lg p-2 ${isActive ? 'bg-gray-100' : 'hover:bg-gray-100'
                   }`
@@ -97,7 +98,7 @@ const AccountLayout = () => {
           <h5 className="text-gray-500 text-sm mt-6 mb-2">Customer service</h5>
           {
             service.map((item, index) => (
-              <NavLink to={`/account/${item.link}`}
+              <NavLink to={`/${USER_ROUTES.ACCOUNT}/${item.link}`}
                 className={({ isActive }) =>
                   `flex items-center space-x-2 rounded-lg p-2 ${isActive ? 'bg-gray-100' : 'hover:bg-gray-100'
                   }`
@@ -109,7 +110,7 @@ const AccountLayout = () => {
               </NavLink>
             ))
           }
-          <NavLink to={"/"}
+          <NavLink to={`${USER_ROUTES.HOME}`}
             className={({ isActive }) =>
               `flex items-center space-x-2 rounded-lg p-2 ${isActive ? 'bg-gray-100' : 'hover:bg-gray-100'
               }`

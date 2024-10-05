@@ -2,14 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { FaRegHeart, FaStar } from "react-icons/fa";
-import CustomImageMagnifier from './CustomZoom';
+import CustomImageMagnifier from '../../Admin/Management/Product/CustomZoom';
 import { IoIosArrowRoundBack } from 'react-icons/io';
 import { useDispatch, useSelector } from 'react-redux';
-import { addProductToCart } from '../../../../redux/slices/cartSlice';
-import { updateCartCount } from '../../../../api/administrator/cartManagement';
-import { fetchDetails } from '../../../../api/administrator/productManagement';
+import { addProductToCart } from '../../../redux/slices/cartSlice';
+import { updateCartCount } from '../../../api/administrator/cartManagement';
+import { fetchDetails } from '../../../api/administrator/productManagement';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { USER_ROUTES } from '../../../config/routerConstants';
+import { addToWishList } from '../../../api/user/account';
 
 const DetailPage = () => {
   const [product, setProduct] = useState({});
@@ -71,7 +73,7 @@ const DetailPage = () => {
       // Delay navigation to ensure the toast is visible
       setQuantity(1)
       setTimeout(() => {
-        navigate("/shop/cart");
+        navigate(`/${USER_ROUTES.CART}`);
       }, 2000);
 
 
@@ -79,7 +81,7 @@ const DetailPage = () => {
       console.log(error);
       toast.error(error.message)
       setTimeout(() => {
-        navigate("/shop/cart");
+        navigate(`/${USER_ROUTES.CART}`);
       }, 2000);
     }
 
@@ -96,6 +98,15 @@ const DetailPage = () => {
     }));
   };
 
+  const pushToWishList = async () => {
+    try {
+      await addToWishList(product._id, selectedVariant._id)
+    } catch (error) {
+      console.log(error.message);
+
+    }
+  }
+
   if (loading) return <div>Loading...</div>
 
   return (
@@ -107,13 +118,13 @@ const DetailPage = () => {
 
           <div className='flex flex-col gap-y-5 text-green_700'>
             {/* Back Button */}
-            <Link to={"/shop"}>
+            <Link to={`/${USER_ROUTES.SHOP}`}>
               <IoIosArrowRoundBack size={30} color='' />
             </Link>
 
             {/* Breadcrumb */}
             <p className="text-gray-500 text-sm">
-              <Link to={"/shop"}>
+              <Link to={`/${USER_ROUTES.SHOP}`}>
                 <span className="hover:underline cursor-pointer text-green_700">Chair </span>
               </Link>
               / {product.title}
@@ -190,10 +201,10 @@ const DetailPage = () => {
           </div>
 
           {/* Additional information */}
-          <div className="text-gray-600 text-sm space-y-2">
-            <p>Free 3-5 day shipping • Tool-free assembly • 30-day trial</p>
-            <div className="flex items-center space-x-2">
-              <button className="flex items-center text-green_600">
+          <div className="text-gray-600 space-y-2">
+            <p className='text-sm'>Free 3-5 day shipping • Tool-free assembly • 30-day trial</p>
+            <div className="flex items-center space-x-2 text-md">
+              <button className="flex items-center text-green_500 my-2 hover:text-green_700" onClick={pushToWishList} >
                 <FaRegHeart className="mr-2" />
                 Add to Wishlist
               </button>

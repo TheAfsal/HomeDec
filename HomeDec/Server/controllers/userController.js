@@ -35,9 +35,6 @@ module.exports = {
         email,
         password,
       });
-      console.log("dasd");
-      console.log("result");
-      console.log(result);
 
       await Otp.deleteOne({ email });
       res.status(201).json(result);
@@ -355,7 +352,30 @@ module.exports = {
       return res.status(201).json({
         success: true,
         message: "Order updated successfully",
-        orderId: order.orderId,
+        orderDetails: order,
+      });
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  },
+
+  addTransactionId: async (req, res) => {
+    try {
+      const { orderId, transactionId } = req.body;
+      const { _id } = req.user;
+
+      const order = await orderService.addTransactionId(
+        _id,
+        orderId,
+        transactionId
+      );
+      return res.status(201).json({
+        success: true,
+        message: "Order updated successfully",
+        orderDetails: order,
       });
     } catch (error) {
       return res.status(400).json({
@@ -394,6 +414,34 @@ module.exports = {
       return res.status(200).json(products);
     } catch (error) {
       return res.status(500).json({ error: "Failed to search products" });
+    }
+  },
+
+  fetchWishList: async (req, res) => {
+    try {
+      const { wishListId } = req.user;
+      const wishListProducts = await accountServices.fetchWishList(wishListId);
+      return res.status(200).json(wishListProducts);
+    } catch (error) {
+      return res.status(500).json({ error: "Failed to find wishList" });
+    }
+  },
+
+  AddToWishList: async (req, res) => {
+    try {
+      const { productId, variantId } = req.body;
+      const { wishListId } = req.user;
+
+      console.log(productId, variantId);
+
+      const items = await accountServices.addProductToWishList(
+        wishListId,
+        productId,
+        variantId
+      );
+      return res.status(200).json(items);
+    } catch (error) {
+      return res.status(error.status).json({ error: error.message });
     }
   },
 };

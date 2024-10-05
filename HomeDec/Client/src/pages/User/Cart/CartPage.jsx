@@ -8,6 +8,7 @@ import { fetchMyCart } from '../../../api/administrator/cartManagement';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Link } from 'react-router-dom';
+import { USER_ROUTES } from '../../../config/routerConstants';
 
 const CartPage = () => {
 
@@ -59,7 +60,7 @@ const CartPage = () => {
             {/* Breadcrumbs */}
             <div>
                 <nav className="text-sm text-gray-500 mb-4">
-                    <Link to={"/"} >Home</Link> / <Link to={"/shop"} >Shop</Link> / <span className="text-gray-800">Cart</span>
+                    <Link to={`${USER_ROUTES.HOME}`} >Home</Link> / <Link to={`/${USER_ROUTES.SHOP}`} >Shop</Link> / <span className="text-gray-800">Cart</span>
                 </nav>
                 <h1 className="text-2xl font-semibold mb-4">Shopping Cart</h1>
                 <div className='w-full flex justify-between gap-3'>
@@ -79,7 +80,7 @@ const CartPage = () => {
                     <OrderSummary cartItems={cartProducts} subtotal={subtotal} discount={discount} tax={tax} total={total} pushToast={pushToast} />
                 </div>
                 <div className="col-span-8">
-                    <Link to={"/shop"} className="text-blue-600 text-sm">←  Continue shopping</Link >
+                    <Link to={`/${USER_ROUTES.SHOP}`} className="text-blue-600 text-sm">←  Continue shopping</Link >
                 </div>
             </div>
 

@@ -8,6 +8,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserRole, loginFailure, loginSuccess } from '../../../redux/slices/authSlice';
 import { adminLogin, sellerLogin } from '../../../api/auth';
+import { MANAGEMENT_ROUTES } from '../../../config/routerConstants';
 
 const AdministratorLoginPage = () => {
 
@@ -41,7 +42,7 @@ const AdministratorLoginPage = () => {
                 token: response.token,
                 role: "admin",
             }));
-            navigate('/admin');
+            navigate(`/${MANAGEMENT_ROUTES.MANAGEMENT}`);
 
         } catch (error) {
             dispatch(loginFailure(error.message));
@@ -57,7 +58,7 @@ const AdministratorLoginPage = () => {
                 token: response.token,
                 role: "seller",
             }));
-            navigate('/seller');
+            navigate(`/${MANAGEMENT_ROUTES.MANAGEMENT}`);
 
         } catch (error) {
             dispatch(loginFailure(error.message));

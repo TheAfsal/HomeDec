@@ -10,6 +10,8 @@ module.exports = {
         select: "title variants",
       });
 
+      console.log(cart);
+
       const cartWithVariants = cart.products.map((item) => {
         const product = item.productId;
         const variant = product.variants.find(
@@ -94,17 +96,15 @@ module.exports = {
           stock: variant.stock,
         },
       };
-      
+
       if (existingProduct) {
         details.quantity = existingProduct.quantity;
       } else {
         details.quantity = quantity;
       }
       return details;
-
     } catch (error) {
       throw error;
-
     }
   },
 
@@ -133,7 +133,7 @@ module.exports = {
       cart.products.splice(productIndex, 1);
 
       await cart.save();
-      return {productId, variantId};
+      return { productId, variantId };
     } catch (error) {
       console.log(error);
 

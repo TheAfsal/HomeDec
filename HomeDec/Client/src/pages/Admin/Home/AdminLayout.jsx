@@ -4,6 +4,7 @@ import SideNavbar from '../../../Components/NavigationComponents/SideNavBar';
 import Navbar from '../../../Components/NavigationComponents/Navbar';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserRole } from '../../../redux/slices/authSlice';
+import { AUTH_ROUTES } from '../../../config/routerConstants';
 
 const AdminHomePage = () => {
 
@@ -18,14 +19,12 @@ const AdminHomePage = () => {
         const token = localStorage.getItem("token");
         if (token) {
             dispatch(fetchUserRole()).then((data) => {
-                // console.log(data.payload.role);
-                navigate(`/${data.payload.role}/`)
+                navigate(`${urlRole.pathname}`)
             });
         }
         else {
-            // console.log(loading);
-            if (urlRole.pathname.includes("admin")) navigate(`/auth/admin`)
-            else navigate(`/auth/seller`)
+            if (urlRole.pathname.includes("admin")) navigate(`/${AUTH_ROUTES.MANAGEMENT_AUTH}/${AUTH_ROUTES.ADMIN_LOGIN}`)
+            else navigate(`/${AUTH_ROUTES.MANAGEMENT_AUTH}/${AUTH_ROUTES.SELLER_LOGIN}`)
         }
     }, [dispatch, isAuthenticated]);
 

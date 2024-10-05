@@ -67,6 +67,12 @@ const userSchema = new mongoose.Schema(
       required: true,
       default: true,
     },
+    walletBalance: {
+      type: Number,
+      required: true,
+      default: 0,
+      min: 0,
+    },
   },
   { timestamps: true }
 );

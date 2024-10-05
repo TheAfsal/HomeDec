@@ -6,6 +6,7 @@ import IsSeller from '../../../../Components/Admin/IsSeller';
 import { Link, NavLink } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { changeProductStatus, ListAllProducts, ListProducts } from '../../../../api/administrator/productManagement';
+import { MANAGEMENT_ROUTES } from '../../../../config/routerConstants';
 
 const ProductsPage = () => {
 
@@ -64,7 +65,7 @@ const ProductsPage = () => {
       <div className="flex justify-between mb-6">
         <h2 className="text-2xl font-semibold">Product Stock</h2>
         <IsSeller>
-          <NavLink to={"/seller/products/add-new-product"}>
+          <NavLink to={`/${MANAGEMENT_ROUTES.MANAGEMENT}/${MANAGEMENT_ROUTES.PRODUCTS}/${MANAGEMENT_ROUTES.PRODUCTS_ADD_NEW_PRODUCT}`}>
             <button
               type="submit"
               className=" bg-green_700 text-white font-semibold py-2 px-4 mb-2 rounded-2xl hover:bg-green_800 focus:outline-none focus:ring-2 focus:ring-green_500 focus:ring-opacity-50"
@@ -144,7 +145,7 @@ const ProductsPage = () => {
                         </div>
                       }
                       {(role !== 'admin') &&
-                        <Link to={`/seller/products/edit/${product._id}`} >
+                        <Link to={`/${MANAGEMENT_ROUTES.PRODUCTS_LIST}/${MANAGEMENT_ROUTES.PRODUCTS_EDIT}/${product._id}`} >
                           <span
                             className="bg-green_200 text-green_900 rounded-md py-1.5 flex items-center text-xs text-center px-2"
                           >

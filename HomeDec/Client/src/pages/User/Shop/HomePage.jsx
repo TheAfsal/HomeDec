@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { FiSearch, FiFilter } from 'react-icons/fi';
 import { fetchSearchingProducts, ListAllProducts } from '../../../api/administrator/productManagement';
 import { CgSortAz } from 'react-icons/cg';
+import { USER_ROUTES } from '../../../config/routerConstants';
 
 const ShopPage = () => {
 
@@ -128,7 +129,7 @@ const ShopPage = () => {
                         searchedText || selectedOption !== 'sortBy' ?
                             searchedProducts.length ?
                                 searchedProducts.map((product, index) => (
-                                    <Link to={`/shop/${product._id}`} key={index}>
+                                    <Link to={`/${USER_ROUTES.SHOP}/${product._id}`} key={index}>
 
                                         <div className="bg-gray-50 break-words">
                                             <img src={product.variants[0].images[0].secure_url} alt={product.name} className=" h-720 w-72 object-cover mb-4 " />
@@ -144,7 +145,7 @@ const ShopPage = () => {
                             :
                             products.length ?
                                 products.map((product, index) => (
-                                    <Link to={`/shop/${product._id}`} key={index}>
+                                    <Link to={`/${USER_ROUTES.SHOP}/${product._id}`} key={index}>
 
                                         <div className="bg-gray-50 break-words">
                                             <img src={product.variants[0].images[0].secure_url} alt={product.name} className=" h-720 w-72 object-cover mb-4 " />

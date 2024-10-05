@@ -1,30 +1,31 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Link, NavLink } from 'react-router-dom';
+import { MANAGEMENT_ROUTES } from '../../config/routerConstants';
 
 const SideNavbar = () => {
 
     const { role } = useSelector(state => state.auth);
 
     const navContent = [
-        { content: "Dashboard", route: `/${role}/dashboard` },
-        { content: "Orders List", route: `/${role}/orders` },
-        { content: "Products Stock", route: `/${role}/products/list` },
-        { content: "Sales Report", route: `/${role}/sales-report` }
+        { content: "Dashboard", route: `/${MANAGEMENT_ROUTES.MANAGEMENT}/${MANAGEMENT_ROUTES.DASHBOARD}` },
+        { content: "Orders List", route: `/${MANAGEMENT_ROUTES.MANAGEMENT}/${MANAGEMENT_ROUTES.ORDERS}` },
+        { content: "Products Stock", route: `/${MANAGEMENT_ROUTES.MANAGEMENT}/${MANAGEMENT_ROUTES.PRODUCTS}/${MANAGEMENT_ROUTES.PRODUCTS_LIST}` },
+        { content: "Sales Report", route: `/${MANAGEMENT_ROUTES.MANAGEMENT}/sales-report` }
     ];
 
     const adminManagementContent = [
-        { content: "Users", route: `/${role}/users/list` },
-        { content: "Sellers", route: `/${role}/sellers/list` },
-        { content: "Category", route: `/${role}/category/list` },
-        { content: "Coupon", route: `/${role}/coupon/list` },
-        { content: "Offers", route: `/${role}/offers/list` }
+        { content: "Users", route: `/${MANAGEMENT_ROUTES.MANAGEMENT}/${MANAGEMENT_ROUTES.USERS}/${MANAGEMENT_ROUTES.USERS_LIST}` },
+        { content: "Sellers", route: `/${MANAGEMENT_ROUTES.MANAGEMENT}/${MANAGEMENT_ROUTES.SELLERS}/${MANAGEMENT_ROUTES.SELLERS_LIST}` },
+        { content: "Category", route: `/${MANAGEMENT_ROUTES.MANAGEMENT}/${MANAGEMENT_ROUTES.CATEGORY}/${MANAGEMENT_ROUTES.CATEGORY_LIST}` },
+        { content: "Coupon", route: `/${MANAGEMENT_ROUTES.MANAGEMENT}/coupon/list` },
+        { content: "Offers", route: `/${MANAGEMENT_ROUTES.MANAGEMENT}/offers/list` }
     ];
 
     const sellerManagementContent = [
-        { content: "Category", route: `/${role}/category/list` },
-        { content: "Coupon", route: `/${role}/coupon/list` },
-        { content: "Offers", route: `/${role}/offers/list` }
+        { content: "Category", route: `/${MANAGEMENT_ROUTES.MANAGEMENT}/${MANAGEMENT_ROUTES.CATEGORY}/${MANAGEMENT_ROUTES.CATEGORY_LIST}` },
+        { content: "Coupon", route: `/${MANAGEMENT_ROUTES.MANAGEMENT}/coupon/list` },
+        { content: "Offers", route: `/${MANAGEMENT_ROUTES.MANAGEMENT}/offers/list` }
     ];
 
     const navManagementContent = role === "admin" ? adminManagementContent : sellerManagementContent;

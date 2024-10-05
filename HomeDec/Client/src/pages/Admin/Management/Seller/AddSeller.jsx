@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { createSeller } from '../../../../api/auth';
 import { useNavigate } from 'react-router-dom';
+import { MANAGEMENT_ROUTES } from '../../../../config/routerConstants';
 
 const AddSellerForm = () => {
     const {
@@ -35,7 +36,7 @@ const AddSellerForm = () => {
             console.log('Form Data: ', data);
             const response = await createSeller(data)
             console.log(response);
-            navigate("/admin/sellers/list")
+            navigate(`/${MANAGEMENT_ROUTES.SELLERS}/${MANAGEMENT_ROUTES.SELLERS_LIST}`)
 
         } catch (err) {
             console.log(err.error);

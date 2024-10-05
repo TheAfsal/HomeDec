@@ -6,6 +6,7 @@ import { GiCancel } from 'react-icons/gi';
 import { useSelector } from 'react-redux';
 import api from '../../../../api/apiConfigAdmin';
 import { listCategory } from '../../../../api/administrator/categoryManagement';
+import { MANAGEMENT_ROUTES } from '../../../../config/routerConstants';
 
 const AddNewProduct = () => {
     const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm();
@@ -16,8 +17,6 @@ const AddNewProduct = () => {
     const { role } = useSelector(state => state.auth);
     const [selectedCategory, setSelectedCategory] = useState('');
     const [subCategories, setSubCategories] = useState([]);
-
-
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -91,7 +90,7 @@ const AddNewProduct = () => {
 
             // Handle success response
             console.log('Product added successfully:', response.data);
-            navigate("/seller/products/list")
+            navigate(`/${MANAGEMENT_ROUTES.PRODUCTS}/${MANAGEMENT_ROUTES.PRODUCTS_LIST}`)
         } catch (error) {
             setError("Failed to add product.");
             console.error('Error:', error);

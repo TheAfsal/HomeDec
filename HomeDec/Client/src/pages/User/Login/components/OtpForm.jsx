@@ -3,6 +3,7 @@ import { registerUser, verifyEmail } from '../../../../api/auth';
 import { useDispatch } from 'react-redux';
 import { loginFailure, loginSuccess } from '../../../../redux/slices/authSlice';
 import { useNavigate } from 'react-router-dom';
+import { USER_ROUTES } from '../../../../config/routerConstants';
 
 const OtpModal = ({ credentials, onClose }) => {
     const [otp, setOtp] = useState('');
@@ -51,7 +52,7 @@ const OtpModal = ({ credentials, onClose }) => {
                 role: "user"
             }));
             setOtp('');
-            navigate('/');
+            navigate(`${USER_ROUTES.HOME}`);
 
         } catch (error) {
             console.error("Error during registration:", error);

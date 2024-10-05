@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import userAPI from "../../api/apiConfigUser";
+import api from "../../api/apiConfigAdmin";
 
 const initialState = {
   isAuthenticated: false,
@@ -19,7 +20,7 @@ export const fetchUserRole = createAsyncThunk(
     }
 
     try {
-      const response = await userAPI.get("/admin/role", {
+      const response = await api.get("/admin/role", {
         headers: { Authorization: `Bearer ${token}` },
       });
       console.log(response.data);

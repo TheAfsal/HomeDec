@@ -35,6 +35,12 @@ router.post(
   userController.updateExistingOrder
 );
 
+router.post(
+  "/cart/checkout/add-transaction-id",
+  verifyToken,
+  userController.addTransactionId
+);
+
 router.patch(
   "/cart/remove-product",
   verifyToken,
@@ -66,7 +72,11 @@ router.get("/account/address/list", verifyToken, userController.fetchAddresses);
 
 router.put("/account/address/add-new", verifyToken, userController.addAdress);
 
-router.delete("/account/address/delete/:id", verifyToken, userController.removeAdress);
+router.delete(
+  "/account/address/delete/:id",
+  verifyToken,
+  userController.removeAdress
+);
 
 router.get("/account/orders/list", verifyToken, userController.fetchUserOrders);
 
@@ -79,5 +89,13 @@ router.get(
 router.patch("/orders/update-status", verifyToken, updateOrderStatus);
 
 router.get("/products/search", userController.searchProduct);
+
+router.get("/account/wishlist", verifyToken, userController.fetchWishList);
+
+router.put(
+  "/account/wishlist/add-product",
+  verifyToken,
+  userController.AddToWishList
+);
 
 module.exports = router;

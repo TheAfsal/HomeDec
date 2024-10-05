@@ -6,6 +6,7 @@ const Admin = require("../models/adminModel");
 const Seller = require("../models/sellerModel");
 const { handleError } = require("../Utils/handleError");
 const Address = require("../models/addressModel");
+const Wishlist = require("../models/wishListModel");
 
 module.exports = {
   createUser: async ({ firstName, lastName, email, password }) => {
@@ -19,34 +20,29 @@ module.exports = {
       password: hashedPassword,
     });
 
-    console.log(user);
-    
-    
     // Create cart for the new user
     const cart = new Cart({ userId: user._id, products: [] });
     const address = new Address({ userId: user._id, addresses: [] });
+    const wishList = new Wishlist({ userId: user._id, wishList: [] });
     await cart.save();
     await address.save();
-    
-    console.log("------");
-    
+    await wishList.save();
+
     user.cartId = cart._id;
     user.addressId = address._id;
     await user.save();
-    
-    console.log("-))))");
-    console.log("------");
+
     const payload = {
       user: {
         _id: user._id,
         email: user.email,
         cartId: cart._id,
         addressId: address._id,
+        wishListId: wishList._id,
       },
     };
-    
+
     const token = generateToken(payload.user, false, true);
-    console.log("#####");
     return { token, role: "user" };
   },
 
@@ -73,6 +69,7 @@ module.exports = {
         email: user.email,
         cartId: user.cartId,
         addressId: user.addressId,
+        wishListId: user.wishList,
       },
       false,
       true

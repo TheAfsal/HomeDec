@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { createOrder } from '../../../../api/user/account'
+import { USER_ROUTES } from '../../../../config/routerConstants';
 
 const OrderSummary = ({ cartItems, subtotal, discount, tax, total, pushToast }) => {
 
@@ -11,6 +12,7 @@ const OrderSummary = ({ cartItems, subtotal, discount, tax, total, pushToast }) 
             const orderId = await createOrder(cartItems)
             console.log(orderId);
             navigate(`/shop/cart/checkout/${orderId}`)
+            navigate(`/${USER_ROUTES.CHECKOUT}/${orderId}`)
         } catch (error) {
             console.log(error);
 

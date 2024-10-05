@@ -1,5 +1,7 @@
 const Address = require("../models/addressModel");
+const Product = require("../models/productModel");
 const User = require("../models/userModel");
+const Wishlist = require("../models/wishListModel");
 const { handleError } = require("../Utils/handleError");
 
 module.exports = {
@@ -60,6 +62,100 @@ module.exports = {
 
       if (error.status) throw error;
       else throw handleError(error);
+    }
+  },
+
+  fetchWishList: async (wishlistId) => {
+    try {
+      const wishlist = await Wishlist.findById(wishlistId).populate({
+        path: "items.productId",
+        select: "title variants",
+      });
+
+      const wishlistWithVariants = wishlist.items.map((item) => {
+        const product = item.productId;
+        const variant = product.variants.find(
+          (v) => v._id.toString() === item.variantId.toString()
+        );
+
+        console.log(variant);
+
+        return {
+          productId: product._id,
+          variantId: item.variantId,
+          title: product.title,
+          price: variant.price,
+          color: variant.color,
+          image: variant.images[0]?.secure_url,
+        };
+      });
+
+      return wishlistWithVariants;
+
+      console.log("========");
+
+      if (!wishlist) {
+        throw { status: 400, message: "WishList not exist" };
+      }
+      return wishlist;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  },
+
+  addProductToWishList: async (wishlistId, productId, variantId) => {
+    console.log(wishlistId, productId, variantId);
+
+    try {
+      let wishlist = await Wishlist.findOne({ _id: wishlistId });
+
+      const product = await Product.findById(productId);
+
+      if (!product) {
+        throw { status: 400, message: "Product not found" };
+      }
+
+      const variant = product.variants.find(
+        (v) => v._id.toString() === variantId
+      );
+
+      if (!variant) {
+        throw { status: 400, message: "Variant not found" };
+      }
+
+      const existingProduct = wishlist.items.find(
+        (item) =>
+          item.productId.toString() === productId &&
+          item.variantId.toString() === variantId
+      );
+
+      if (existingProduct)
+        throw { status: 400, message: "Product with same variant exist" };
+
+      wishlist.items.push({ productId, variantId });
+
+      await wishlist.save();
+
+      let details = {
+        productDetails: {
+          _id: productId,
+          title: product.title,
+        },
+        variantId,
+        variantDetails: {
+          color: variant.color,
+          image: variant.images[0].secure_url,
+          price: variant.price,
+          stock: variant.stock,
+        },
+      };
+
+      return details;
+    } catch (error) {
+      console.log(error);
+
+      throw error;
     }
   },
 };

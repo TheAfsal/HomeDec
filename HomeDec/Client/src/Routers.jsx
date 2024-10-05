@@ -10,7 +10,7 @@ import DashboardPage from "./pages/Admin/Home/DashBoard";
 import UsersListPage from "./pages/Admin/Management/User/UsersListPage";
 import ErrorPage from "./pages/ErrorPage";
 import AdministratorLoginPage from "./pages/Admin/AdministratorsLogin/AdministratorLoginPage";
-import DetailPage from "./pages/Admin/Management/Product/DetailPage";
+import DetailPage from "./pages/User/Shop/DetailPage";
 import AddNewProduct from "./pages/Admin/Management/Product/AddNewProduct";
 import ProductsPage from "./pages/Admin/Management/Product/productPage";
 import ListingCategory from "./pages/Admin/Management/Category/ListingCategoryPage";
@@ -30,6 +30,8 @@ import Orders from "./pages/User/Account/Orders";
 import OrderDetailPage from "./pages/User/Account/OrderDetailPage";
 import TestToast from "./pages/Test/AddNewProductTestPage";
 import GoogleAuth from "./pages/User/Login/components/GoogleAuth";
+import { AUTH_ROUTES, MANAGEMENT_ROUTES, USER_ROUTES } from "./config/routerConstants";
+import WishListPage from "./pages/User/WishList/WishListPage";
 
 const routers = createBrowserRouter([
 
@@ -44,55 +46,55 @@ const routers = createBrowserRouter([
     element: <UserLayout />,
     children: [
       {
-        path: "/",
+        path: USER_ROUTES.HOME,
         element: <HomePage />,
       },
       {
-        path: "shop",
+        path: USER_ROUTES.SHOP,
         element: <ShopPage />,
       },
       {
-        path: "shop/cart",
+        path: USER_ROUTES.CART,
         element: <CartPage />,
       },
       {
-        path: "shop/cart/checkout/success",
+        path: USER_ROUTES.PAYMENT_SUCCESS,
         element: <OrderSuccessPage />,
       },
       {
-        path: "shop/cart/checkout/:orderId",
+        path: `${USER_ROUTES.CHECKOUT}/:orderId`,
         element: <CheckoutPage />,
       },
       {
-        path: "shop/:productId",
+        path: `${USER_ROUTES.SHOP}/:productId`,
         element: <DetailPage />,
       },
       {
-        path: "account",
+        path: USER_ROUTES.ACCOUNT,
         element: <AccountLayout />,
         children: [
           {
-            path: "orders",
+            path: USER_ROUTES.ORDERS,
             element: <Orders />,
           },
           {
-            path: "orders/in-detail/:orderId",
+            path: `${USER_ROUTES.ORDER_DETAILS}/:orderId`,
             element: <OrderDetailPage />,
           },
           {
-            path: "wishlist",
+            path: USER_ROUTES.WISHLIST,
+            element: <WishListPage />,
+          },
+          {
+            path: USER_ROUTES.MY_REVIEWS,
             element: <DetailPage />,
           },
           {
-            path: "my-reviews",
-            element: <DetailPage />,
-          },
-          {
-            path: "personal-info",
+            path: USER_ROUTES.PROFILE,
             element: <ProfilePage />,
           },
           {
-            path: "my-addresses",
+            path: USER_ROUTES.MY_ADDRESS,
             element: <Address />,
           },
         ]
@@ -103,65 +105,61 @@ const routers = createBrowserRouter([
 
   //Admin Routes
   {
-    path: "admin",
+    path: MANAGEMENT_ROUTES.MANAGEMENT,
     element: <AdminLayoutPage />,
     children: [
       {
-        path: "",
+        path: MANAGEMENT_ROUTES.DASHBOARD,
         element: <DashboardPage />
       },
       {
-        path: "product-details",
-        element: <DetailPage />
-      },
-      {
-        path: "orders",
+        path: MANAGEMENT_ROUTES.ORDERS,
         element: <OrderListPage />
       },
       {
-        path: "products",
+        path: MANAGEMENT_ROUTES.PRODUCTS,
         children: [
           {
-            path: "list",
+            path: MANAGEMENT_ROUTES.PRODUCTS_LIST,
             element: <ProductsPage />
           },
           {
-            path: "add-new-product",
+            path: MANAGEMENT_ROUTES.PRODUCTS_ADD_NEW_PRODUCT,
             element: <AddNewProduct />
           },
           {
-            path: "edit/:id",
+            path: `${MANAGEMENT_ROUTES.PRODUCTS_EDIT}/:id`,
             element: <EditProduct />
           }
         ]
       },
       {
-        path: "users",
+        path: MANAGEMENT_ROUTES.USERS,
         children: [
           {
-            path: "list",
+            path: MANAGEMENT_ROUTES.USERS_LIST,
             element: <UsersListPage />
           }
         ]
       },
       {
-        path: "sellers",
+        path: MANAGEMENT_ROUTES.SELLERS,
         children: [
           {
-            path: "list",
+            path: MANAGEMENT_ROUTES.SELLERS_LIST,
             element: <SellerListPage />
           },
           {
-            path: "add",
+            path: MANAGEMENT_ROUTES.SELLERS_ADD,
             element: <AddSellerForm />
           }
         ]
       },
       {
-        path: "category",
+        path: MANAGEMENT_ROUTES.CATEGORY,
         children: [
           {
-            path: "list",
+            path: MANAGEMENT_ROUTES.CATEGORY_LIST,
             element: <ListingCategory />
           }
         ]
@@ -170,86 +168,86 @@ const routers = createBrowserRouter([
   },
 
   // Seller Router 
-  {
-    path: "seller",
-    element: <AdminLayoutPage />,
-    children: [
-      {
-        path: "",
-        element: <DashboardPage />
-      },
-      {
-        path: "orders",
-        element: <OrderListPage />
-      },
-      {
-        path: "product-details",
-        element: <DetailPage />
-      },
-      {
-        path: "products",
-        children: [
-          {
-            path: "list",
-            element: <ProductsPage />
-          },
-          {
-            path: "add-new-product",
-            element: <AddNewProduct />
-          },
-          {
-            path: "edit/:id",
-            element: <EditProduct />
-          }
-        ]
-      },
-      {
-        path: "users",
-        children: [
-          {
-            path: "list",
-            element: <UsersListPage />
-          }
-        ]
-      },
-      {
-        path: "sellers",
-        children: [
-          {
-            path: "list",
-            element: <SellerListPage />
-          },
-          {
-            path: "add",
-            element: <AddSellerForm />
-          }
-        ]
-      },
-      {
-        path: "category",
-        children: [
-          {
-            path: "list",
-            element: <ListingCategory />
-          }
-        ]
-      }
-    ]
-  },
+  // {
+  //   path: "seller",
+  //   element: <AdminLayoutPage />,
+  //   children: [
+  //     {
+  //       path: "",
+  //       element: <DashboardPage />
+  //     },
+  //     {
+  //       path: "orders",
+  //       element: <OrderListPage />
+  //     },
+  //     {
+  //       path: "product-details",
+  //       element: <DetailPage />
+  //     },
+  //     {
+  //       path: "products",
+  //       children: [
+  //         {
+  //           path: "list",
+  //           element: <ProductsPage />
+  //         },
+  //         {
+  //           path: "add-new-product",
+  //           element: <AddNewProduct />
+  //         },
+  //         {
+  //           path: "edit/:id",
+  //           element: <EditProduct />
+  //         }
+  //       ]
+  //     },
+  //     {
+  //       path: "users",
+  //       children: [
+  //         {
+  //           path: "list",
+  //           element: <UsersListPage />
+  //         }
+  //       ]
+  //     },
+  //     {
+  //       path: "sellers",
+  //       children: [
+  //         {
+  //           path: "list",
+  //           element: <SellerListPage />
+  //         },
+  //         {
+  //           path: "add",
+  //           element: <AddSellerForm />
+  //         }
+  //       ]
+  //     },
+  //     {
+  //       path: "category",
+  //       children: [
+  //         {
+  //           path: "list",
+  //           element: <ListingCategory />
+  //         }
+  //       ]
+  //     }
+  //   ]
+  // },
 
   // User Auth Routes
   {
-    path: "",
+    path: AUTH_ROUTES.AUTH,
     element: (
       <AuthPage />
     ),
     children: [
       {
-        path: "login",
+        path: AUTH_ROUTES.LOGIN_USER,
         element: <LoginForm />,
       },
       {
-        path: "register",
+        path: AUTH_ROUTES.REGISTER_USER,
         element: <RegisterForm />,
       }
     ]
@@ -257,16 +255,16 @@ const routers = createBrowserRouter([
 
   // Admin Auth Routes
   {
-    path: "auth",
+    path: AUTH_ROUTES.MANAGEMENT_AUTH,
     children: [
       {
-        path: "seller",
+        path: AUTH_ROUTES.SELLER_LOGIN,
         element: (
           <AdministratorLoginPage />
         )
       },
       {
-        path: "admin",
+        path: AUTH_ROUTES.ADMIN_LOGIN,
         element: (
           <AdministratorLoginPage />
         )
@@ -290,7 +288,7 @@ const routers = createBrowserRouter([
   // },
   {
     path: "/abcd",
-    element: <TestToast />,
+    element: <WishListPage />,
   },
 
 

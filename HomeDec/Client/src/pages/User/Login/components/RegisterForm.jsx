@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { loginFailure, loginSuccess } from '../../../../redux/slices/authSlice';
 import OtpModal from './OtpForm';
 import CircularLoader from '../../../../Components/Loading/CircularLoader';
+import { AUTH_ROUTES } from '../../../../config/routerConstants';
 
 const RegisterForm = () => {
 
@@ -129,7 +130,7 @@ const RegisterForm = () => {
                 </div>
                 <GoogleLoginButton />
                 <p className="mt-4 text-md">Already have an account?
-                    <Link to={"/login"} className=" text-splashBlue hover:text-black hover:cursor-pointer"> Sign in</Link>
+                    <Link to={`${AUTH_ROUTES.LOGIN_USER}`} className=" text-splashBlue hover:text-black hover:cursor-pointer"> Sign in</Link>
                 </p>
             </div>
         </>

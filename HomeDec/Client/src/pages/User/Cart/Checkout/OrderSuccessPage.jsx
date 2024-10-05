@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { USER_ROUTES } from '../../../../config/routerConstants';
 
 const OrderSuccessPage = () => {
   return (
@@ -28,7 +29,7 @@ const OrderSuccessPage = () => {
         <p className="text-lg text-gray-700 mb-8">
           Your order <span className="font-bold"></span> has been accepted and will be processed shortly. Expect our courier today (Sunday, May 9) between 12:00 and 14:00.
         </p>
-        <Link to={"/shop"} className="px-6 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-700">
+        <Link to={`/${USER_ROUTES.SHOP}`} className="px-6 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-700">
           Continue shopping
         </Link>
       </div>

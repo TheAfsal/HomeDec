@@ -11,7 +11,6 @@ const addressSchema = new mongoose.Schema(
       {
         label: {
           type: String,
-          unique: true,
           trim: true,
         },
         mob: {
