@@ -16,7 +16,7 @@
       "dest": "dist/$1"
     },
     {
-      "src": "/api/(.*)",
+      "src": "/(.*)",
       "dest": "index.js"
     }
   ]
