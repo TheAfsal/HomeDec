@@ -35,6 +35,8 @@ export default {
         form_inputFeild_background_grey: "#F5F6FA",
         form_inputFeild_stroke_grey: "#D5D5D5",
         order_card_background: "#f5f7fa",
+        count_orange_background: "#f6973f",
+
       },
     },
   },

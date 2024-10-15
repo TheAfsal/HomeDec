@@ -21,9 +21,11 @@ export const ListProducts = async () => {
   }
 };
 
-export const ListAllProducts = async () => {
+export const ListAllProducts = async (role) => {
   try {
-    const response = await api.get("products/list");
+    const response = await api.get(
+      role === "admin" ? "admin/products/list" : "products/list"
+    );
     return response.data;
   } catch (error) {
     console.log(error);
@@ -56,9 +58,16 @@ export const changeProductStatus = async ({ pId, index }) => {
   }
 };
 
-export const fetchSearchingProducts = async (query,sort) => {
+export const fetchSearchingProducts = async (query, sort, filter) => {
   try {
-    const response = await userAPI.get(`/products/search?q=${query}&sort=${sort}`);
+    console.log(query, sort, filter);
+    filter?.value.length !== 0 && filter?.value.join(",");
+
+    console.log(filter);
+
+    const response = await userAPI.get(
+      `/products/search?q=${query}&sort=${sort}&option=category&value=${filter?.value}`
+    );
     console.log(response.data);
     return response.data;
   } catch (error) {

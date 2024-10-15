@@ -14,9 +14,8 @@ const UserLayout = () => {
   useEffect(() => {
     const key = localStorage.getItem("key");
     if (key) {
-      dispatch(verifyUserRole()).catch((err) => {
-        localStorage.removeItem("key")
-      })
+      dispatch(verifyUserRole())
+      
     }
     setLoading(false)
   }, [dispatch]);

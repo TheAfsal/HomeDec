@@ -32,6 +32,9 @@ import TestToast from "./pages/Test/AddNewProductTestPage";
 import GoogleAuth from "./pages/User/Login/components/GoogleAuth";
 import { AUTH_ROUTES, MANAGEMENT_ROUTES, USER_ROUTES } from "./config/routerConstants";
 import WishListPage from "./pages/User/WishList/WishListPage";
+import CouponListPage from "./pages/Admin/Management/Coupon/CouponListPage";
+import OfferPageList from "./pages/Admin/Management/Offers/OfferPageList";
+import SalesReportPage from "./pages/Admin/Management/Sales/SalesReportPage";
 
 const routers = createBrowserRouter([
 
@@ -123,13 +126,17 @@ const routers = createBrowserRouter([
             path: MANAGEMENT_ROUTES.PRODUCTS_LIST,
             element: <ProductsPage />
           },
-          {
-            path: MANAGEMENT_ROUTES.PRODUCTS_ADD_NEW_PRODUCT,
-            element: <AddNewProduct />
-          },
+          // {
+          //   path: MANAGEMENT_ROUTES.PRODUCTS_ADD_NEW_PRODUCT,
+          //   element: <AddNewProduct />
+          // },
+          // {
+          //   path: `${MANAGEMENT_ROUTES.PRODUCTS_EDIT}/:id`,
+          //   element: <EditProduct />
+          // },
           {
             path: `${MANAGEMENT_ROUTES.PRODUCTS_EDIT}/:id`,
-            element: <EditProduct />
+            element: <AddNewProduct />
           }
         ]
       },
@@ -163,6 +170,28 @@ const routers = createBrowserRouter([
             element: <ListingCategory />
           }
         ]
+      },
+      {
+        path: MANAGEMENT_ROUTES.COUPON,
+        children: [
+          {
+            path: MANAGEMENT_ROUTES.COUPON_LIST,
+            element: <CouponListPage />
+          }
+        ]
+      },
+      {
+        path: MANAGEMENT_ROUTES.OFFER,
+        children: [
+          {
+            path: MANAGEMENT_ROUTES.OFFER_LIST,
+            element: <OfferPageList />
+          }
+        ]
+      },
+      {
+        path: MANAGEMENT_ROUTES.SALES_REPORT,
+        element: <SalesReportPage />
       }
     ]
   },

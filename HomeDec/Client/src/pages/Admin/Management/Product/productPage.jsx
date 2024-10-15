@@ -20,7 +20,7 @@ const ProductsPage = () => {
         if (role === "seller") {
           list = await ListProducts()
         } else {
-          list = await ListAllProducts()
+          list = await ListAllProducts(role)
         }
         console.log(list);
         setProducts(list);
@@ -65,7 +65,7 @@ const ProductsPage = () => {
       <div className="flex justify-between mb-6">
         <h2 className="text-2xl font-semibold">Product Stock</h2>
         <IsSeller>
-          <NavLink to={`/${MANAGEMENT_ROUTES.MANAGEMENT}/${MANAGEMENT_ROUTES.PRODUCTS}/${MANAGEMENT_ROUTES.PRODUCTS_ADD_NEW_PRODUCT}`}>
+          <NavLink to={`/${MANAGEMENT_ROUTES.MANAGEMENT}/${MANAGEMENT_ROUTES.PRODUCTS}/${MANAGEMENT_ROUTES.PRODUCTS_EDIT}/${MANAGEMENT_ROUTES.PRODUCTS_ADD_NEW_PRODUCT}`}>
             <button
               type="submit"
               className=" bg-green_700 text-white font-semibold py-2 px-4 mb-2 rounded-2xl hover:bg-green_800 focus:outline-none focus:ring-2 focus:ring-green_500 focus:ring-opacity-50"
@@ -78,7 +78,7 @@ const ProductsPage = () => {
       </div>
 
       <table className="table-auto w-full text-left">
-        <TableHeader headerContent={["Image", "ProductName", "SubCategory", "AvailableColor", "Stocks", "Price", "Action"]} />
+        <TableHeader headerContent={["Image", "ProductName", "SubCategory", "AvailableColor", "Stocks", "Price", role === "seller" && "Action"]} />
         <tbody>
           {products.map((product, index) => (
             <tr key={index} className="border-b ">
@@ -90,7 +90,7 @@ const ProductsPage = () => {
                 />
               </td>
               <td className="px-4 py-2">{product.title}</td>
-              <td className="px-4 py-2">{product.subCategory}</td>
+              <td className="px-4 py-2">{`${product?.category} / ${product?.subCategory}`}</td>
               <td className="px-4 py-2">
                 {
                   product.variants.map((variant, index) => (
@@ -105,28 +105,30 @@ const ProductsPage = () => {
 
               <td className="px-4 py-2">
                 {
-                  product.variants.map((variant, index) => (
-                    <div key={index} className='mt-2'>{variant.price}</div>
+                  product?.variants?.map((variant, index) => (
+                    <div key={index} className='mt-2'>{variant?.stock}</div>
                   ))
                 }
               </td>
+
               <td className="px-4 py-2">
                 {
-                  product.variants.map((variant, index) => (
-                    <div key={index} className='mt-2'>{variant.stock}</div>
+                  product?.variants?.map((variant, index) => (
+                    <div key={index} className='mt-2'>{variant?.price}</div>
                   ))
                 }
               </td>
+
               <td className="px-4 py-2">
                 {
-                  product.variants.map((variant, index) => (
+                  product?.variants?.map((variant, index) => (
 
                     <div key={index} className='flex gap-2 items-center mt-2  cursor-pointer' >
                       {(role !== 'admin') &&
                         <div
                           onClick={() => {
                             if (role !== 'admin') {
-                              EditProductStatus(product._id, index);
+                              EditProductStatus(product?._id, index);
                             }
                           }}
 
@@ -136,7 +138,7 @@ const ProductsPage = () => {
                             } rounded-md py-1 text-xs text-center pl-2 min-w-[70px]`}
                         >
                           {
-                            variant.isActive
+                            variant?.isActive
                               ? <div className='flex items-center gap-2'><TbLock />Lock</div>
                               : <div className='flex items-center gap-1'><TbLockOpen />Unlock</div>
 
@@ -145,7 +147,7 @@ const ProductsPage = () => {
                         </div>
                       }
                       {(role !== 'admin') &&
-                        <Link to={`/${MANAGEMENT_ROUTES.PRODUCTS_LIST}/${MANAGEMENT_ROUTES.PRODUCTS_EDIT}/${product._id}`} >
+                        <Link to={`/${MANAGEMENT_ROUTES.MANAGEMENT}/${MANAGEMENT_ROUTES.PRODUCTS}/${MANAGEMENT_ROUTES.PRODUCTS_EDIT}/${product._id}`} >
                           <span
                             className="bg-green_200 text-green_900 rounded-md py-1.5 flex items-center text-xs text-center px-2"
                           >

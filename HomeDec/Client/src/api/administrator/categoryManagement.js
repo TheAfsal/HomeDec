@@ -1,4 +1,5 @@
 import api from "../apiConfigAdmin";
+import userAPI from "../apiConfigUser";
 
 export const addCategory = async (details) => {
   try {
@@ -16,6 +17,21 @@ export const listCategory = async (role) => {
     console.log(role);
 
     const response = await api.get(`/${role}/category/list`);
+    console.log(response.data);
+
+    return response.data;
+  } catch (error) {
+    console.log(error);
+
+    throw new Error(error?.response?.data?.error);
+  }
+};
+
+export const listCategoryForUser = async (role) => {
+  try {
+    console.log(role);
+
+    const response = await userAPI.get(`/category/list`);
     console.log(response.data);
 
     return response.data;

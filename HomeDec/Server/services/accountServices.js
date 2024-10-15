@@ -1,8 +1,10 @@
+const mongoose = require("mongoose");
 const Address = require("../models/addressModel");
 const Product = require("../models/productModel");
 const User = require("../models/userModel");
 const Wishlist = require("../models/wishListModel");
 const { handleError } = require("../Utils/handleError");
+const { ObjectId } = mongoose.Types;
 
 module.exports = {
   listAddresses: async (addressId) => {
@@ -78,8 +80,6 @@ module.exports = {
           (v) => v._id.toString() === item.variantId.toString()
         );
 
-        console.log(variant);
-
         return {
           productId: product._id,
           variantId: item.variantId,
@@ -90,14 +90,11 @@ module.exports = {
         };
       });
 
-      return wishlistWithVariants;
-
-      console.log("========");
-
       if (!wishlist) {
         throw { status: 400, message: "WishList not exist" };
       }
-      return wishlist;
+
+      return wishlistWithVariants;
     } catch (error) {
       console.log(error);
       throw error;
@@ -108,6 +105,8 @@ module.exports = {
     console.log(wishlistId, productId, variantId);
 
     try {
+
+      
       let wishlist = await Wishlist.findOne({ _id: wishlistId });
 
       const product = await Product.findById(productId);
@@ -123,6 +122,8 @@ module.exports = {
       if (!variant) {
         throw { status: 400, message: "Variant not found" };
       }
+
+      console.log(wishlist);
 
       const existingProduct = wishlist.items.find(
         (item) =>
@@ -155,6 +156,49 @@ module.exports = {
     } catch (error) {
       console.log(error);
 
+      throw error;
+    }
+  },
+
+  removeProductsFromWishList: async (wishlistId, itemsToRemoveArray) => {
+    console.log(wishlistId, itemsToRemoveArray);
+
+    try {
+      // Find the wishlist by ID
+      let wishlist = await Wishlist.findOne({ _id: wishlistId });
+
+      if (!wishlist) {
+        throw { status: 404, message: "Wishlist not found" };
+      }
+
+      // Iterate over the items to remove
+      itemsToRemoveArray.forEach(({ productId, variantId }) => {
+        // Find the index of the item in the wishlist
+        const itemIndex = wishlist.items.findIndex(
+          (item) =>
+            item.productId.equals(productId) && item.variantId.equals(variantId)
+        );
+
+        // If the item exists, remove it
+        if (itemIndex !== -1) {
+          wishlist.items.splice(itemIndex, 1);
+          console.log(
+            `Removed item: ProductId: ${productId}, VariantId: ${variantId}`
+          );
+        } else {
+          console.log(
+            `Item not found: ProductId: ${productId}, VariantId: ${variantId}`
+          );
+        }
+      });
+
+      // Save the updated wishlist
+      await wishlist.save();
+
+      // Return a success message
+      return { message: "Selected items successfully removed from wishlist" };
+    } catch (error) {
+      console.log(error);
       throw error;
     }
   },

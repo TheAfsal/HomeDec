@@ -7,6 +7,7 @@ import ContactInfo from './components/ContactInfo';
 import PasswordSection from './components/passwordSection';
 import axios from 'axios';
 import CircularLoader from '../../../Components/Loading/CircularLoader';
+import userAPI from '../../../api/apiConfigUser';
 
 const ProfilePage = () => {
 
@@ -105,25 +106,36 @@ const ProfilePage = () => {
 
                 const key = localStorage.getItem('key');
                 // Send request to the API
-                const response = await axios.post('/api/account/profile/edit-basic-details', uploadFormData, {
+                const response = await userAPI.post('/account/profile/edit-basic-details', uploadFormData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                         'Authorization': `Bearer ${key}`,
                     },
                 });
+
+                setToast(true, "Detials updated successfully")
                 dispatch(setProfile(response.data));
                 console.log('Detials updated successfully:', response.data);
-                toast.success("Detials updated successfully");
+
             } catch (error) {
+                setToast(false, error.message)
                 console.log('Error:', error);
                 setErrors({ serverError: error });
             }
-
         }
     };
 
+    function setToast(status, message) {
+        if (status) {
+            toast.success(message);
+        } else {
+            toast.error(message);
+        }
+    }
+
     return (
         <div>
+            <ToastContainer />
             <div className="mb-6">
                 <h2 className="text-2xl font-bold">Personal info</h2>
             </div>
@@ -241,9 +253,9 @@ const ProfilePage = () => {
                 </div>
             </div>
 
-            <ContactInfo profile={profile} />
+            <ContactInfo profile={profile} setToast={setToast} />
 
-            <PasswordSection />
+            <PasswordSection setToast={setToast} />
 
 
             {/* <div className="bg-white p-6 rounded-lg shadow">
@@ -255,7 +267,6 @@ const ProfilePage = () => {
                 </p>
                 <button className="text-red-500">Delete account</button>
             </div> */}
-            <ToastContainer />
         </div>
     )
 }

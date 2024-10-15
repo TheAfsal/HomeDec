@@ -3,6 +3,8 @@ import TableHeader from '../../../../Components/Table/TableHeader';
 import NoRecords from '../../../../Components/Table/NoRecords';
 import { TbLock, TbLockOpen } from 'react-icons/tb';
 import { fetchUsers, toggleUserStatus } from '../../../../api/administrator/userManagement';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const UsersListPage = () => {
 
@@ -35,9 +37,35 @@ const UsersListPage = () => {
         }
     }
 
+    const handleButtonClick = (id) => {
+        // Show confirmation toast
+        const confirmToast = toast(
+            <div>
+                Are you sure you want to proceed?
+                <div className='flex justify-center w-full mt-2 gap-3'>
+                    <button onClick={() => handleConfirm(id)} className='bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600'>Yes</button>
+                    <button onClick={() => {
+                        toast.dismiss(); // Dismiss the confirmation toast
+                        toast.info("Action canceled."); // Show cancellation message
+                    }} className='bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 mr-2'>No</button>
+                </div>
+            </div>,
+            {
+                autoClose: false,
+                closeButton: false,
+            }
+        );
+    };
+
+    const handleConfirm = (id) => {
+        toast.dismiss();
+        toast.success("Confirmed!");
+        changeUserStatus(id)
+    };
 
     return (
         <div className="p-8">
+            <ToastContainer />
             <h1 className="text-2xl font-semibold mb-2 font-nunito">User Management</h1>
             <hr className='mb-5' />
             <div className="overflow-x-auto">
@@ -58,7 +86,7 @@ const UsersListPage = () => {
                                                     ? 'bg-status_succes_background_green text-status_succes_text_green'
                                                     : 'bg-status_failed_text_red text-status_failed_background_red'
                                                     } rounded-md py-1 text-xs text-center pl-2 w-[70px] cursor-pointer`}
-                                                onClick={() => changeUserStatus(user?._id)}
+                                                onClick={() => handleButtonClick(user?._id)}
                                             >
                                                 {
                                                     user.isActive

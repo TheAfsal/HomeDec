@@ -8,7 +8,6 @@ const { updateOrderStatus } = require("../controllers/sellerController");
 const storage = multer.memoryStorage(); // Change to memory storage
 const upload = multer({ storage: storage });
 
-
 //Role
 router.get("/verify-me", verifyToken, userController.userVerified);
 
@@ -25,6 +24,9 @@ router.get("/products/list", userController.fetchProducts);
 router.get("/cart/list", verifyToken, userController.fetchMyCart);
 
 router.put("/cart/add-product", verifyToken, userController.addToCart);
+
+//Promo code
+router.post("/cart/validate-promo-code", verifyToken, userController.validatePromoCodeController);
 
 router.post(
   "/cart/checkout/create-new-order",
@@ -100,5 +102,21 @@ router.put(
   verifyToken,
   userController.AddToWishList
 );
+
+router.patch(
+  "/account/wishlist/remove-product",
+  verifyToken,
+  userController.removeFromWishList
+);
+
+router.put(
+  "/account/wishlist/add-to-cart",
+  verifyToken,
+  userController.addMultipleItemsToCart
+);
+
+//Category
+router.get("/category/list", userController.listCategory);
+
 
 module.exports = router;

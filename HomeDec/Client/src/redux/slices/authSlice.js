@@ -27,7 +27,8 @@ export const fetchUserRole = createAsyncThunk(
 
       return response.data;
     } catch (error) {
-      console.log(error);
+      localStorage.removeItem("token");
+
       return rejectWithValue(error.response.data || "Failed to fetch role");
     }
   }
@@ -48,8 +49,8 @@ export const verifyUserRole = createAsyncThunk(
 
       return response.data;
     } catch (error) {
-      console.log(error);
-      
+      localStorage.removeItem("key");
+
       return rejectWithValue(error.response.data || "Failed to fetch role");
     }
   }

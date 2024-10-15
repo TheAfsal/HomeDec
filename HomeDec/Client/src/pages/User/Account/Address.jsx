@@ -5,10 +5,6 @@ import { MdDelete } from 'react-icons/md';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-
-// AddressForm component
-
-
 // Addresses component
 const Addresses = ({ userId }) => {
   const [addresses, setAddresses] = useState([]);

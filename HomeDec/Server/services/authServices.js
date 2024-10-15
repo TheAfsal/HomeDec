@@ -23,13 +23,14 @@ module.exports = {
     // Create cart for the new user
     const cart = new Cart({ userId: user._id, products: [] });
     const address = new Address({ userId: user._id, addresses: [] });
-    const wishList = new Wishlist({ userId: user._id, wishList: [] });
+    const wishlist = new Wishlist({ userId: user._id, wishlist: [] });
     await cart.save();
     await address.save();
-    await wishList.save();
+    await wishlist.save();
 
     user.cartId = cart._id;
     user.addressId = address._id;
+    user.wishlistId = wishlist._id;
     await user.save();
 
     const payload = {
@@ -38,7 +39,7 @@ module.exports = {
         email: user.email,
         cartId: cart._id,
         addressId: address._id,
-        wishListId: wishList._id,
+        wishlistId: wishlist._id,
       },
     };
 
@@ -69,7 +70,7 @@ module.exports = {
         email: user.email,
         cartId: user.cartId,
         addressId: user.addressId,
-        wishListId: user.wishList,
+        wishlistId: user.wishlistId,
       },
       false,
       true

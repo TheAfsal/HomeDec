@@ -57,6 +57,10 @@ const orderSchema = mongoose.Schema(
           required: true,
           min: 0,
         },
+        discount: {
+          type: Number,
+          min: 0,
+        },
         isCancelled: {
           type: Boolean,
           default: false,
@@ -80,7 +84,7 @@ const orderSchema = mongoose.Schema(
         },
       },
     ],
-    paymentMethod: {
+    payment: {
       method: {
         type: String,
         enum: ["pending", "online", "cod", "wallet"],
@@ -102,13 +106,25 @@ const orderSchema = mongoose.Schema(
       type: Number, // store the discount amount
       default: 0,
     },
-    finalTotal: {
+    finalAmount: {
       type: Number, // total after discount
       required: true,
     },
-    appliedCoupon: {
-      type: String, // coupon code
-    },
+    couponsApplied: [
+      {
+        couponId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Coupon",
+        },
+        discountAmount: {
+          type: Number,
+        },
+        discountType: {
+          type: String,
+          enum: ["percentage", "fixed"], // Define the type of discount
+        },
+      },
+    ],
     dateOrdered: {
       type: Date,
       default: Date.now(),

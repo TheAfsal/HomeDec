@@ -17,15 +17,17 @@ const CartPage = () => {
 
     useEffect(() => {
         const fetchCartData = async () => {
-            if (!isDataFetched) {
-                try {
-                    const savedCart = await fetchMyCart()
-                    dispatch(fetchCartsItems(savedCart));
+            console.log(isDataFetched);
 
-                } catch (error) {
-                    console.error("Error fetching cart data:", error);
-                }
+            // if (!isDataFetched) {
+            try {
+                const savedCart = await fetchMyCart()
+                dispatch(fetchCartsItems(savedCart));
+
+            } catch (error) {
+                console.error("Error fetching cart data:", error);
             }
+            // }
         };
         fetchCartData();
 
@@ -40,18 +42,6 @@ const CartPage = () => {
         if (status) toast.success(message)
         else toast.error(message)
     }
-
-    // const handleClearCart = () => {
-    //     dispatch(clearCart());
-    //     // Optionally clear cart data from the database
-    // }
-
-    // Calculate totals
-    const subtotal = cartProducts.reduce((acc, item) => acc + item.variantDetails.price * item.quantity, 0);
-    const discount = 0;
-    const tax = 0; // 7.5% tax
-    // const total = subtotal - discount + tax;
-    const total = subtotal;
 
 
     return (
@@ -77,25 +67,15 @@ const CartPage = () => {
                         </table>
                     </div>
 
-                    <OrderSummary cartItems={cartProducts} subtotal={subtotal} discount={discount} tax={tax} total={total} pushToast={pushToast} />
+                    <OrderSummary cartItems={cartProducts} pushToast={pushToast} />
+
                 </div>
+
                 <div className="col-span-8">
                     <Link to={`/${USER_ROUTES.SHOP}`} className="text-blue-600 text-sm">←  Continue shopping</Link >
                 </div>
             </div>
 
-
-            {/* Trending Products Section */}
-            {/* <div className="mt-10">
-                <h2 className="text-2xl font-semibold mb-4">Trending Products</h2>
-                <div className="flex space-x-4 overflow-x-auto">
-                    <div className="bg-white shadow rounded-lg p-4 w-48">
-                        <img src="/images/product1.png" alt="Product" className="w-full h-32 object-cover mb-2" />
-                        <h3 className="text-sm font-semibold">Apple iPhone 14 128GB Blue</h3>
-                        <p className="text-sm text-gray-500">$899.00</p>
-                    </div>
-                </div>
-            </div> */}
         </div>
     );
 };

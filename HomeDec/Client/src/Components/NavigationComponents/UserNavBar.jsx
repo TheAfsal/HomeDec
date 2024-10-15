@@ -54,7 +54,7 @@ const UserNavBar = () => {
                     <Link to={`/${USER_ROUTES.ACCOUNT}/${USER_ROUTES.WISHLIST}`} className="relative  text-gray-600 hover:text-green_500">
                         <IoHeartHalfOutline size={20} />
                     </Link>
-                    <Link to={`${USER_ROUTES.CART}`} className="relative text-gray-600 hover:text-green_500">
+                    <Link to={`/${USER_ROUTES.CART}`} className="relative text-gray-600 hover:text-green_500">
                         <PiShoppingCartSimpleBold size={19} />
                     </Link>
 
@@ -63,7 +63,6 @@ const UserNavBar = () => {
                             <IoMdLogIn size={20} />
                         </Link>)
                     }
-
                 </div>
 
                 {/* Mobile Menu Button */}

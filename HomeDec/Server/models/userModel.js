@@ -62,6 +62,10 @@ const userSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Address", // Reference to Address model
     },
+    wishlistId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Wishlist", // Reference to Address model
+    },
     isActive: {
       type: Boolean,
       required: true,
@@ -73,6 +77,25 @@ const userSchema = new mongoose.Schema(
       default: 0,
       min: 0,
     },
+    couponsApplied: [
+      {
+        couponId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Coupon",
+        },
+        dateApplied: {
+          type: Date,
+          default: Date.now, // Automatically set the date when applied
+        },
+        discountAmount: {
+          type: Number,
+        },
+        discountType: {
+          type: String,
+          enum: ['percentage', 'fixed'], // Define the type of discount
+        }
+      },
+    ],
   },
   { timestamps: true }
 );

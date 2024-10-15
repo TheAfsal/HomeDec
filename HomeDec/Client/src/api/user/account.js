@@ -74,7 +74,7 @@ export const addNewAddresses = async (updatedAddress) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw new Error(error?.response?.data?.error);
+    throw new Error(error?.response?.data?.message);  
   }
 };
 
@@ -89,10 +89,11 @@ export const removeAddress = async (id) => {
   }
 };
 
-export const createOrder = async (cartItems) => {
+export const createOrder = async (cartItems, promoCode) => {
   try {
     const response = await userAPI.post("/cart/checkout/create-new-order", {
       cartItems,
+      promoCode,
     });
     console.log(response.data);
     return response.data.orderId;
@@ -120,11 +121,11 @@ export const updateOrder = async (orderId, paymentMethod, shippingAddress) => {
   }
 };
 
-export const addTransactionId = async (orderId, transactionId) => {
+export const addTransactionId = async (orderId, razorpayOrderId) => {
   try {
     const response = await userAPI.post("/cart/checkout/add-transaction-id", {
       orderId,
-      transactionId,
+      razorpayOrderId,
     });
     console.log(response.data);
     return response.data;
@@ -141,12 +142,14 @@ export const findWishListItem = async () => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw new Error(error?.response?.data?.error);
+    throw new Error(error?.response?.data?.message);
   }
 };
 
 export const addToWishList = async (productId, variantId) => {
   try {
+    console.log(productId, variantId);
+
     const response = await userAPI.put("/account/wishlist/add-product", {
       productId,
       variantId,
@@ -156,5 +159,50 @@ export const addToWishList = async (productId, variantId) => {
   } catch (error) {
     console.log(error);
     throw new Error(error?.response?.data?.error);
+  }
+};
+
+export const removeFromWishList = async (items) => {
+  try {
+    console.log("items", items);
+
+    const response = await userAPI.patch("/account/wishlist/remove-product", {
+      itemsToRemove: items,
+    });
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw new Error(error?.response?.data?.message);
+  }
+};
+
+export const AddToCartFromWishList = async (products) => {
+  try {
+    console.log("items", products);
+
+    const response = await userAPI.put("/account/wishlist/add-to-cart", {
+      products,
+    });
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw new Error(error?.response?.data?.message);
+  }
+};
+
+export const verifyPromoCode = async (promoCode, cartItems, finalAmount) => {
+  try {
+    const response = await userAPI.post("/cart/validate-promo-code", {
+      promoCode,
+      orderItems: cartItems,
+      finalAmount,
+    });
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw new Error(error?.response?.data?.message);
   }
 };

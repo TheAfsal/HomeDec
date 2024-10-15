@@ -59,7 +59,6 @@ const CheckoutPage = () => {
     handleNextStep();
   };
 
-
   const loadRazorpayScript = () => {
     return new Promise((resolve, reject) => {
       const existingScript = document.getElementById('razorpay-script');
@@ -81,24 +80,30 @@ const CheckoutPage = () => {
     });
   };
 
+
+
   const placeOrder = async () => {
     try {
       setLoading(true)
       const details = await updateOrder(orderId, paymentMethod, shippingAddress)
+      console.log(details);
+
       if (details.orderDetails.paymentMethod === "online") {
         const options = {
           key: "rzp_test_ypLt4fdr4eU9W1",
-          amount: 20000,
+          // amount: 20000,
           currency: "INR",
           name: "Your Company Name",
-          order_id: details.orderDetails.orderId,
+          order_id: details.orderDetails.orderId.id,
           handler: async function (response) {
             console.log(response);
             try {
               await addTransactionId(orderId, response.razorpay_payment_id)
+              dispatch(clearCart())
               navigate(`/${USER_ROUTES.PAYMENT_SUCCESS}`)
 
               // alert(`Payment successful! Payment ID: ${response.razorpay_payment_id}`);
+
             } catch (error) {
               console.log("transaction id storing failed");
 
@@ -114,19 +119,32 @@ const CheckoutPage = () => {
           }
         };
 
-        const razorpay = new window.Razorpay(options);
-        razorpay.open();
+        try {
+          const razorpay = new window.Razorpay(options);
+          razorpay.on('payment.failed', function (response) {
+            console.log(response);
+          });
+          razorpay.open();
+
+        } catch (error) {
+          console.log(error);
+
+        }
+
       } else if (details.orderDetails.paymentMethod === "wallet") {
+        dispatch(clearCart())
         navigate(`/${USER_ROUTES.PAYMENT_SUCCESS}`)
       } else if (details.orderDetails.paymentMethod === "cod") {
+        dispatch(clearCart())
         navigate(`/${USER_ROUTES.PAYMENT_SUCCESS}`)
       } else {
+        setLoading(false)
         throw new Error("processing failed")
       }
-      // dispatch(clearCart())
 
     } catch (error) {
       console.log(error)
+      setLoading(false)
       toast.error(error.message)
     }
     // console.log(paymentMethod);

@@ -2,6 +2,7 @@ const { addProductImages } = require("../middleware/uploadProductImages");
 const Product = require("../models/productModel");
 const authServices = require("../services/authServices");
 const categoryServices = require("../services/categoryServices");
+const inventoryServices = require("../services/inventoryServices");
 const orderService = require("../services/orderService");
 const productServices = require("../services/productServices");
 const sellerServices = require("../services/sellerServices");
@@ -35,7 +36,6 @@ module.exports = {
   // list products
   listCategory: async (req, res) => {
     try {
-      console.log("hi");
 
       const result = await categoryServices.listCategory("name");
       console.log(result);
@@ -143,21 +143,73 @@ module.exports = {
     // const sellerId = req.user._id;
 
     console.log(req.body);
+    console.log(req.files);
+
+    // try {
+    //   const updatedProduct = await Product.findByIdAndUpdate(id, req.body, {
+    //     new: true,
+    //     runValidators: true,
+    //   });
+
+    //   if (!updatedProduct) {
+    //     return { success: false, message: "Product not found" };
+    //   }
+
+    //   return { success: true, data: updatedProduct };
+    // } catch (error) {
+    //   console.error("Error updating product:", error);
+    //   return { success: false, message: error.message };
+    // }
+  },
+
+  updateProduct: async (req, res) => {
+    const {
+      category,
+      subCategory,
+      title,
+      description,
+      deliveryCondition,
+      warranty,
+      relatedKeywords,
+      itemProperties,
+      variants,
+    } = req.body;
+
+    const sellerId = req.user._id;
+    const productId = req.body.id;
 
     try {
-      const updatedProduct = await Product.findByIdAndUpdate(id, req.body, {
-        new: true,
-        runValidators: true,
-      });
+      let uploadedImages = [];
 
-      if (!updatedProduct) {
-        return { success: false, message: "Product not found" };
+      // Check if files were uploaded
+      if (req.files && req.files.length > 0) {
+        uploadedImages = await addProductImages(req.files, variants.length);
       }
 
-      return { success: true, data: updatedProduct };
+      // Prepare product data for update
+      const updateData = {
+        category,
+        subCategory,
+        title,
+        description,
+        deliveryCondition,
+        warranty,
+        relatedKeywords,
+        itemProperties,
+        sellerId,
+        variants: variants.map((variant, index) => ({
+          ...variant,
+          images: uploadedImages[index] || variant.images,
+        })),
+      };
+
+      // Update the product in the database
+      const result = await productServices.updateProduct(productId, updateData);
+
+      return res.status(200).json(result);
     } catch (error) {
-      console.error("Error updating product:", error);
-      return { success: false, message: error.message };
+      console.log(error);
+      return res.status(error.statusCode || 500).json({ error: error.message });
     }
   },
 
@@ -174,10 +226,35 @@ module.exports = {
   updateOrderStatus: async (req, res) => {
     try {
       const { status, orderId, productId, variantId } = req.body;
-      const result = await orderService.changeOrderStatus(status, orderId, productId, variantId);
+      const result = await orderService.changeOrderStatus(
+        status,
+        orderId,
+        productId,
+        variantId
+      );
       return res.status(200).json(result);
     } catch (error) {
       return res.status(error.status).json({ error: error.message });
+    }
+  },
+
+  fetchSalesReportForSeller: async (req, res) => {
+    try {
+      const { tf, sd, ed } = req.query;
+      const { _id } = req.user;
+      console.log(_id, tf, sd, ed);
+
+      const offers = await inventoryServices.fetchSalesReportForSeller(
+        _id,
+        tf,
+        sd,
+        ed
+      );
+      return res.status(200).json(offers);
+    } catch (error) {
+      console.log(error);
+
+      return res.status(500).json({ error: error.message });
     }
   },
 };

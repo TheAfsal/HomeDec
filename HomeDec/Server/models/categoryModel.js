@@ -51,6 +51,10 @@ const subcategorySchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  offers: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Offer',
+  }],
   category: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Category",

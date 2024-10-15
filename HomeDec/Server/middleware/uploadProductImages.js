@@ -1,16 +1,11 @@
 const cloudinary = require("../database/cloudinaryConfig");
 
-
-const addProductImages = async (imageFiles,variantLength) => {
-
+const addProductImages = async (imageFiles, variantLength) => {
   try {
-    const uploadPromises = [];
+    console.log(imageFiles);
 
     // Initialize a 2D array based on the number of variants
-    const numberOfVariants = variantLength;
-    for (let i = 0; i < numberOfVariants; i++) {
-      uploadPromises[i] = []; // Create an empty array for each variant
-    }
+    const uploadPromises = Array.from({ length: variantLength }, () => []);
 
     // Fill the 2D array with upload promises
     imageFiles.forEach((file) => {
@@ -21,41 +16,52 @@ const addProductImages = async (imageFiles,variantLength) => {
         const variantIndex = parseInt(match[1], 10);
         const imageIndex = parseInt(match[2], 10);
 
-        // Push the upload promise to the correct sub-array
+        // Create a new Promise for each upload
         if (uploadPromises[variantIndex]) {
-          uploadPromises[variantIndex][imageIndex] = cloudinary.uploader.upload(
-            file.path
-          );
+          const uploadPromise = new Promise((resolve, reject) => {
+            cloudinary.uploader
+              .upload_stream(
+                {
+                  resource_type: "image",
+                },
+                (error, result) => {
+                  if (error) {
+                    return reject(error);
+                  }
+                  resolve(result);
+                }
+              )
+              .end(file.buffer);
+          });
+
+          uploadPromises[variantIndex][imageIndex] = uploadPromise;
         }
       }
     });
 
-    // Now you can process each variant's uploads
+    // Process each variant's uploads
     const uploadResults = await Promise.all(
       uploadPromises.map((promiseArray) => Promise.all(promiseArray))
     );
 
-    const extractedResults = uploadResults.map(resultArray => 
-      resultArray.map(result => ({
-        public_id: result.public_id,
-        secure_url: result.secure_url
+    console.log(uploadResults);
+
+    const extractedResults = uploadResults.map((resultArray) =>
+      resultArray.filter((result) => ({
+        public_id: result?.public_id,
+        secure_url: result?.secure_url,
       }))
     );
-    
+
     // Handle results
     extractedResults.forEach((resultArray, variantIndex) => {
       console.log(`Results for variant ${variantIndex}:`, resultArray);
     });
 
     return extractedResults;
-
-
-  //   res
-  //     .status(201)
-  //     .json({ message: "Product added successfully", product: productData });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Failed to add product" });
+    throw { status: 500, message: "Failed to add product" };
   }
 };
 

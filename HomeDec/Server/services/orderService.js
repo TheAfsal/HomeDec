@@ -9,30 +9,45 @@ const Transaction = require("../models/transactionModel");
 const { getCurrentWalletBalance } = require("./walletService");
 const Wallet = require("../models/walletTransaction");
 const User = require("../models/userModel");
+const Coupon = require("../models/couponModel");
 
 module.exports = {
-  AddNewOrder: async (userId, cartItems) => {
-    console.log(userId);
-
+  AddNewOrder: async (userId, cartItems, promoCode) => {
     try {
-      const { total, orderCollection } = await calculateTotalAmount(cartItems);
+      const { total, totalDiscounts, finalAmount, orderCollection } =
+        await calculateTotalAmount(cartItems);
       const orderLabel = generateOrderLabel();
-      console.log(orderLabel);
-      console.log(total);
-      console.log(orderCollection);
+
       const order = new Order({
         orderItems: orderCollection,
         totalAmount: total,
-        finalTotal: total,
+        discountApplied: totalDiscounts,
+        finalAmount: !promoCode.discountType
+          ? finalAmount
+          : promoCode.discountType === "fixed"
+          ? (finalAmount - promoCode.discountValue).toFixed(2)
+          : (finalAmount * (1 - promoCode.discountValue / 100)).toFixed(2),
         userId,
         orderLabel,
       });
+
+      if (Object.keys(promoCode).length !== 0) {
+        order.couponsApplied = {
+          couponId: promoCode.couponId,
+          // discountAmount: promoCode.discountValue,
+          discountType: promoCode.discountType,
+          discountAmount:
+            promoCode.discountType === "fixed"
+              ? promoCode.discountValue.toFixed(2)
+              : finalAmount -
+                finalAmount * (1 - promoCode.discountValue / 100).toFixed(2),
+        };
+      }
 
       await order.save();
       return { orderId: order._id };
     } catch (error) {
       console.log(error);
-
       throw new Error("Error creating order: " + error.message);
     }
   },
@@ -45,16 +60,22 @@ module.exports = {
     cartId
   ) => {
     try {
+      // Step 1: Retrieve the existing order
       const orderDoc = await Order.findOne({ _id });
+      if (!orderDoc) {
+        throw { status: 400, message: "Order not found" };
+      }
 
-      const { total, orderCollection } = await calculateTotalAmount(
-        orderDoc.orderItems
-      );
+      // Step 2: Calculate totals
+      let { total, totalDiscounts, finalAmount, orderCollection } =
+        await calculateTotalAmount(orderDoc.orderItems);
 
+      // Step 3: Prepare updates
       const orderUpdates = {
         orderItems: orderCollection,
         totalAmount: total,
-        finalTotal: total,
+        discountApplied: totalDiscounts,
+        finalAmount: finalAmount,
         street: shippingAddress.street,
         city: shippingAddress.city,
         state: shippingAddress.state,
@@ -65,22 +86,109 @@ module.exports = {
 
       let orderId;
 
+      // Step 4: Handle Coupons
+      if (orderDoc.couponsApplied && orderDoc.couponsApplied.length > 0) {
+        const user = await User.findById(userId);
+        if (!user) {
+          throw { status: 400, message: "User not found" };
+        }
+
+        for (const coupon of orderDoc.couponsApplied) {
+          const couponId = coupon.couponId;
+          const couponDoc = await Coupon.findById(couponId);
+
+          if (!couponDoc) {
+            console.log(`Coupon not found: ${couponId}`);
+            continue; // Skip if the coupon doesn't exist
+          }
+
+          // Validate the coupon
+          if (
+            !couponDoc.isValid() ||
+            couponDoc.isUsageLimitExceeded(
+              await Coupon.countDocuments({ _id: couponId })
+            )
+          ) {
+            console.log(
+              `Coupon is invalid or usage limit exceeded: ${coupon.code}`
+            );
+            continue;
+          }
+
+          const userUsageCount = user.couponsApplied.filter((appliedCoupon) =>
+            appliedCoupon.couponId.equals(couponId)
+          ).length;
+
+          // if (couponDoc.isUserLimitExceeded(userUsageCount)) {
+          //   console.log(`User usage limit exceeded for coupon: ${coupon.code}`);
+          //   continue;
+          // }
+
+          // Reduce the coupon usage count if applicable
+          if (couponDoc.usageLimit !== null) {
+            couponDoc.usageLimit -= 1; // Decrease the usage count
+            await couponDoc.save(); // Save the updated coupon document
+          }
+
+          // Apply coupon to user
+          // const alreadyApplied = user.couponsApplied.filter((appliedCoupon) =>
+          //   appliedCoupon.couponId.equals(couponId)
+          // );
+
+          // if (!alreadyApplied) {
+          user.couponsApplied.push({
+            couponId: couponId,
+            dateApplied: new Date(),
+            discountAmount: coupon.discountAmount,
+            discountType: coupon.discountType,
+          });
+
+          // Apply discount
+          if (couponDoc.discountType === "fixed") {
+            console.log("value2", couponDoc.discountValue);
+
+            totalDiscounts += couponDoc.discountValue;
+            finalAmount -= couponDoc.discountValue;
+          } else {
+            console.log("value1", couponDoc.discountValue);
+            const discountAmount =
+              finalAmount * (couponDoc.discountValue / 100);
+            totalDiscounts += discountAmount;
+            finalAmount -= discountAmount;
+          }
+          // }
+        }
+
+        console.log("totalDiscounts", totalDiscounts);
+        console.log("finalAmount", finalAmount);
+        orderUpdates.finalAmount = finalAmount;
+
+        // Save the updated user document
+        await user.save();
+        console.log("Promo codes added to user successfully.");
+      } else {
+        console.log("No coupons applied to the order.");
+      }
+
+      // Step 5: Payment Methods
       if (paymentMethod === "online") {
         try {
-          orderId = await createOrder(total);
+          console.log("finalAmount", finalAmount);
+          console.log("!!!!!!");
+          orderId = await createOrder(finalAmount);
           console.log("Online Order ID:", orderId);
 
           const transactionDoc = new Transaction({
             userId,
             orderId: _id,
             transactionId: `txn_${Date.now()}`,
-            amount: total,
+            amount: finalAmount,
           });
 
-          const transactionDetails = await transactionDoc.save();
-          orderUpdates.paymentMethod = {
+          await transactionDoc.save();
+          orderUpdates.payment = {
             method: "online",
-            transactionId: transactionDetails._id,
+            transactionId: transactionDoc._id,
           };
           console.log("Transaction saved successfully:", transactionDoc);
         } catch (error) {
@@ -92,21 +200,20 @@ module.exports = {
           const currentWalletBalance = await getCurrentWalletBalance(userId);
 
           // Check if the current wallet balance is sufficient
-          if (currentWalletBalance < total) {
+          if (currentWalletBalance < finalAmount) {
             throw { status: 400, message: "Insufficient Wallet balance" };
           }
 
-          // Create the wallet transaction document
           const walletTransactionDoc = new Wallet({
             userId,
-            amount: total,
+            amount: finalAmount,
             transactionType: "debit",
             orderId: _id,
-            paymentMethod: {
+            payment: {
               method: "wallet",
               details: {
-                transactionId: `txn_wallet_${Date.now()}`, // Unique transaction ID for the wallet transaction
-                walletBalanceAfter: currentWalletBalance - total, // This will be updated after the transaction
+                transactionId: `txn_wallet_${Date.now()}`,
+                walletBalanceAfter: currentWalletBalance - finalAmount,
                 transactionDate: new Date(),
               },
             },
@@ -118,55 +225,48 @@ module.exports = {
             walletTransactionDoc
           );
 
-          const updatedBalance = currentWalletBalance - total;
+          const updatedBalance = currentWalletBalance - finalAmount;
 
-          const userUpdate = await User.findByIdAndUpdate(
+          await User.findByIdAndUpdate(
             userId,
             { walletBalance: updatedBalance },
             { new: true }
           );
-
-          orderUpdates.paymentMethod = {
+          orderUpdates.payment = {
             method: "wallet",
             transactionId: walletTransactionDoc._id,
           };
 
           console.log(
             "User wallet balance updated successfully:",
-            userUpdate.walletBalance
+            updatedBalance
           );
         } catch (error) {
           console.log(error);
           throw { status: 500, message: error.message };
         }
       } else if (paymentMethod === "cod") {
-        orderUpdates.paymentMethod = {
+        orderUpdates.payment = {
           method: "cod",
           transactionId: null,
         };
       }
 
-      // Update the existing order
+      // Step 6: Update the existing order
       const updatedOrder = await Order.findByIdAndUpdate(_id, orderUpdates, {
         new: true,
         runValidators: true,
       });
 
-      // Decrement the stock for each product variant in the order
+      // Step 7: Decrement the stock for each product variant in the order
       for (const item of orderCollection) {
         const { productId, variantId, quantity } = item;
-
-        // Find the product
         const product = await Product.findById(productId);
 
         if (product) {
-          // Find the variant
           const variant = product.variants.id(variantId);
-
           if (variant && variant.stock >= quantity) {
-            // Decrement the stock
             variant.stock -= quantity;
-
             await product.save();
           } else {
             throw {
@@ -179,31 +279,24 @@ module.exports = {
         }
       }
 
-      //Empty Cart
+      // Step 8: Empty Cart
       const cart = await Cart.findById({ _id: cartId });
       cart.products = [];
       await cart.save();
 
       console.log("Order updated successfully:", updatedOrder);
 
-      if (paymentMethod === "online") {
-        return { orderId: orderId.id, paymentMethod };
-      } else if (paymentMethod === "cod") {
-        return { updatedOrder, paymentMethod };
-      } else if (paymentMethod === "wallet") {
-        return { updatedOrder, paymentMethod };
-      } else {
-        throw new Error("Internal server error");
-      }
+      return { orderId, paymentMethod, updatedOrder };
     } catch (error) {
-      console.log(error);
       if (error.status) throw error;
-      else throw new Error(error);
+      else throw { status: 400, message: "order creation failed" };
     }
   },
 
   addTransactionId: async (userId, orderId, razorpayPaymentId) => {
     try {
+      console.log(orderId, userId, razorpayPaymentId);
+
       const transactionDoc = await Transaction.findOne({ orderId, userId });
 
       if (!transactionDoc) {
@@ -222,14 +315,14 @@ module.exports = {
         transactionDoc
       );
     } catch (error) {
-      onsole.log(error);
+      console.log(error);
       throw new Error("Failed to fetch Orders");
     }
   },
 
   ListOrdersForAdmin: async () => {
     try {
-      const orderList = await Order.find({ paymentMethod: { $ne: "pending" } })
+      const orderList = await Order.find({ "payment.method": { $ne: "pending" } })
         .populate("userId", "firstName") // Populate user name
         .populate("orderItems.productId", "title");
       return orderList;
@@ -243,7 +336,7 @@ module.exports = {
     try {
       const orderList = await Order.aggregate([
         {
-          $match: { paymentMethod: { $ne: "pending" } },
+          $match: { "payment.method": { $ne: "pending" } },
         },
         {
           $unwind: "$orderItems", // Deconstruct orderItems array

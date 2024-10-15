@@ -3,6 +3,8 @@ const Otp = require("../models/otpModel");
 const accountServices = require("../services/accountServices");
 const authServices = require("../services/authServices");
 const cartServices = require("../services/cartServices");
+const categoryServices = require("../services/categoryServices");
+const couponServices = require("../services/couponServices");
 const orderService = require("../services/orderService");
 const productServices = require("../services/productServices");
 const userService = require("../services/userService");
@@ -153,7 +155,10 @@ module.exports = {
       );
       return res.status(200).json(items);
     } catch (error) {
-      return res.status(error.status).json({ error: error.message });
+      console.log(error);
+      if (error.status)
+        return res.status(error.status).json({ error: error.message });
+      else res.status(400).json({ error: error.message });
     }
   },
 
@@ -186,9 +191,10 @@ module.exports = {
 
   updateBasicDetails: async (req, res) => {
     try {
+      console.log("body", req.body);
+      console.log("files", req.files);
       const email = req.user.email;
       const { firstName, lastName, gender, dob } = req.body;
-      console.log(req.files);
 
       let imageDetails;
       if (req.files.length) {
@@ -208,6 +214,8 @@ module.exports = {
       );
       return res.status(200).json(details);
     } catch (error) {
+      console.log(error);
+
       return res.status(error.status).json({ error: error.message });
     }
   },
@@ -316,14 +324,14 @@ module.exports = {
 
   placeNewOrder: async (req, res) => {
     try {
-      const { cartItems } = req.body;
+      const { cartItems, promoCode } = req.body;
       const { _id } = req.user;
 
       if (!cartItems.length) {
         return res.status(400).json({ message: "Order empty" });
       }
 
-      const order = await orderService.AddNewOrder(_id, cartItems);
+      const order = await orderService.AddNewOrder(_id, cartItems, promoCode);
       return res.status(201).json({
         success: true,
         message: "Order created successfully",
@@ -355,6 +363,8 @@ module.exports = {
         orderDetails: order,
       });
     } catch (error) {
+      console.log(error);
+
       return res.status(400).json({
         success: false,
         message: error.message,
@@ -364,13 +374,13 @@ module.exports = {
 
   addTransactionId: async (req, res) => {
     try {
-      const { orderId, transactionId } = req.body;
+      const { orderId, razorpayOrderId } = req.body;
       const { _id } = req.user;
 
       const order = await orderService.addTransactionId(
         _id,
         orderId,
-        transactionId
+        razorpayOrderId
       );
       return res.status(201).json({
         success: true,
@@ -378,6 +388,8 @@ module.exports = {
         orderDetails: order,
       });
     } catch (error) {
+      console.log(error);
+
       return res.status(400).json({
         success: false,
         message: error.message,
@@ -410,7 +422,15 @@ module.exports = {
     try {
       const query = req.query.q;
       const sort = req.query.sort;
-      const products = await productServices.searchProducts(query, sort);
+      const filter = {
+        option: req.query.option,
+        value: req.query.value,
+      };
+      const products = await productServices.searchProducts(
+        query,
+        sort,
+        filter
+      );
       return res.status(200).json(products);
     } catch (error) {
       return res.status(500).json({ error: "Failed to search products" });
@@ -419,9 +439,11 @@ module.exports = {
 
   fetchWishList: async (req, res) => {
     try {
-      const { wishListId } = req.user;
-      const wishListProducts = await accountServices.fetchWishList(wishListId);
-      return res.status(200).json(wishListProducts);
+      const { wishlistId } = req.user;
+      console.log(wishlistId);
+
+      const wishlistProducts = await accountServices.fetchWishList(wishlistId);
+      return res.status(200).json(wishlistProducts);
     } catch (error) {
       return res.status(500).json({ error: "Failed to find wishList" });
     }
@@ -430,18 +452,85 @@ module.exports = {
   AddToWishList: async (req, res) => {
     try {
       const { productId, variantId } = req.body;
-      const { wishListId } = req.user;
+      const { wishlistId } = req.user;
 
-      console.log(productId, variantId);
+      console.log(req.user);
 
       const items = await accountServices.addProductToWishList(
-        wishListId,
+        wishlistId,
         productId,
         variantId
       );
       return res.status(200).json(items);
     } catch (error) {
       return res.status(error.status).json({ error: error.message });
+    }
+  },
+
+  removeFromWishList: async (req, res) => {
+    try {
+      const { itemsToRemove } = req.body;
+      const { wishlistId } = req.user;
+
+      const items = await accountServices.removeProductsFromWishList(
+        wishlistId,
+        itemsToRemove
+      );
+      return res.status(200).json(items);
+    } catch (error) {
+      return res.status(error.status).json({ error: error.message });
+    }
+  },
+
+  addMultipleItemsToCart: async (req, res) => {
+    try {
+      const { products } = req.body;
+      const { cartId, wishlistId } = req.user;
+
+      console.log(products);
+
+      const items = await cartServices.addMultipleProductsToCart(
+        cartId,
+        products,
+        wishlistId
+      );
+      return res.status(200).json(items);
+    } catch (error) {
+      console.log(error);
+      return res.status(error.status).json({ error: error.message });
+    }
+  },
+
+  validatePromoCodeController: async (req, res) => {
+    const { _id } = req.user;
+    const { promoCode, orderItems,finalAmount } = req.body;
+
+    try {
+      const result = await couponServices.validatePromoCode(
+        _id,
+        promoCode,
+        orderItems,
+        finalAmount
+      );
+      return res.status(200).json({
+        message: "Promo code is valid",
+        discountAmount: result.discountAmount,
+        discountType: result.discountType,
+        discountValue: result.discountValue,
+        couponId: result.couponId,
+      });
+    } catch (error) {
+      return res.status(400).json({ message: error.message });
+    }
+  },
+
+  // Category Related
+  listCategory: async (req, res) => {
+    try {
+      const result = await categoryServices.listCategory("name");
+      return res.status(200).json(result);
+    } catch (error) {
+      return res.status(500).json({ error: "Failed to fetch categories" });
     }
   },
 };

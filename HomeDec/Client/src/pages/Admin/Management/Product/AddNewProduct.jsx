@@ -1,29 +1,58 @@
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import ImageCrop from '../../../Test/ImageCrop';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { GiCancel } from 'react-icons/gi';
 import { useSelector } from 'react-redux';
 import api from '../../../../api/apiConfigAdmin';
 import { listCategory } from '../../../../api/administrator/categoryManagement';
 import { MANAGEMENT_ROUTES } from '../../../../config/routerConstants';
+import { fetchDetails } from '../../../../api/administrator/productManagement';
 
 const AddNewProduct = () => {
-    const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm();
+    const { register, handleSubmit, setValue, watch, formState: { errors }, reset } = useForm();
     const [error, setError] = useState("")
     const [categoryList, setCategoryList] = useState([])
-    const [variants, setVariants] = useState([{ color: '', colorHex: '#000000', stock: '', images: [] }]);
+    const [variants, setVariants] = useState([{ color: '', colorHex: '', stock: '', images: [] }]);
     const navigate = useNavigate();
     const { role } = useSelector(state => state.auth);
-    const [selectedCategory, setSelectedCategory] = useState('');
+    // const [selectedCategory, setSelectedCategory] = useState('');
     const [subCategories, setSubCategories] = useState([]);
+    const { id } = useParams()
 
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const list = await listCategory(role)
-                console.log(list);
-                setCategoryList(list);
+                const categoryList = await listCategory(role)
+                console.log(categoryList);
+                setCategoryList(categoryList);
+                if (id !== "add-new-product") {
+                    const fetchProductDetails = async () => {
+                        try {
+                            const details = await fetchDetails(id);
+                            console.log({ ...details.product, subCategory: details.product.subCategory._id });
+                            console.log('category', details.product.category)
+
+                            // Set Category
+                            const selectedCategoryData = categoryList.find(category => category._id === details.product.category);
+
+                            if (selectedCategoryData) {
+                                setSubCategories(selectedCategoryData.subcategories);
+                            } else {
+                                setSubCategories([]);
+                            }
+
+                            setVariants(details.product.variants)
+
+                            reset({ ...details.product, subCategory: details.product.subCategory._id });
+
+                        } catch (error) {
+                            console.error('Error fetching product details:', error);
+                        }
+                    };
+
+                    fetchProductDetails();
+                }
 
             } catch (error) {
                 console.error('Error fetching products:', error);
@@ -31,9 +60,61 @@ const AddNewProduct = () => {
         };
 
         fetchCategories();
+    }, [])
+
+    useEffect(() => {
+
+        // reset({
+        //     category: "66f652519ba6e551e5af6131",
+        //     subCategory: "66f652519ba6e551e5af6134",
+        //     title: "Table For India",
+        //     description: "fsd sdfa",
+        //     variants: [
+        //         {
+        //             color: "Green",
+        //             colorHex: "#000000",
+        //             stock: 0,
+        //             price: 2500,
+        //             isActive: true,
+        //             images: [
+        //                 {
+        //                     public_id: "zsqnqenh3mhrd2gf2p2n",
+        //                     secure_url: "https://res.cloudinary.com/dnw0c83bh/image/upload/v1727431676/zsqnqenh3mhrd2gf2p2n.jpg"
+        //                 },
+        //                 {
+        //                     public_id: "jjknboyymkf79vesvae0",
+        //                     secure_url: "https://res.cloudinary.com/dnw0c83bh/image/upload/v1727431677/jjknboyymkf79vesvae0.jpg"
+        //                 },
+        //                 {
+        //                     public_id: "i5w7kwz79ivqfhxepgav",
+        //                     secure_url: "https://res.cloudinary.com/dnw0c83bh/image/upload/v1727431676/i5w7kwz79ivqfhxepgav.jpg"
+        //                 }
+        //             ],
+        //         }
+        //     ],
+        //     itemProperties: [
+        //         {
+        //             "field": "Height",
+        //             "value": "100CM",
+        //         },
+        //         {
+        //             "field": "Height",
+        //             "value": "100CM",
+        //         }
+        //     ],
+        //     deliveryCondition: "Assembled",
+        //     warranty: "fsaf fsadf",
+        //     relatedKeywords: "asdf sdf dsaf",
+        // })
+        // }
+        // else console.log("new");
+
+
     }, []);
 
     const onSubmit = async (data) => {
+        console.log(data);
+
         if (variants.length === 0) {
             setError("You must add at least one variant.");
             return;
@@ -82,15 +163,24 @@ const AddNewProduct = () => {
             });
 
             // Send request to the API
-            const response = await api.post('/seller/products/add', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
+            let response
+            if (id === "add-new-product") {
+                response = await api.post('/seller/products/add', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+            } else {
+                response = await api.post('/seller/products/edit', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+            }
 
             // Handle success response
             console.log('Product added successfully:', response.data);
-            navigate(`/${MANAGEMENT_ROUTES.PRODUCTS}/${MANAGEMENT_ROUTES.PRODUCTS_LIST}`)
+            navigate(`/${MANAGEMENT_ROUTES.MANAGEMENT}/${MANAGEMENT_ROUTES.PRODUCTS}/${MANAGEMENT_ROUTES.PRODUCTS_LIST}`)
         } catch (error) {
             setError("Failed to add product.");
             console.error('Error:', error);
@@ -137,11 +227,9 @@ const AddNewProduct = () => {
 
     const handleCategoryChange = (event) => {
         const categoryId = event.target.value;
-        setSelectedCategory(categoryId);
 
         // Find the selected category and update subcategories
         const selectedCategoryData = categoryList.find(category => category._id === categoryId);
-        console.log(selectedCategoryData);
 
         if (selectedCategoryData) {
             setSubCategories(selectedCategoryData.subcategories);
@@ -163,7 +251,7 @@ const AddNewProduct = () => {
                         <label className="block text-sm mb-1 text-form_label_grey">Category</label>
                         <select {...register('category', { required: 'Category is required' })} className={`w-full px-3 py-2 border ${errors.category ? 'border-red-500' : 'border-form_inputFeild_stroke_grey'} rounded-md bg-form_inputFeild_background_grey`} onChange={handleCategoryChange}
                         >
-                            <option value="">Select a category</option>
+                            <option value="no">Select a category</option>
                             {
                                 categoryList.map((category) => (
                                     <option key={category._id} value={category._id}>
@@ -208,22 +296,25 @@ const AddNewProduct = () => {
                     <h3 className="font-semibold mt-4 text-green_600 mb-3">Product Variants</h3>
                     {variants.map((variant, index) => (
                         <div key={index} className="border-2 p-4 rounded-md mt-1">
-                            <div className='flex mb-2'>
-                                {/* Color Hex Input */}
-                                <input
-                                    type="color"
-                                    value={variant.colorHex}
-                                    onChange={(e) => {
-                                        const newVariants = [...variants];
-                                        newVariants[index].colorHex = e.target.value;
-                                        setVariants(newVariants);
-                                    }}
-                                    className="w-full h-5 mr-3"
-                                />
-                                <button type="button" onClick={() => handleRemoveVariant(index)} className=" text-errorRed text-xs "><GiCancel size={20} /></button>
-                            </div>
+                            {/* <button type="button" onClick={() => handleRemoveVariant(index)} className=" text-errorRed text-xs "><GiCancel size={20} /></button> */}
 
-                            <div className="flex justify-between mb-2">
+                            <div className="flex justify-between items-center mb-2">
+
+                                <div className='flex'>
+                                    {/* Color Hex Input */}
+                                    <input
+                                        type="color"
+                                        value={variant.colorHex}
+                                        onChange={(e) => {
+                                            const newVariants = [...variants];
+                                            newVariants[index].colorHex = e.target.value;
+                                            setVariants(newVariants);
+                                        }}
+                                        className="h-10 w-10 border-0 rounded-md"
+                                        style={{ backgroundColor: variant.colorHex }}
+                                    />
+                                </div>
+
                                 {/* Color Input */}
                                 <div className=" flex items-center gap-3 mt-1">
                                     <input
@@ -303,7 +394,7 @@ const AddNewProduct = () => {
                             <div className="flex flex-wrap space-x-4">
                                 {variant.images.map((img, imgIndex) => (
                                     <div key={imgIndex} className="flex flex-col items-center">
-                                        <img src={img.imageUrl} alt="product" className="w-28 h-28 object-cover rounded-lg mt-2" />
+                                        <img src={img.imageUrl || img.secure_url} alt="product" className="w-28 h-28 object-cover rounded-lg mt-2" />
                                         <button type="button" onClick={() => handleRemoveImageFromVariant(index, imgIndex)} className="text-errorRed text-xs mt-1">Remove</button>
                                     </div>
                                 ))}

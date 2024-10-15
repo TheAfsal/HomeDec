@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { changePassword } from '../../../../api/user/account';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 
 
-const PasswordSection = () => {
+const PasswordSection = ({ setToast }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
@@ -21,18 +19,17 @@ const PasswordSection = () => {
             setOldPassword('')
             setNewPassword('')
             setIsEditing(false);
-            toast.success("Password Successfully updated")
+            setToast(true, "Password Successfully updated")
         } catch (error) {
             setOldPassword('')
             setNewPassword('')
             setError('')
-            toast.error(error.message)
+            setToast(false, error.message)
         }
     };
 
     return (
         <div className="bg-white p-6 rounded-lg shadow mb-6">
-            <ToastContainer />
             <h3 className="text-lg font-semibold mb-4">Password</h3>
             <div className="flex justify-between w-full">
                 {isEditing ? (

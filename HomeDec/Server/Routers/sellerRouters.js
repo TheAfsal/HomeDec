@@ -8,6 +8,8 @@ const {
   EditNewProduct,
   listOrders,
   updateOrderStatus,
+  updateProduct,
+  fetchSalesReportForSeller,
 } = require("../controllers/sellerController");
 const router = express.Router();
 
@@ -15,6 +17,7 @@ const multer = require("multer");
 const cloudinary = require("../database/cloudinaryConfig");
 const Product = require("../models/productModel");
 const verifyTokenSeller = require("../middleware/authSellerMiddleware");
+const { getAllCoupons } = require("../controllers/adminController");
 
 const storage = multer.memoryStorage(); // Change to memory storage
 const upload = multer({ storage: storage });
@@ -24,7 +27,9 @@ router.post("/login", loginSeller);
 
 router.post("/products/add", verifyTokenSeller, upload.any(), addNewProduct);
 
-router.post("/products/edit", verifyTokenSeller, upload.any(), EditNewProduct);
+// router.post("/products/edit", verifyTokenSeller, upload.any(), EditNewProduct);
+
+router.post("/products/edit", verifyTokenSeller, upload.any(), updateProduct);
 
 router.get("/category/list", verifyTokenSeller, listCategory);
 
@@ -41,6 +46,13 @@ router.get("/orders/list", verifyTokenSeller, listOrders);
 
 router.patch("/orders/update-status", verifyTokenSeller, updateOrderStatus);
 
+// Coupon
+router.get('/coupons',verifyTokenSeller, getAllCoupons);
+
+//Sales Report
+router.get("/sales-report",verifyTokenSeller, fetchSalesReportForSeller);
+
+// no need
 async function deleteImageFromCloudinary(req, res) {
   const { publicId } = req.body;
 

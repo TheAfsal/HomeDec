@@ -48,11 +48,11 @@ module.exports = {
 
   listCategory: async (itemsNeeded) => {
     try {
-      const categories = await Category.find({ isActive: true }) // Filter categories to only active ones
+      const categories = await Category.find({ isActive: true })
         .populate({
           path: "subcategories",
-          match: { isActive: true }, // Only populate active subcategories
-          select: itemsNeeded, // Specify fields to include from subcategories
+          match: { isActive: true }, 
+          select: itemsNeeded, 
         })
         .exec();
       return categories;

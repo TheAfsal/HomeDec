@@ -18,14 +18,14 @@ const SideNavbar = () => {
         { content: "Users", route: `/${MANAGEMENT_ROUTES.MANAGEMENT}/${MANAGEMENT_ROUTES.USERS}/${MANAGEMENT_ROUTES.USERS_LIST}` },
         { content: "Sellers", route: `/${MANAGEMENT_ROUTES.MANAGEMENT}/${MANAGEMENT_ROUTES.SELLERS}/${MANAGEMENT_ROUTES.SELLERS_LIST}` },
         { content: "Category", route: `/${MANAGEMENT_ROUTES.MANAGEMENT}/${MANAGEMENT_ROUTES.CATEGORY}/${MANAGEMENT_ROUTES.CATEGORY_LIST}` },
-        { content: "Coupon", route: `/${MANAGEMENT_ROUTES.MANAGEMENT}/coupon/list` },
-        { content: "Offers", route: `/${MANAGEMENT_ROUTES.MANAGEMENT}/offers/list` }
+        { content: "Coupon", route: `/${MANAGEMENT_ROUTES.MANAGEMENT}/${MANAGEMENT_ROUTES.COUPON}/${MANAGEMENT_ROUTES.COUPON_LIST}` },
+        { content: "Offers", route: `/${MANAGEMENT_ROUTES.MANAGEMENT}/${MANAGEMENT_ROUTES.OFFER}/${MANAGEMENT_ROUTES.OFFER_LIST}` }
     ];
 
     const sellerManagementContent = [
         { content: "Category", route: `/${MANAGEMENT_ROUTES.MANAGEMENT}/${MANAGEMENT_ROUTES.CATEGORY}/${MANAGEMENT_ROUTES.CATEGORY_LIST}` },
-        { content: "Coupon", route: `/${MANAGEMENT_ROUTES.MANAGEMENT}/coupon/list` },
-        { content: "Offers", route: `/${MANAGEMENT_ROUTES.MANAGEMENT}/offers/list` }
+        { content: "Coupon", route: `/${MANAGEMENT_ROUTES.MANAGEMENT}/${MANAGEMENT_ROUTES.COUPON}/${MANAGEMENT_ROUTES.COUPON_LIST}` },
+        { content: "Offers", route: `/${MANAGEMENT_ROUTES.MANAGEMENT}/${MANAGEMENT_ROUTES.OFFER}/${MANAGEMENT_ROUTES.OFFER_LIST}` }
     ];
 
     const navManagementContent = role === "admin" ? adminManagementContent : sellerManagementContent;

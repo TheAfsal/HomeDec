@@ -31,15 +31,21 @@ const ListingCategory = () => {
     };
 
     useEffect(() => {
-        const addCategories = async () => {
-            try {
-                const list = await listCategory(role)
+        listCategory(role)
+            .then((list) => {
                 setCategories(list);
-            } catch (error) {
-                console.error('Error fetching categories:', error);
-            }
-        };
-        addCategories();
+            }).catch((error) => {
+                console.error('Error fetching categories:', error.message);
+            })
+        // const addCategories = async () => {
+        //     try {
+        //         const list = await listCategory(role)
+        //         setCategories(list);
+        //     } catch (error) {
+        //         console.error('Error fetching categories:', error);
+        //     }
+        // };
+        // addCategories();
     }, []);
 
     const changeCategoryStatus = async (id) => {
@@ -84,7 +90,7 @@ const ListingCategory = () => {
             <hr className='mb-5' />
             <div className="overflow-x-auto">
                 <table className="min-w-full bg-white border-gray-200 rounded-lg font-nunito">
-                    <TableHeader headerContent={["CATEGORY", "DESCRIPTION", "SUB CATEGORY", "ACTIONS"]} />
+                    <TableHeader headerContent={["CATEGORY", "DESCRIPTION", "SUB CATEGORY", role === "admin" && "ACTIONS"]} />
                     <tbody>
                         {
                             categories.length ?
@@ -123,7 +129,7 @@ const ListingCategory = () => {
 
                                                         </div>
                                                         <span
-                                                            className="bg-green_200 text-green_900 rounded-md py-1.5 flex items-center text-xs text-center px-2"
+                                                            className="bg-green_200 text-green_900 rounded-md py-1.5 flex items-center cursor-pointer text-xs text-center px-2"
                                                             onClick={() => openModal({ category, id: category._id }, { subCategory, id: subCategory._id })}
                                                         >
                                                             <FiEdit3 />

@@ -41,11 +41,17 @@ const cartSlice = createSlice({
       const { productId, variantId } = action.payload;
       state.cartProducts = state.cartProducts.filter(
         (item) =>
-          !(item.productDetails._id === productId && item.variantId === variantId)
+          !(
+            item.productDetails._id === productId &&
+            item.variantId === variantId
+          )
       );
-    },    
+    },
     clearCart: (state) => {
+      console.log("clear cart called");
+
       state.cartProducts = []; // Clear all cartProducts from the cart
+      state.isDataFetched = false; // Clear all cartProducts from the cart
     },
   },
 });

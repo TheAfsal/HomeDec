@@ -40,4 +40,9 @@ export const MANAGEMENT_ROUTES = {
   SELLERS_ADD: "add",
   CATEGORY: "category",
   CATEGORY_LIST: "list",
+  COUPON: "coupons",
+  COUPON_LIST: "list",
+  OFFER: "offers",
+  OFFER_LIST: "list",
+  SALES_REPORT: "sales-report",
 };

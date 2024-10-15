@@ -52,12 +52,18 @@ passport.use(
       console.log(profile.emails[0].value);
       console.log(profile.photos[0].value);
 
-      await createUser({
-        firstName: profile.name.familyName,
-        lastName: profile.name.givenName,
-        email: profile.emails[0].value,
-        password: "123456",
-      });
+      try {
+        await createUser({
+          firstName: profile.name.familyName,
+          lastName: profile.name.givenName,
+          email: profile.emails[0].value,
+          password: "123456",
+        });
+      } catch (error) {
+        console.log("User already Exist");
+        
+      }
+
       return done(null, profile);
     }
   )
@@ -153,6 +159,8 @@ app.use(express.json());
 app.use("/", userRouters);
 app.use("/admin", adminRouters);
 app.use("/seller", sellerRouters);
+
+
 // app.use((err, req, res, next) => {
 //   console.log(err.field);
 //   console.log(err);

@@ -89,7 +89,7 @@ const ShippingPage = ({ addressList, postcode, deliveryDate, setCurrentStep, shi
                             {/* {error && <p className='text-red-500 text-xs'>{error}</p>} */}
                             <div className="flex space-x-4">
                                 <button
-                                    // onClick={handleSave}
+                                    onClick={handleNextStep}
                                     className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
                                 >
                                     Save
