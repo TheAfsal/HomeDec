@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import CartItem from './components/CartItem';
-import TableHeader from '../../../Components/Table/TableHeader';
+import TableHeader from '../../../components/Table/TableHeader';
 import OrderSummary from './components/OrderSummary';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCartsItems } from '../../../redux/slices/cartSlice';

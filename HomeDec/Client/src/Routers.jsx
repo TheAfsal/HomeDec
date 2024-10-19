@@ -35,6 +35,8 @@ import WishListPage from "./pages/User/WishList/WishListPage";
 import CouponListPage from "./pages/Admin/Management/Coupon/CouponListPage";
 import OfferPageList from "./pages/Admin/Management/Offers/OfferPageList";
 import SalesReportPage from "./pages/Admin/Management/Sales/SalesReportPage";
+import PaymentPolicyPage from "./pages/User/Account/PaymentPolicyPage";
+import Wallet from "./pages/User/Account/Wallet";
 
 const routers = createBrowserRouter([
 
@@ -87,6 +89,14 @@ const routers = createBrowserRouter([
           {
             path: USER_ROUTES.WISHLIST,
             element: <WishListPage />,
+          },
+          {
+            path: USER_ROUTES.PAYMENT_POLICY,
+            element: <PaymentPolicyPage />,
+          },
+          {
+            path: USER_ROUTES.WALLET,
+            element: <Wallet />,
           },
           {
             path: USER_ROUTES.MY_REVIEWS,

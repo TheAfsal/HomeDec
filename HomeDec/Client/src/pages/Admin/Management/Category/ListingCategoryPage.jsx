@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import AddCategory from './components/AddCategory';
-import IsAdmin from '../../../../Components/Admin/IsAdmin';
-import TableHeader from '../../../../Components/Table/TableHeader';
+import IsAdmin from '../../../../components/Admin/IsAdmin';
+import TableHeader from '../../../../components/Table/TableHeader';
 import { TbLock, TbLockOpen } from 'react-icons/tb';
 import { FiEdit3 } from 'react-icons/fi';
-import NoRecords from '../../../../Components/Table/NoRecords';
+import NoRecords from '../../../../components/Table/NoRecords';
 import UpdateCategory from './components/UpdateCategory';
 import { useSelector } from 'react-redux';
 import { changeStatusCategory, listCategory } from '../../../../api/administrator/categoryManagement';

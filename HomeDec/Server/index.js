@@ -96,15 +96,13 @@ app.get(
       email: req.user.emails[0].value,
     });
 
-    console.log("______________________");
-    console.log(userDetails[0]);
-
     const token = await generateToken(
       {
         _id: userDetails[0]._id,
         email: userDetails[0].email,
         cartId: userDetails[0].cartId,
         addressId: userDetails[0].addressId,
+        wishlistId: userDetails[0].wishlistId,
       },
       false,
       true

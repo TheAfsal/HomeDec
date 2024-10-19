@@ -8,7 +8,7 @@ import { useDispatch } from 'react-redux';
 import { clearCart } from '../../../../redux/slices/cartSlice';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import CircularLoader from '../../../../Components/Loading/CircularLoader';
+import CircularLoader from '../../../../components/Loading/CircularLoader';
 import { USER_ROUTES } from '../../../../config/routerConstants';
 
 const CheckoutPage = () => {
@@ -96,13 +96,12 @@ const CheckoutPage = () => {
           name: "Your Company Name",
           order_id: details.orderDetails.orderId.id,
           handler: async function (response) {
-            console.log(response);
+            console.log("123123");
             try {
-              await addTransactionId(orderId, response.razorpay_payment_id)
+              await addTransactionId(true, orderId, response.razorpay_payment_id)
               dispatch(clearCart())
               navigate(`/${USER_ROUTES.PAYMENT_SUCCESS}`)
 
-              // alert(`Payment successful! Payment ID: ${response.razorpay_payment_id}`);
 
             } catch (error) {
               console.log("transaction id storing failed");
@@ -121,8 +120,14 @@ const CheckoutPage = () => {
 
         try {
           const razorpay = new window.Razorpay(options);
-          razorpay.on('payment.failed', function (response) {
+          razorpay.on('payment.failed', async function (response) {
+            console.log("321321");
             console.log(response);
+            await addTransactionId(false, orderId, response.razorpay_payment_id)
+            dispatch(clearCart())
+            navigate(`/${USER_ROUTES.SHOP}`)
+            alert(`Payment failed`);
+
           });
           razorpay.open();
 

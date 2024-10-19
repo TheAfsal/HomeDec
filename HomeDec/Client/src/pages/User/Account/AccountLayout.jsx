@@ -14,8 +14,8 @@ const AccountLayout = () => {
   const account = [
     { content: "Orders", link: USER_ROUTES.ORDERS },
     { content: "Wishlist", link: USER_ROUTES.WISHLIST },
-    { content: "Payment methods", link: "--" },
-    { content: "My reviews", link: USER_ROUTES.MY_REVIEWS }
+    { content: "Payment policy", link: USER_ROUTES.PAYMENT_POLICY },
+    { content: "Wallet", link: USER_ROUTES.WALLET }
   ]
   const manageAccount = [
     { content: "Personal info", link: USER_ROUTES.PROFILE },

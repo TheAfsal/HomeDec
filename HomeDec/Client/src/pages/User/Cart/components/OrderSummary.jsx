@@ -20,11 +20,12 @@ const OrderSummary = ({ cartItems, pushToast }) => {
 
     const tax = 0; // Replace with actual tax calculation if needed
     const total = subtotal + tax;
+    const deliveryCharge = cartItems.length ? 50 : 0
 
     // Calculate final amount based on discounts
     useEffect(() => {
         let tempDiscount = subtotal - cartItems.reduce((acc, item) => acc + (OfferPriceDisplay(item.variantDetails.price, item.productDetails.bestOffer) * item.quantity), 0)
-        setFinalAmount(total - tempDiscount);
+        setFinalAmount(total - tempDiscount + deliveryCharge);
         setDiscount(tempDiscount)
     }, [total, promoCode]);
 
@@ -92,6 +93,7 @@ const OrderSummary = ({ cartItems, pushToast }) => {
                         <div className="text-sm text-gray-500 mb-2">Applied coupon discount: <span className="float-right text-green-600">-{approvedPromoCode?.discountValue?.toFixed(2)}{approvedPromoCode?.discountType === "percentage" ? "%" : ""}</span></div>
                     }
                     <div className="text-sm text-gray-500 mb-2">Tax collected: <span className="float-right">₹{tax?.toFixed(2)}</span></div>
+                    <div className="text-sm text-gray-500 mb-2">Delivery fee (fixed):  <span className="float-right">₹{deliveryCharge?.toFixed(2)}</span></div>
                     <hr className='my-4' />
                     <div className="text-sm font-semibold text-gray-900 my-8 flex items-center justify-between">
                         Estimated total:

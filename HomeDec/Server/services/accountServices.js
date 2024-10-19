@@ -105,8 +105,6 @@ module.exports = {
     console.log(wishlistId, productId, variantId);
 
     try {
-
-      
       let wishlist = await Wishlist.findOne({ _id: wishlistId });
 
       const product = await Product.findById(productId);
@@ -125,7 +123,7 @@ module.exports = {
 
       console.log(wishlist);
 
-      const existingProduct = wishlist.items.find(
+      const existingProduct = wishlist?.items.find(
         (item) =>
           item.productId.toString() === productId &&
           item.variantId.toString() === variantId
@@ -200,6 +198,36 @@ module.exports = {
     } catch (error) {
       console.log(error);
       throw error;
+    }
+  },
+
+  getUsersCountByMonth: async () => {
+    try {
+      const results = await User.aggregate([
+        {
+          $group: {
+            _id: {
+              year: { $year: "$createdAt" },
+              month: { $month: "$createdAt" },
+            },
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $sort: { "_id.year": 1, "_id.month": 1 }, 
+        },
+      ]);
+
+      // Format the results for the client-side pie chart
+      const formattedResults = results.map((item) => ({
+        month: `${item._id.year}-${String(item._id.month).padStart(2, "0")}`, // Format YYYY-MM
+        count: item.count,
+      }));
+
+      return formattedResults;
+    } catch (error) {
+      console.error("Error fetching user counts by month:", error);
+      throw error; // Handle the error as needed
     }
   },
 };

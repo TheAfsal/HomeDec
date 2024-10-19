@@ -19,7 +19,8 @@ export const USER_ROUTES = {
   ORDERS: "orders",
   ORDER_DETAILS: "orders/in-detail",
   WISHLIST: "wishlist",
-  MY_REVIEWS: "my-reviews",
+  PAYMENT_POLICY: "payment-policy",
+  WALLET: "wallet",
   PROFILE: "personal-info",
   MY_ADDRESS: "my-addresses",
 };

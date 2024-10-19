@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import TableHeader from '../../../../Components/Table/TableHeader';
+import TableHeader from '../../../../components/Table/TableHeader';
 import { TbLock, TbLockOpen } from 'react-icons/tb';
 import { FiEdit3 } from 'react-icons/fi';
-import IsSeller from '../../../../Components/Admin/IsSeller';
+import IsSeller from '../../../../components/Admin/IsSeller';
 import { Link, NavLink } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { changeProductStatus, ListAllProducts, ListProducts } from '../../../../api/administrator/productManagement';

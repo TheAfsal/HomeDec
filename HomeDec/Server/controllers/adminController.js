@@ -12,6 +12,7 @@ const couponServices = require("../services/couponServices");
 const offerServices = require("../services/offerServices");
 const inventoryServices = require("../services/inventoryServices");
 const productServices = require("../services/productServices");
+const accountServices = require("../services/accountServices");
 
 module.exports = {
   loginAdmin: async (req, res) => {
@@ -297,6 +298,24 @@ module.exports = {
   fetchProductsforAdmin: async (req, res) => {
     try {
       const result = await productServices.fetchProductsforAdmin();
+      return res.status(200).json(result);
+    } catch (error) {
+      return res.status(500).json({ error: "Failed to fetch products" });
+    }
+  },
+
+  getNumberOfUsers: async (req, res) => {
+    try {
+      const result = await accountServices.getUsersCountByMonth();
+      return res.status(200).json(result);
+    } catch (error) {
+      return res.status(500).json({ error: "Failed to fetch products" });
+    }
+  },
+
+  findTop10: async (req, res) => {
+    try {
+      const result = await orderService.getTop10();
       return res.status(200).json(result);
     } catch (error) {
       return res.status(500).json({ error: "Failed to fetch products" });

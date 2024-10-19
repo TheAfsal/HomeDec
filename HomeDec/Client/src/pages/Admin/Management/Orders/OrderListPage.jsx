@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import TableHeader from '../../../../Components/Table/TableHeader';
+import TableHeader from '../../../../components/Table/TableHeader';
 import { useSelector } from 'react-redux';
 import { ListAllOrders, ListMyOrders } from '../../../../api/administrator/orderManagement';
 import OrderStatusModel from './components/OrderStatusModel';

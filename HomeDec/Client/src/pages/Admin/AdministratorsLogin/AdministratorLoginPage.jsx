@@ -27,7 +27,7 @@ const AdministratorLoginPage = () => {
 
         if (token) {
             dispatch(fetchUserRole()).then((data) => {
-                navigate(`/${data.payload.role}`)
+                navigate(`/${MANAGEMENT_ROUTES.MANAGEMENT}/${MANAGEMENT_ROUTES.DASHBOARD}`)
             });
         }
         setloading(false)
@@ -42,7 +42,7 @@ const AdministratorLoginPage = () => {
                 token: response.token,
                 role: "admin",
             }));
-            navigate(`/${MANAGEMENT_ROUTES.MANAGEMENT}`);
+            navigate(`/${MANAGEMENT_ROUTES.MANAGEMENT}/${MANAGEMENT_ROUTES.DASHBOARD}`);
 
         } catch (error) {
             dispatch(loginFailure(error.message));
@@ -58,7 +58,7 @@ const AdministratorLoginPage = () => {
                 token: response.token,
                 role: "seller",
             }));
-            navigate(`/${MANAGEMENT_ROUTES.MANAGEMENT}`);
+            navigate(`/${MANAGEMENT_ROUTES.MANAGEMENT}/${MANAGEMENT_ROUTES.DASHBOARD}`);
 
         } catch (error) {
             dispatch(loginFailure(error.message));

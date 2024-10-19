@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux';
-import IsAdmin from '../../../../Components/Admin/IsAdmin';
-import TableHeader from '../../../../Components/Table/TableHeader';
-import NoRecords from '../../../../Components/Table/NoRecords';
+import IsAdmin from '../../../../components/Admin/IsAdmin';
+import TableHeader from '../../../../components/Table/TableHeader';
+import NoRecords from '../../../../components/Table/NoRecords';
 import AddCouponPage from './AddCouponPage';
 import { listCoupons, toggleCouponStatus } from '../../../../api/administrator/couponManagement';
 import { TbLock, TbLockOpen } from 'react-icons/tb';
@@ -34,16 +34,16 @@ const CouponListPage = () => {
         try {
             await toggleCouponStatus(id)
             setRefresh((prev) => !prev)
-            setToast(true,"Coupon status updated")
+            setToast(true, "Coupon status updated")
         } catch (error) {
             console.log('Error in toggling', error);
-            setToast(false,"Error in toggling Coupon status")
+            setToast(false, "Error in toggling Coupon status")
         }
     }
 
-    function setToast(status ,message){
-        if(status) toast.success(message)
-            else toast.error(message)
+    function setToast(status, message) {
+        if (status) toast.success(message)
+        else toast.error(message)
     }
 
     return (
@@ -51,7 +51,7 @@ const CouponListPage = () => {
             <ToastContainer />
             {/* Popup Overlay To Add Coupon*/}
             {addPopup && (
-                <AddCouponPage isOpen={addPopup} onClose={setAddPopup} couponData={addPopup} setRefresh={setRefresh} setToast={setToast}/>
+                <AddCouponPage isOpen={addPopup} onClose={setAddPopup} couponData={addPopup} setRefresh={setRefresh} setToast={setToast} />
             )}
             <div className='flex justify-between'>
                 <h1 className="text-2xl font-semibold mb-2 font-nunito">Coupon Management</h1>

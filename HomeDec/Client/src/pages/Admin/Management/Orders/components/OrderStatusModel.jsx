@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { changeOrderStatus } from '../../../../../api/administrator/orderManagement';
+import { changeOrderStatus, rejectCancelOrReturnOrder } from '../../../../../api/administrator/orderManagement';
+import { Button } from "@/components/ui/button"
 
 const OrderStatusModal = ({ expandStatus, closeModal, setOrderData }) => {
     const [selectedStatus, setSelectedStatus] = useState('');
@@ -12,10 +13,6 @@ const OrderStatusModal = ({ expandStatus, closeModal, setOrderData }) => {
         'Delivered': 5,
         'Cancelled': 6
     };
-    console.log(statusOrder['Processing']);
-    console.log(expandStatus);
-
-
 
     const selectStatus = (status) => {
         setSelectedStatus(status);
@@ -64,8 +61,51 @@ const OrderStatusModal = ({ expandStatus, closeModal, setOrderData }) => {
             console.log(error);
 
         }
-
     };
+
+    const handleReturnOrCancel = async (status) => {
+        try {
+            const updatedOrder = await changeOrderStatus(status, expandStatus?._id, expandStatus?.orderItems?.productId, expandStatus?.orderItems?.variantId)
+            console.log(updatedOrder.order.orderItems);
+            console.log(updatedOrder.orderId);
+
+            setOrderData((prev) => {
+                const updatedOrders = prev.map((order) => {
+
+                    const updatedItem = updatedOrder.order.orderItems.find(
+                        (item) =>
+                            item.productId === order.orderItems.productId &&
+                            item.variantId === order.orderItems.variantId &&
+                            updatedOrder.orderId === order._id
+                    );
+
+                    if (updatedItem) {
+                        return {
+                            ...order,
+                            orderItems: {
+                                ...order.orderItems,
+                                status: updatedItem.status,
+                            },
+                        };
+                    }
+                    return order;
+                });
+                return updatedOrders;
+            });
+            closeModal()
+
+        } catch (error) {
+            console.log(error);
+
+        }
+    };
+
+    const rejectCancelOrReturn = async () => {
+        await rejectCancelOrReturnOrder(expandStatus?._id, expandStatus?.orderItems?.productId, expandStatus?.orderItems?.variantId)
+        closeModal()
+    }
+
+
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" onClick={closeModal}>
@@ -90,6 +130,43 @@ const OrderStatusModal = ({ expandStatus, closeModal, setOrderData }) => {
                 </div>
 
                 <p className="text-xs mt-4 text-gray-500">*You can choose only one Order status</p>
+                {
+                    (expandStatus.orderItems.isCancelled || expandStatus.orderItems.isReturned) &&
+                    <div className='border p-2 rounded-md'>
+                        {
+                            ((expandStatus.orderItems.isCancelled || expandStatus.orderItems.isReturned) && expandStatus.orderItems.status !== "Returned") ?
+                                <p className="text-xs text-gray-500 font-bold">
+                                    Arrived a {expandStatus.orderItems.isCancelled ? "Cancel" : "Return"} Request
+                                </p>
+                                :
+                                <p className="text-xs text-gray-500 font-bold">
+                                    Product {expandStatus.orderItems.isCancelled ? "Cancelled" : "Returned"}
+                                </p>
+                        }
+                        <p className="text-xs text-gray-500 font-semibold">Reason: {expandStatus?.orderItems?.reason?.type}</p>
+                        <p className="text-xs text-gray-500">{expandStatus?.orderItems?.reason?.comments}</p>
+
+                        {
+                            ((expandStatus.orderItems.isCancelled || expandStatus.orderItems.isReturned) && expandStatus.orderItems.status !== "Returned") &&
+                            <div className="flex justify-end space-x-2 mt-2">
+                                <Button
+                                    className="bg-green-500 text-white hover:bg-green-600"
+                                    onClick={() => expandStatus.orderItems.isCancelled ? handleReturnOrCancel("Cancelled") : handleReturnOrCancel("Returned")}
+                                >
+                                    Approve
+                                </Button>
+                                <Button
+                                    className="bg-red-500 text-white hover:bg-red-600"
+                                    onClick={rejectCancelOrReturn}
+                                >
+                                    Reject
+                                </Button>
+                            </div>
+                        }
+                    </div>
+                }
+
+
 
                 {/* Apply Button */}
                 <button className="mt-6 px-4 py-2 w-full bg-green-600 text-white rounded-lg" onClick={handleApply}>

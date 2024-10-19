@@ -74,7 +74,7 @@ export const addNewAddresses = async (updatedAddress) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw new Error(error?.response?.data?.message);  
+    throw new Error(error?.response?.data?.message);
   }
 };
 
@@ -121,9 +121,14 @@ export const updateOrder = async (orderId, paymentMethod, shippingAddress) => {
   }
 };
 
-export const addTransactionId = async (orderId, razorpayOrderId) => {
+export const addTransactionId = async (
+  paymentStatus,
+  orderId,
+  razorpayOrderId
+) => {
   try {
     const response = await userAPI.post("/cart/checkout/add-transaction-id", {
+      paymentStatus,
       orderId,
       razorpayOrderId,
     });
@@ -199,6 +204,17 @@ export const verifyPromoCode = async (promoCode, cartItems, finalAmount) => {
       orderItems: cartItems,
       finalAmount,
     });
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw new Error(error?.response?.data?.message);
+  }
+};
+
+export const getWalletDetails = async () => {
+  try {
+    const response = await userAPI.get("/wallet/history");
     console.log(response.data);
     return response.data;
   } catch (error) {

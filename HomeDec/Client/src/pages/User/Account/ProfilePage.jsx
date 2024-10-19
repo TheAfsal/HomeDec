@@ -6,7 +6,7 @@ import { disableLoading, enableLoading, fetchUserProfile, selectError, selectLoa
 import ContactInfo from './components/ContactInfo';
 import PasswordSection from './components/passwordSection';
 import axios from 'axios';
-import CircularLoader from '../../../Components/Loading/CircularLoader';
+import CircularLoader from '../../../components/Loading/CircularLoader';
 import userAPI from '../../../api/apiConfigUser';
 
 const ProfilePage = () => {

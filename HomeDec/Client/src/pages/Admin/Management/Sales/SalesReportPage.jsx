@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { generateSalesReport } from '../../../../api/administrator/salesManagement';
-import TableHeader from '../../../../Components/Table/TableHeader';
-import NoRecords from '../../../../Components/Table/NoRecords';
+import TableHeader from '../../../../components/Table/TableHeader';
+import NoRecords from '../../../../components/Table/NoRecords';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -16,6 +16,8 @@ const SalesReportPage = () => {
 
     const fetchSalesReport = async () => {
         try {
+            console.log(role, timeFrame, startDate, endDate);
+
             const data = await generateSalesReport(role, timeFrame, startDate, endDate);
             setSalesData(data);
             console.log(data);
@@ -86,7 +88,7 @@ const SalesReportPage = () => {
     };
 
     useEffect(() => {
-        fetchSalesReport(); 
+        fetchSalesReport();
     }, []);
 
     return (

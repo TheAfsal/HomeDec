@@ -36,7 +36,6 @@ module.exports = {
   // list products
   listCategory: async (req, res) => {
     try {
-
       const result = await categoryServices.listCategory("name");
       console.log(result);
 
@@ -228,6 +227,20 @@ module.exports = {
       const { status, orderId, productId, variantId } = req.body;
       const result = await orderService.changeOrderStatus(
         status,
+        orderId,
+        productId,
+        variantId,
+      );
+      return res.status(200).json(result);
+    } catch (error) {
+      return res.status(error.status).json({ error: error.message });
+    }
+  },
+
+  rejectCancelOrReturn: async (req, res) => {
+    try {
+      const { orderId, productId, variantId } = req.body;
+      const result = await orderService.rejectCancelOrReturn(
         orderId,
         productId,
         variantId

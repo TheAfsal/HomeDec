@@ -10,6 +10,8 @@ const { getCurrentWalletBalance } = require("./walletService");
 const Wallet = require("../models/walletTransaction");
 const User = require("../models/userModel");
 const Coupon = require("../models/couponModel");
+const PDFDocument = require("pdfkit");
+const blobStream = require("blob-stream");
 
 module.exports = {
   AddNewOrder: async (userId, cartItems, promoCode) => {
@@ -60,6 +62,9 @@ module.exports = {
     cartId
   ) => {
     try {
+      console.log("_id, shippingAddress, paymentMethod, userId, cartId");
+      console.log(_id, shippingAddress, paymentMethod, userId, cartId);
+
       // Step 1: Retrieve the existing order
       const orderDoc = await Order.findOne({ _id });
       if (!orderDoc) {
@@ -69,6 +74,9 @@ module.exports = {
       // Step 2: Calculate totals
       let { total, totalDiscounts, finalAmount, orderCollection } =
         await calculateTotalAmount(orderDoc.orderItems);
+
+      //Add Delivary Charge = 50
+      finalAmount += 50;
 
       // Step 3: Prepare updates
       const orderUpdates = {
@@ -85,6 +93,13 @@ module.exports = {
       };
 
       let orderId;
+
+      if (finalAmount > 1000 && paymentMethod === "cod") {
+        throw {
+          status: 500,
+          message: "Orders above ₹1000 cannot be placed using Cash on Delivery",
+        };
+      }
 
       // Step 4: Handle Coupons
       if (orderDoc.couponsApplied && orderDoc.couponsApplied.length > 0) {
@@ -235,6 +250,7 @@ module.exports = {
           orderUpdates.payment = {
             method: "wallet",
             transactionId: walletTransactionDoc._id,
+            status: "Completed",
           };
 
           console.log(
@@ -249,6 +265,7 @@ module.exports = {
         orderUpdates.payment = {
           method: "cod",
           transactionId: null,
+          status: "Completed",
         };
       }
 
@@ -293,7 +310,12 @@ module.exports = {
     }
   },
 
-  addTransactionId: async (userId, orderId, razorpayPaymentId) => {
+  addTransactionId: async (
+    userId,
+    orderId,
+    razorpayPaymentId,
+    paymentStatus
+  ) => {
     try {
       console.log(orderId, userId, razorpayPaymentId);
 
@@ -304,9 +326,16 @@ module.exports = {
       }
 
       // Step 2: Update the transaction document with the Razorpay payment ID
-      transactionDoc.transactionId = razorpayPaymentId; // Store Razorpay payment ID
-      transactionDoc.paymentStatus = "Completed"; // Update payment status
-      transactionDoc.paymentDate = new Date(); // Update payment date
+      transactionDoc.transactionId = razorpayPaymentId;
+      transactionDoc.paymentStatus = paymentStatus ? "Completed" : "Failed";
+      transactionDoc.paymentDate = new Date();
+
+      await Order.updateOne(
+        { _id: orderId },
+        {
+          "payment.status": paymentStatus ? "Completed" : "Failed",
+        }
+      );
 
       // Step 3: Save the updated transaction document
       await transactionDoc.save();
@@ -322,7 +351,9 @@ module.exports = {
 
   ListOrdersForAdmin: async () => {
     try {
-      const orderList = await Order.find({ "payment.method": { $ne: "pending" } })
+      const orderList = await Order.find({
+        "payment.method": { $ne: "pending" },
+      })
         .populate("userId", "firstName") // Populate user name
         .populate("orderItems.productId", "title");
       return orderList;
@@ -339,22 +370,22 @@ module.exports = {
           $match: { "payment.method": { $ne: "pending" } },
         },
         {
-          $unwind: "$orderItems", // Deconstruct orderItems array
+          $unwind: "$orderItems",
         },
         {
           $lookup: {
-            from: "products", // Name of the Products collection
-            localField: "orderItems.productId", // Field in orders
-            foreignField: "_id", // Field in products
+            from: "products",
+            localField: "orderItems.productId",
+            foreignField: "_id",
             as: "productDetails",
           },
         },
         {
-          $unwind: "$productDetails", // Deconstruct productDetails array
+          $unwind: "$productDetails",
         },
         {
           $match: {
-            "productDetails.sellerId": new mongoose.Types.ObjectId(sellerId), // Filter by seller ID
+            "productDetails.sellerId": new mongoose.Types.ObjectId(sellerId),
           },
         },
         {
@@ -378,7 +409,7 @@ module.exports = {
             "orderItems.price": 1,
             "orderItems.status": 1,
             "productDetails.title": 1,
-            "productDetails.variants": 1, // Include the entire variants array
+            "productDetails.variants": 1,
             dateOrdered: 1,
             totalAmount: 1,
             shippingCharge: 1,
@@ -387,6 +418,9 @@ module.exports = {
             country: 1,
             postalCode: 1,
             street: 1,
+            "orderItems.isCancelled": 1,
+            "orderItems.isReturned": 1,
+            "orderItems.reason": 1,
             "userDetails.firstName": 1, // Only include firstName
           },
         },
@@ -433,6 +467,8 @@ module.exports = {
 
   changeOrderStatus: async (status, orderId, productId, variantId) => {
     try {
+      console.log(status);
+
       // Find the order by orderId
       const order = await Order.findById(orderId);
 
@@ -458,6 +494,177 @@ module.exports = {
       orderItem.status = status;
 
       // Save the updated order
+
+      if (status === "Cancelled" && order.payment.method === "online") {
+        const user = await User.findOne({ _id: order.userId });
+        console.log(user);
+
+        user.walletBalance += orderItem.price;
+        console.log(user.walletBalance);
+        user.save();
+        // Create a new wallet transaction
+        const walletHistory = new Wallet({
+          userId: user._id,
+          amount: orderItem.price,
+          transactionType: "credit",
+          orderId: order._id,
+        });
+
+        // Save the wallet transaction
+        await walletHistory.save();
+        console.log("Wallet transaction saved:", walletHistory);
+      }
+
+      await order.save();
+
+      return {
+        message: "Order status updated successfully",
+        orderId: order._id,
+        order,
+      };
+    } catch (error) {
+      console.error("Error updating order status:", error);
+      throw error;
+    }
+  },
+
+  requestReturnOrcancel: async (
+    orderId,
+    productId,
+    variantId,
+    reason,
+    comments,
+    returnOrCancel
+  ) => {
+    try {
+      // Find the order
+      const order = await Order.findById(orderId);
+
+      if (!order) {
+        throw new Error("Order not found");
+      }
+
+      if (returnOrCancel === "return") {
+        // Check if the order is delivered
+        const isDelivered = order.orderItems.some(
+          (item) => item.status === "Delivered"
+        );
+
+        if (isDelivered) {
+          const deliveryDate = new Date(order.updatedAt); // Assuming updatedAt reflects the delivery date
+          const now = new Date();
+
+          // Calculate the difference in time
+          const timeDifference = now - deliveryDate; // in milliseconds
+          const daysDifference = timeDifference / (1000 * 3600 * 24); // convert to days
+
+          if (daysDifference > 7) {
+            throw new Error(
+              "Returns are not accepted after one week from delivery."
+            );
+          }
+        }
+
+        // Proceed to update the order with return request details
+        const updateData = {
+          $set: {
+            "orderItems.$[item].isReturned": true,
+            "orderItems.$[item].reason": {
+              type: reason,
+              comments,
+            },
+          },
+        };
+
+        const updatedOrder = await Order.findByIdAndUpdate(
+          orderId,
+          updateData,
+          {
+            new: true,
+            arrayFilters: [
+              { "item.productId": productId, "item.variantId": variantId },
+            ],
+          } // Target specific items in the array
+        );
+
+        if (!updatedOrder) {
+          throw new Error("Order update failed");
+        }
+
+        return updatedOrder;
+      } else if (returnOrCancel === "cancel") {
+        // Check if the order is delivered
+        const isDelivered = order.orderItems.some(
+          (item) => item.status === "Delivered"
+        );
+
+        if (isDelivered) {
+          throw new Error("Product already delivered");
+        }
+
+        // Proceed to update the order with return request details
+        const updateData = {
+          $set: {
+            "orderItems.$[item].isCancelled": true,
+            "orderItems.$[item].reason": {
+              type: reason,
+              comments,
+            },
+          },
+        };
+
+        const updatedOrder = await Order.findByIdAndUpdate(
+          orderId,
+          updateData,
+          {
+            new: true,
+            arrayFilters: [
+              { "item.productId": productId, "item.variantId": variantId },
+            ],
+          } // Target specific items in the array
+        );
+
+        if (!updatedOrder) {
+          throw new Error("Order update failed");
+        }
+
+        return updatedOrder;
+      }
+    } catch (error) {
+      console.error("Error requesting return:", error);
+      throw error; // Rethrow or handle the error as needed
+    }
+  },
+
+  rejectCancelOrReturn: async (orderId, productId, variantId) => {
+    try {
+      // Find the order by orderId
+      const order = await Order.findById(orderId);
+
+      if (!order) {
+        throw { status: 404, message: "Order not found" };
+      }
+
+      // Find the product in the order and update its status
+      const orderItem = order.orderItems.find(
+        (item) =>
+          item.productId.toString() === productId &&
+          item.variantId.toString() === variantId
+      );
+
+      if (!orderItem) {
+        throw {
+          status: 404,
+          message: "Product or variant not found in this order",
+        };
+      }
+
+      // Update the status of the found order item
+      orderItem.isCancelled = false;
+      orderItem.isReturned = false;
+      orderItem.reason = {};
+
+      // Save the updated order
       await order.save();
 
       return {
@@ -474,9 +681,9 @@ module.exports = {
   listOrdersForUser: async (userId) => {
     try {
       // Step 1: Fetch orders for the user
-      const orders = await Order.find({ userId }).populate(
-        "orderItems.productId"
-      );
+      const orders = await Order.find({ userId })
+        .populate("orderItems.productId")
+        .sort({ dateOrdered: -1 });
 
       // Step 2: Enrich order items with variant details
       const enrichedOrders = await Promise.all(
@@ -584,6 +791,229 @@ module.exports = {
     } catch (error) {
       console.log(error);
       throw new Error("Failed to fetch Orders");
+    }
+  },
+
+  generateInvoice: async (userId, orderId, productId, variantId, res) => {
+    try {
+      const doc = new PDFDocument();
+
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="invoice-${orderId}.pdf"`
+      );
+
+      doc.pipe(res);
+
+      const user = await User.findOne({ _id: userId });
+      console.log(user);
+
+      const order = await Order.findOne({ _id: orderId, userId })
+        .populate("orderItems.productId")
+        .populate({
+          path: "orderItems.productId",
+          populate: [{ path: "category" }, { path: "subCategory" }],
+        });
+      if (!order) throw new Error("Order not found");
+
+      // Step 2: Find the specific product item
+      const orderItem = order.orderItems.find(
+        (item) =>
+          item.productId._id.equals(productId) &&
+          item.variantId.equals(variantId)
+      );
+      if (!orderItem) throw new Error("Order item not found");
+
+      const product = orderItem.productId;
+      const variant = product.variants.find((v) => v._id.equals(variantId));
+
+      // Prepare invoice details
+      const invoiceDetails = {
+        orderId: orderId,
+        user: {
+          name: `${user.firstName} ${user.lastName}`, // Use the actual user's name
+          email: user.email, // Replace with actual user's email if available
+          mobile: order.mobile,
+          address: {
+            street: order.street,
+            city: order.city,
+            state: order.state,
+            postalCode: order.postalCode,
+            country: order.country,
+          },
+        },
+        products: [
+          {
+            title: product.title,
+            price: orderItem.price,
+            quantity: orderItem.quantity,
+            variant: variant
+              ? {
+                  color: variant.color,
+                  image: variant.images[0].secure_url,
+                }
+              : null,
+            category: product.category.name, // Assuming category is populated
+            subCategory: product.subCategory.name, // Assuming subCategory is populated
+          },
+        ],
+        totalAmount: orderItem.price * orderItem.quantity,
+      };
+
+      console.log(invoiceDetails);
+
+      doc.moveDown();
+
+      // Add company name
+      doc.fontSize(30).text("HomeDec", { align: "center" });
+      doc.fontSize(25).text("Invoice", { align: "center" });
+      doc.moveDown();
+
+      // Add invoice details
+      doc.fontSize(12).text(`Order ID: ${invoiceDetails.orderId}`);
+      doc.text(`Customer: ${invoiceDetails.user.name}`);
+      doc.text(`Email: ${invoiceDetails.user.email}`);
+      doc.text(`Mobile: ${invoiceDetails.user.mobile || "Not Found"}`);
+      doc.text(
+        `Address: ${invoiceDetails.user.address.street}, ${invoiceDetails.user.address.city}, ${invoiceDetails.user.address.state}, ${invoiceDetails.user.address.postalCode}, ${invoiceDetails.user.address.country}`
+      );
+      doc.moveDown();
+
+      // Add a table-like structure for products
+      doc.fontSize(14).text("Products", { underline: true });
+      doc.moveDown();
+
+      invoiceDetails.products.forEach((product) => {
+        doc.fontSize(12).text(`Product: ${product.title}`, { continued: true });
+        doc.text(
+          `  |  Price: ${product.price} rupees  |  Quantity: ${product.quantity}`
+        );
+
+        if (product.variant) {
+          doc.text(`  |  Color: ${product.variant.color} `);
+        }
+        doc.text(`  |  Category: ${product.category}`);
+        doc.text(`  |  Subcategory: ${product.subCategory}`);
+        doc.moveDown();
+      });
+
+      // Add total amount in a highlighted manner
+      doc.fontSize(16).text(`Total Amount: ${invoiceDetails.totalAmount}`, {
+        underline: true,
+      });
+      doc.moveDown();
+
+      // Add a footer or thank you note
+      doc
+        .fontSize(12)
+        .text("Thank you for your business!", { align: "center" });
+
+      // Finalize the PDF document
+      doc.end();
+    } catch (error) {
+      console.log(error);
+      // Only send a response if headers have not been sent
+      if (!res.headersSent) {
+        return res.status(500).json({ message: "Failed to generate Invoice" });
+      }
+    }
+  },
+
+  getTop10: async () => {
+    try {
+      const result = await Order.aggregate([
+        { $unwind: "$orderItems" },
+        {
+          $lookup: {
+            from: "products",
+            localField: "orderItems.productId",
+            foreignField: "_id",
+            as: "productDetails",
+          },
+        },
+        { $unwind: "$productDetails" },
+        {
+          $facet: {
+            topSellingProducts: [
+              {
+                $group: {
+                  _id: "$productDetails._id",
+                  productName: { $first: "$productDetails.title" },
+                  image: {
+                    $first: {
+                      $arrayElemAt: [
+                        "$productDetails.variants.images.secure_url",
+                        0,
+                      ],
+                    },
+                  },
+                  totalQuantity: { $sum: "$orderItems.quantity" },
+                },
+              },
+              { $sort: { totalQuantity: -1 } },
+              { $limit: 10 },
+            ],
+            topSellingCategories: [
+              {
+                $group: {
+                  _id: "$productDetails.category",
+                  totalQuantity: { $sum: "$orderItems.quantity" },
+                },
+              },
+              {
+                $lookup: {
+                  from: "categories",
+                  localField: "_id",
+                  foreignField: "_id",
+                  as: "categoryDetails",
+                },
+              },
+              { $unwind: "$categoryDetails" },
+              {
+                $project: {
+                  categoryId: "$_id",
+                  categoryName: "$categoryDetails.name",
+                  totalQuantity: 1,
+                },
+              },
+              { $sort: { totalQuantity: -1 } },
+              { $limit: 10 },
+            ],
+            topSellingSubCategories: [
+              {
+                $group: {
+                  _id: "$productDetails.subCategory",
+                  totalQuantity: { $sum: "$orderItems.quantity" },
+                },
+              },
+              {
+                $lookup: {
+                  from: "subcategories",
+                  localField: "_id",
+                  foreignField: "_id",
+                  as: "subCategoryDetails",
+                },
+              },
+              { $unwind: "$subCategoryDetails" },
+              {
+                $project: {
+                  subCategoryId: "$_id",
+                  subCategoryName: "$subCategoryDetails.name",
+                  totalQuantity: 1,
+                },
+              },
+              { $sort: { totalQuantity: -1 } },
+              { $limit: 10 },
+            ],
+          },
+        },
+      ]);
+
+      return result[0]; // Access the results from the facets
+    } catch (error) {
+      console.error("Error fetching best-selling products:", error);
+      throw new Error("Failed to fetch best-selling products");
     }
   },
 };

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
-import SideNavbar from '../../../Components/NavigationComponents/SideNavBar';
-import Navbar from '../../../Components/NavigationComponents/Navbar';
+import SideNavbar from '../../../components/NavigationComponents/SideNavBar';
+import Navbar from '../../../components/NavigationComponents/Navbar';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserRole } from '../../../redux/slices/authSlice';
 import { AUTH_ROUTES } from '../../../config/routerConstants';

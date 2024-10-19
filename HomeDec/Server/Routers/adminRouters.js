@@ -20,6 +20,9 @@ const {
   updateOffer,
   fetchSalesReport,
   fetchProductsforAdmin,
+  getNumberOfUsers,
+  bestSellingProduct,
+  findTop10,
 } = require("../controllers/adminController");
 const {
   verifyRoleToken,
@@ -88,5 +91,11 @@ router.get("/sales-report", verifyTokenAdmin, fetchSalesReport);
 
 //Products
 router.get("/products/list", verifyTokenAdmin, fetchProductsforAdmin);
+
+//List number of users
+router.get("/get-user-count", verifyTokenAdmin, getNumberOfUsers);
+
+//Best selling product
+router.get("/top-10", verifyTokenAdmin, findTop10);
 
 module.exports = router;

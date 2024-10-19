@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import UserNavBar from '../../../Components/NavigationComponents/UserNavBar'
-import UserFooter from '../../../Components/NavigationComponents/UserFooter'
+import UserNavBar from '../../../components/NavigationComponents/UserNavBar'
+import UserFooter from '../../../components/NavigationComponents/UserFooter'
 import { Outlet } from 'react-router-dom'
 import { verifyUserRole } from '../../../redux/slices/authSlice'
 import { useDispatch, useSelector } from 'react-redux'
-import CircularLoader from '../../../Components/Loading/CircularLoader'
+import CircularLoader from '../../../components/Loading/CircularLoader'
 
 const UserLayout = () => {
 
@@ -15,7 +15,7 @@ const UserLayout = () => {
     const key = localStorage.getItem("key");
     if (key) {
       dispatch(verifyUserRole())
-      
+
     }
     setLoading(false)
   }, [dispatch]);

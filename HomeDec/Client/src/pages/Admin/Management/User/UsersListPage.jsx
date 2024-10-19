@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import TableHeader from '../../../../Components/Table/TableHeader';
-import NoRecords from '../../../../Components/Table/NoRecords';
+import TableHeader from '../../../../components/Table/TableHeader';
+import NoRecords from '../../../../components/Table/NoRecords';
 import { TbLock, TbLockOpen } from 'react-icons/tb';
 import { fetchUsers, toggleUserStatus } from '../../../../api/administrator/userManagement';
 import { ToastContainer, toast } from 'react-toastify';

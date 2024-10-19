@@ -8,6 +8,7 @@ const couponServices = require("../services/couponServices");
 const orderService = require("../services/orderService");
 const productServices = require("../services/productServices");
 const userService = require("../services/userService");
+const walletService = require("../services/walletService");
 const errorHandler = require("../Utils/authErrorHandler");
 const sendOTP = require("../Utils/sendOTPMail");
 
@@ -374,13 +375,14 @@ module.exports = {
 
   addTransactionId: async (req, res) => {
     try {
-      const { orderId, razorpayOrderId } = req.body;
+      const { paymentStatus, orderId, razorpayOrderId } = req.body;
       const { _id } = req.user;
 
       const order = await orderService.addTransactionId(
         _id,
         orderId,
-        razorpayOrderId
+        razorpayOrderId,
+        paymentStatus
       );
       return res.status(201).json({
         success: true,
@@ -401,6 +403,31 @@ module.exports = {
     try {
       const { _id } = req.user;
       const items = await orderService.listOrdersForUser(_id);
+      return res.status(200).json(items);
+    } catch (error) {
+      return res.status(500).json({ error: "Failed to fetch Orders" });
+    }
+  },
+
+  requestReturnOrcancel: async (req, res) => {
+    try {
+      const {
+        orderId,
+        productId,
+        variantId,
+        reason,
+        comments,
+        returnOrCancel,
+      } = req.body;
+      console.log(orderId, productId, variantId, reason, comments);
+      const items = await orderService.requestReturnOrcancel(
+        orderId,
+        productId,
+        variantId,
+        reason,
+        comments,
+        returnOrCancel
+      );
       return res.status(200).json(items);
     } catch (error) {
       return res.status(500).json({ error: "Failed to fetch Orders" });
@@ -503,7 +530,7 @@ module.exports = {
 
   validatePromoCodeController: async (req, res) => {
     const { _id } = req.user;
-    const { promoCode, orderItems,finalAmount } = req.body;
+    const { promoCode, orderItems, finalAmount } = req.body;
 
     try {
       const result = await couponServices.validatePromoCode(
@@ -531,6 +558,38 @@ module.exports = {
       return res.status(200).json(result);
     } catch (error) {
       return res.status(500).json({ error: "Failed to fetch categories" });
+    }
+  },
+
+  // Wallet history
+  getWalletDetails: async (req, res) => {
+    try {
+      const { _id } = req.user;
+      const result = await walletService.getWalletDetails(_id);
+      return res.status(200).json(result);
+    } catch (error) {
+      return res.status(500).json({ error: "Failed to fetch Wallet Details" });
+    }
+  },
+
+  //Invoice
+  generateInvoice: async (req, res) => {
+    try {
+      const { orderId, productId, variantId } = req.params;
+      const { _id } = req.user;
+
+      const result = await orderService.generateInvoice(
+        _id,
+        orderId,
+        productId,
+        variantId,
+        res
+      );
+      return res.status(200).json(result);
+    } catch (error) {
+      console.log(error);
+
+      return res.status(500).json({ error: "Failed to download Invoice" });
     }
   },
 };

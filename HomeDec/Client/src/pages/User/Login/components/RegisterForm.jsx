@@ -1,14 +1,14 @@
 import React, { useState } from 'react'
-import TextInput from '../../../../Components/FormComponents/TextInput';
-import SubmitButton from '../../../../Components/Buttons/SubmitButton';
-import GoogleLoginButton from '../../../../Components/Buttons/GoogleLoginButton';
+import TextInput from '../../../../components/FormComponents/TextInput';
+import SubmitButton from '../../../../components/Buttons/SubmitButton';
+import GoogleLoginButton from '../../../../components/Buttons/GoogleLoginButton';
 import { useForm } from 'react-hook-form';
 import { registerUser, verifyEmail } from '../../../../api/auth';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginFailure, loginSuccess } from '../../../../redux/slices/authSlice';
 import OtpModal from './OtpForm';
-import CircularLoader from '../../../../Components/Loading/CircularLoader';
+import CircularLoader from '../../../../components/Loading/CircularLoader';
 import { AUTH_ROUTES } from '../../../../config/routerConstants';
 
 const RegisterForm = () => {

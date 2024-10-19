@@ -26,7 +26,11 @@ router.get("/cart/list", verifyToken, userController.fetchMyCart);
 router.put("/cart/add-product", verifyToken, userController.addToCart);
 
 //Promo code
-router.post("/cart/validate-promo-code", verifyToken, userController.validatePromoCodeController);
+router.post(
+  "/cart/validate-promo-code",
+  verifyToken,
+  userController.validatePromoCodeController
+);
 
 router.post(
   "/cart/checkout/create-new-order",
@@ -93,6 +97,9 @@ router.get(
 
 router.patch("/orders/update-status", verifyToken, updateOrderStatus);
 
+router.patch("/orders/request-return", verifyToken, userController.requestReturnOrcancel);
+
+
 router.get("/products/search", userController.searchProduct);
 
 router.get("/account/wishlist", verifyToken, userController.fetchWishList);
@@ -118,5 +125,14 @@ router.put(
 //Category
 router.get("/category/list", userController.listCategory);
 
+//Wallet
+router.get("/wallet/history", verifyToken, userController.getWalletDetails);
+
+//Invoice
+router.get(
+  "/account/orders/generate-invoice/:orderId/:productId/:variantId",
+  verifyToken,
+  userController.generateInvoice
+);
 
 module.exports = router;

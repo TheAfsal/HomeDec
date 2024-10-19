@@ -69,6 +69,14 @@ const orderSchema = mongoose.Schema(
           type: Boolean,
           default: false,
         },
+        reason: {
+          type: {
+            type: String,
+          },
+          comments: {
+            type: String,
+          },
+        },
         status: {
           type: String,
           enum: [
@@ -92,6 +100,11 @@ const orderSchema = mongoose.Schema(
       },
       transactionId: {
         type: String,
+      },
+      status: {
+        type: String,
+        enum: ["Pending", "Completed", "Failed"],
+        default: "Pending",
       },
     },
     shippingCharge: {
@@ -121,7 +134,7 @@ const orderSchema = mongoose.Schema(
         },
         discountType: {
           type: String,
-          enum: ["percentage", "fixed"], // Define the type of discount
+          enum: ["percentage", "fixed"],
         },
       },
     ],

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux';
-import IsAdmin from '../../../../Components/Admin/IsAdmin';
-import TableHeader from '../../../../Components/Table/TableHeader';
-import NoRecords from '../../../../Components/Table/NoRecords';
+import IsAdmin from '../../../../components/Admin/IsAdmin';
+import TableHeader from '../../../../components/Table/TableHeader';
+import NoRecords from '../../../../components/Table/NoRecords';
 import { TbLock, TbLockOpen } from 'react-icons/tb';
 import { FiEdit3 } from 'react-icons/fi';
 import AddOfferPage from './AddOfferPage';
@@ -35,21 +35,21 @@ const OfferPageList = () => {
         try {
             await toggleOfferStatus(id)
             setRefresh((prev) => !prev)
-            setToast(true,"Offer status updated")
+            setToast(true, "Offer status updated")
         } catch (error) {
-            setToast(false,'Error in toggling', error?.message);
+            setToast(false, 'Error in toggling', error?.message);
         }
     }
 
-    function setToast(status ,message){
-        if(status) toast.success(message)
-            else toast.error(message)
+    function setToast(status, message) {
+        if (status) toast.success(message)
+        else toast.error(message)
     }
-    
+
 
     return (
         <div className="p-8">
-             <ToastContainer />
+            <ToastContainer />
             {/* Popup Overlay To Add Coupon*/}
             {addPopup && (
                 <AddOfferPage isOpen={addPopup} onClose={setAddPopup} offerData={addPopup} setRefresh={setRefresh} setToast={setToast} />

@@ -5,7 +5,7 @@ import { FaRegHeart, FaStar } from "react-icons/fa";
 import CustomImageMagnifier from '../../Admin/Management/Product/CustomZoom';
 import { IoIosArrowRoundBack } from 'react-icons/io';
 import { useDispatch, useSelector } from 'react-redux';
-import { addProductToCart } from '../../../redux/slices/cartSlice';
+import { addProductToCart, clearCart } from '../../../redux/slices/cartSlice';
 import { updateCartCount } from '../../../api/administrator/cartManagement';
 import { fetchDetails } from '../../../api/administrator/productManagement';
 import { ToastContainer, toast } from 'react-toastify';
@@ -13,7 +13,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { AUTH_ROUTES, USER_ROUTES } from '../../../config/routerConstants';
 import { addToWishList } from '../../../api/user/account';
 import OfferPriceDisplay from '../../../utils/calculateOfferPrice.jsx';
-import CircularLoader from '../../../Components/Loading/CircularLoader.jsx';
+import CircularLoader from '../../../components/Loading/CircularLoader.jsx';
 
 const DetailPage = () => {
   const [product, setProduct] = useState({});
@@ -73,11 +73,11 @@ const DetailPage = () => {
 
 
 
-      dispatch(addProductToCart(item))
-      toast.success(`${quantity} items added to cart`);
+      dispatch(clearCart())
 
-      // Delay navigation to ensure the toast is visible
+      toast.success(`${quantity} items added to cart`);
       setQuantity(1)
+
       setTimeout(() => {
         navigate(`/${USER_ROUTES.CART}`);
       }, 2000);
