@@ -1,10 +1,8 @@
-"use client"
-
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useSelector } from 'react-redux'
-import { X, Plus, Crop } from 'lucide-react'
+import { X, Plus } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 import { Button } from "@/components/ui/button"
@@ -19,13 +17,11 @@ import {
     DialogDescription,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import { listCategory } from '../../../../api/administrator/categoryManagement'
 import { addProduct, fetchDetails } from '../../../../api/administrator/productManagement'
-import api from '../../../../api/apiConfigAdmin'
 import { MANAGEMENT_ROUTES } from '../../../../config/routerConstants'
 import ImageCrop from '../../../Test/ImageCrop'
 
