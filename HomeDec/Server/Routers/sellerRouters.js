@@ -11,6 +11,7 @@ const {
   updateProduct,
   fetchSalesReportForSeller,
   rejectCancelOrReturn,
+  addProductImage,
 } = require("../controllers/sellerController");
 const router = express.Router();
 
@@ -22,16 +23,31 @@ const {
   getAllCoupons,
   getNumberOfUsers,
 } = require("../controllers/adminController");
+const saveTempProductImage = require("../middleware/multerSingleUpload");
 
-const storage = multer.memoryStorage(); // Change to memory storage
+const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 //
 router.post("/login", loginSeller);
 
-router.post("/products/add", verifyTokenSeller, upload.any(), addNewProduct);
+router.post("/products/add", verifyTokenSeller, addNewProduct);
 
 // router.post("/products/edit", verifyTokenSeller, upload.any(), EditNewProduct);
+
+// router.post(
+//   "/products/add-product-image/:id",
+//   verifyTokenSeller,
+//   saveTempProductImage.single("image"),
+//   addProductImage
+// );
+
+router.post(
+  "/products/add-product-image",
+  verifyTokenSeller,
+  upload.any(),
+  addProductImage
+);
 
 router.post("/products/edit", verifyTokenSeller, upload.any(), updateProduct);
 
@@ -50,7 +66,11 @@ router.get("/orders/list", verifyTokenSeller, listOrders);
 
 router.patch("/orders/update-status", verifyTokenSeller, updateOrderStatus);
 
-router.patch("/orders/reject-cancel-or-return", verifyTokenSeller, rejectCancelOrReturn);
+router.patch(
+  "/orders/reject-cancel-or-return",
+  verifyTokenSeller,
+  rejectCancelOrReturn
+);
 
 // Coupon
 router.get("/coupons", verifyTokenSeller, getAllCoupons);

@@ -7,7 +7,6 @@ import UserGraph from './Components/UserGraph'
 import IsAdmin from '@/components/Admin/IsAdmin'
 
 
-
 const DashBoard = () => {
 
     const [salesData, setSalesData] = useState([]);

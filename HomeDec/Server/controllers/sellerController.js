@@ -7,6 +7,8 @@ const orderService = require("../services/orderService");
 const productServices = require("../services/productServices");
 const sellerServices = require("../services/sellerServices");
 const { handleLoginError } = require("../Utils/authErrorHandler");
+const { getBucket } = require("../database/dbConfig");
+const fs = require("fs");
 
 module.exports = {
   loginSeller: async (req, res) => {
@@ -73,50 +75,56 @@ module.exports = {
   },
 
   // add new products
-  addNewProduct: async (req, res) => {
-    const {
-      category,
-      subCategory,
-      title,
-      description,
-      deliveryCondition,
-      warranty,
-      relatedKeywords,
-      itemProperties,
-      variants,
-    } = req.body;
-
-    const sellerId = req.user._id;
-
-    console.log(
-      category,
-      subCategory,
-      title,
-      description,
-      deliveryCondition,
-      warranty,
-      relatedKeywords,
-      itemProperties,
-      variants,
-      // uploadedImages,
-      sellerId
-    );
+  addProductImage: async (req, res) => {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+    const { buffer } = req.files[0];
 
     try {
-      const uploadedImages = await addProductImages(req.files, variants.length);
-      const result = await productServices.addProduct(
-        category,
-        subCategory,
-        title,
-        description,
-        deliveryCondition,
-        warranty,
-        relatedKeywords,
-        itemProperties,
-        variants,
-        uploadedImages,
-        sellerId
-      );
+      const bucket = getBucket();
+
+      const uploadStream = bucket.openUploadStream(`${req.body.filename}.png`);
+
+      uploadStream.end(buffer, (err) => {
+        if (err) {
+          console.error("Error uploading buffer:", err);
+        } else {
+          console.log("Buffer uploaded successfully");
+        }
+      });
+    } catch (error) {
+      console.error("Error during file upload:", error);
+    }
+
+    // const writestream = gfs.createWriteStream({
+    //   filename: originalname,
+    //   contentType: mimetype,
+    //   metadata: { productId: req.params.id }, // Optionally link to product ID
+    // });
+
+    // writestream.on("close", (file) => {
+    //   res.status(200).json({
+    //     message: "Image uploaded successfully",
+    //     fileId: file._id,
+    //     filename: file.filename,
+    //   });
+    // });
+
+    // writestream.on("error", (err) => {
+    //   console.error("Error writing to GridFS:", err);
+    //   return res.status(500).json({ message: "Error uploading image" });
+    // });
+
+    // writestream.write(buffer);
+    // writestream.end();
+  },
+
+  addNewProduct: async (req, res) => {
+
+    const sellerId = req.user._id;
+    try {
+      const result = await productServices.addProduct(req.body, sellerId);
       return res.status(200).json(result);
     } catch (error) {
       console.log(error);
@@ -229,7 +237,7 @@ module.exports = {
         status,
         orderId,
         productId,
-        variantId,
+        variantId
       );
       return res.status(200).json(result);
     } catch (error) {

@@ -3,7 +3,7 @@ const app = express();
 const path = require("path");
 const cors = require("cors");
 require("dotenv").config();
-const connectDB = require("./database/dbConfig");
+const { connectDB } = require("./database/dbConfig");
 
 const PORT = 3000;
 
@@ -23,6 +23,9 @@ const cookieSession = require("cookie-session");
 const { createUser } = require("./services/authServices");
 const userModel = require("./models/userModel");
 const generateToken = require("./Utils/jwt");
+
+//Connect to DB
+connectDB();
 
 // Middleware for cookie sessions
 app.use(
@@ -61,7 +64,6 @@ passport.use(
         });
       } catch (error) {
         console.log("User already Exist");
-        
       }
 
       return done(null, profile);
@@ -140,8 +142,6 @@ app.get(
 // Body parser middleware to parse form data
 app.use(express.urlencoded({ extended: true }));
 
-//Connect to DB
-connectDB();
 
 //setting Cors policy
 app.use(
@@ -158,7 +158,6 @@ app.use("/", userRouters);
 app.use("/admin", adminRouters);
 app.use("/seller", sellerRouters);
 
-
 // app.use((err, req, res, next) => {
 //   console.log(err.field);
 //   console.log(err);
@@ -166,7 +165,6 @@ app.use("/seller", sellerRouters);
 // });
 
 app.use(express.static(path.join(__dirname, "./uploads")));
-
 
 //Listenin on the port
 app.listen(PORT, () => {

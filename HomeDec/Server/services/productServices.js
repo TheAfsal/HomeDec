@@ -66,7 +66,6 @@ module.exports = {
     try {
       const products = await Product.find({
         sellerId,
-        "variants.isActive": true,
       })
         .select("title description variants category subCategory _id")
         .populate({ path: "category", select: "name" })
@@ -240,16 +239,17 @@ module.exports = {
   },
 
   addProduct: async (
-    category,
-    subCategory,
-    title,
-    description,
-    deliveryCondition,
-    warranty,
-    relatedKeywords,
-    itemProperties,
-    variants,
-    uploadedImages,
+    {
+      category,
+      subCategory,
+      title,
+      description,
+      deliveryCondition,
+      warranty,
+      relatedKeywords,
+      itemProperties,
+      variants,
+    },
     sellerId
   ) => {
     try {
@@ -263,17 +263,20 @@ module.exports = {
         relatedKeywords,
         itemProperties,
         sellerId,
-        variants: variants.map((variant, index) => ({
+        variants: variants.map((variant) => ({
           ...variant,
-          images: uploadedImages[index],
+          images: variant.images.map((img) => {
+            return { temp_url: `${img}.png`, secure_url: "pending" };
+          }),
         })),
       };
+
+      console.log(productData);
 
       const product = new Product(productData);
       await product.save();
     } catch (error) {
       console.log(error);
-
       throw handleError(error);
     }
   },

@@ -37,6 +37,7 @@ import OfferPageList from "./pages/Admin/Management/Offers/OfferPageList";
 import SalesReportPage from "./pages/Admin/Management/Sales/SalesReportPage";
 import PaymentPolicyPage from "./pages/User/Account/PaymentPolicyPage";
 import Wallet from "./pages/User/Account/Wallet";
+import ProductTable from "./pages/Test/ShadcnTable";
 
 const routers = createBrowserRouter([
 
@@ -206,74 +207,6 @@ const routers = createBrowserRouter([
     ]
   },
 
-  // Seller Router 
-  // {
-  //   path: "seller",
-  //   element: <AdminLayoutPage />,
-  //   children: [
-  //     {
-  //       path: "",
-  //       element: <DashboardPage />
-  //     },
-  //     {
-  //       path: "orders",
-  //       element: <OrderListPage />
-  //     },
-  //     {
-  //       path: "product-details",
-  //       element: <DetailPage />
-  //     },
-  //     {
-  //       path: "products",
-  //       children: [
-  //         {
-  //           path: "list",
-  //           element: <ProductsPage />
-  //         },
-  //         {
-  //           path: "add-new-product",
-  //           element: <AddNewProduct />
-  //         },
-  //         {
-  //           path: "edit/:id",
-  //           element: <EditProduct />
-  //         }
-  //       ]
-  //     },
-  //     {
-  //       path: "users",
-  //       children: [
-  //         {
-  //           path: "list",
-  //           element: <UsersListPage />
-  //         }
-  //       ]
-  //     },
-  //     {
-  //       path: "sellers",
-  //       children: [
-  //         {
-  //           path: "list",
-  //           element: <SellerListPage />
-  //         },
-  //         {
-  //           path: "add",
-  //           element: <AddSellerForm />
-  //         }
-  //       ]
-  //     },
-  //     {
-  //       path: "category",
-  //       children: [
-  //         {
-  //           path: "list",
-  //           element: <ListingCategory />
-  //         }
-  //       ]
-  //     }
-  //   ]
-  // },
-
   // User Auth Routes
   {
     path: AUTH_ROUTES.AUTH,
@@ -327,7 +260,7 @@ const routers = createBrowserRouter([
   // },
   {
     path: "/abcd",
-    element: <WishListPage />,
+    element: <ProductTable />,
   },
 
 

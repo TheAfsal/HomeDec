@@ -1,94 +1,139 @@
+const mongoose = require("mongoose");
+const cron = require("node-cron");
 const cloudinary = require("../database/cloudinaryConfig");
+const Product = require("../models/productModel");
 
-const addProductImages = async (imageFiles, variantLength) => {
-  try {
-    console.log(imageFiles);
+// Function to upload a single image to Cloudinary
+const uploadImageToCloudinary = async (bucket, image) => {
+  return new Promise((resolve, reject) => {
+    try {
+      // Download file from GridFS using the temp_url as the filename
+      const downloadStream = bucket.openDownloadStreamByName(image.temp_url);
+      const chunks = [];
 
-    // Initialize a 2D array based on the number of variants
-    const uploadPromises = Array.from({ length: variantLength }, () => []);
+      // Collect file data from GridFS stream
+      downloadStream.on("data", (chunk) => {
+        chunks.push(chunk);
+      });
 
-    // Fill the 2D array with upload promises
-    imageFiles.forEach((file) => {
-      const match = file.fieldname.match(
-        /variants\[(\d+)\]\[images\]\[(\d+)\]/
-      );
-      if (match) {
-        const variantIndex = parseInt(match[1], 10);
-        const imageIndex = parseInt(match[2], 10);
+      downloadStream.on("end", async () => {
+        const fileBuffer = Buffer.concat(chunks);
 
-        // Create a new Promise for each upload
-        if (uploadPromises[variantIndex]) {
-          const uploadPromise = new Promise((resolve, reject) => {
-            cloudinary.uploader
-              .upload_stream(
-                {
-                  resource_type: "image",
-                },
-                (error, result) => {
-                  if (error) {
-                    return reject(error);
-                  }
-                  resolve(result);
-                }
-              )
-              .end(file.buffer);
-          });
+        // Upload to Cloudinary
+        cloudinary.uploader.upload_stream(
+          { resource_type: "image" },
+          (error, result) => {
+            if (error) {
+              reject(error);
+            } else {
+              // Resolve with new image object
+              const newImage = {
+                public_id: result.public_id,
+                secure_url: result.secure_url,
+              };
+              resolve(newImage);
+            }
+          }
+        ).end(fileBuffer);
+      });
 
-          uploadPromises[variantIndex][imageIndex] = uploadPromise;
-        }
-      }
-    });
-
-    // Process each variant's uploads
-    const uploadResults = await Promise.all(
-      uploadPromises.map((promiseArray) => Promise.all(promiseArray))
-    );
-
-    console.log(uploadResults);
-
-    const extractedResults = uploadResults.map((resultArray) =>
-      resultArray.filter((result) => ({
-        public_id: result?.public_id,
-        secure_url: result?.secure_url,
-      }))
-    );
-
-    // Handle results
-    extractedResults.forEach((resultArray, variantIndex) => {
-      console.log(`Results for variant ${variantIndex}:`, resultArray);
-    });
-
-    return extractedResults;
-  } catch (error) {
-    console.error(error);
-    throw { status: 500, message: "Failed to add product" };
-  }
+      downloadStream.on("error", (error) => {
+        reject(error);
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
 };
 
-module.exports = { addProductImages };
+// Function to process the images of a product
+const processProductImages = async (bucket, product) => {
+  console.log(product.title, "called by scheduler");
 
-// const cloudinary = require("../database/cloudinaryConfig");
+  for (const variant of product.variants) {
+    const imageUploadPromises = [];
 
-// const uploadSingleProductImage = async (req, res) => {
-//   console.log(req.body); // This will contain the uploaded file
-//   console.log(req.file); // This will contain the uploaded file
+    for (let image of variant.images) {
+      if (image.temp_url && image.secure_url === "pending") {
+        // Push all upload promises to the array
+        imageUploadPromises.push(uploadImageToCloudinary(bucket, image));
+      }
+    }
 
-//   if (!req.file) {
-//     return res.status(400).send({ error: "No file uploaded" });
-//   }
+    try {
+      // Wait for all images to be uploaded
+      const uploadedImages = await Promise.all(imageUploadPromises);
 
-//   try {
-//     // Use the path of the uploaded file to upload to Cloudinary
-//     const result = await cloudinary.uploader.upload(req.file.path);
-//     console.log(result);
+      // Replace the pending images with the uploaded ones
+      uploadedImages.forEach((newImage, index) => {
+        variant.images[index] = newImage;
+      });
 
-//     res
-//       .status(200)
-//       .send({ imageUrl: result.secure_url, publicId: result.public_id });
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).send({ error: "Image upload failed" });
-//   }
-// };
+      // After all uploads, mark variant as active
+      variant.isActive = true;
 
-// module.exports = uploadSingleProductImage;
+    } catch (error) {
+      console.error("Error uploading images:", error);
+    }
+  }
+
+  // Save the updated product
+  await product.save();
+  console.log(`Updated product ${product.title} with new images.`);
+};
+
+// Function to delete all files in the GridFS bucket
+const deleteAllFilesFromGridFS = async (bucket) => {
+  const filesCollection = bucket.s._filesCollection;
+
+  // Get all files in the GridFS bucket
+  const files = await filesCollection.find({}).toArray();
+  
+  // Delete all files
+  const deletePromises = files.map((file) => {
+    return new Promise((resolve, reject) => {
+      bucket.delete(file._id, (error) => {
+        if (error) {
+          console.error(`Failed to delete image from GridFS: ${file.filename}`, error);
+          reject(error);
+        } else {
+          console.log(`Deleted image from GridFS: ${file.filename}`);
+          resolve();
+        }
+      });
+    });
+  });
+
+  await Promise.all(deletePromises);
+  console.log("All files deleted from GridFS.");
+};
+
+// Scheduler function
+const scheduleImageUpload = () => {
+  cron.schedule("* * * * *", async () => {
+    console.log("Scheduler initiated");
+
+    try {
+      const products = await Product.find({
+        "variants.images.temp_url": { $exists: true },
+        "variants.images.secure_url": "pending",
+      });
+
+      const { getBucket } = require("../database/dbConfig.js");
+      const bucket = getBucket();
+
+      for (const product of products) {
+        await processProductImages(bucket, product);
+      }
+
+      // After processing all products, delete all images from GridFS
+      await deleteAllFilesFromGridFS(bucket);
+
+      console.log("Scheduler Finished Task");
+    } catch (error) {
+      console.error("Error in scheduler:", error);
+    }
+  });
+};
+
+module.exports = scheduleImageUpload;

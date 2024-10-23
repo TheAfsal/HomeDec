@@ -2,10 +2,9 @@ import React, { useEffect, useState } from 'react'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useDispatch, useSelector } from 'react-redux';
-import { disableLoading, enableLoading, fetchUserProfile, selectError, selectLoading, selectProfile, setProfile } from '../../../redux/slices/userProfileSlice';
+import { enableLoading, fetchUserProfile, selectError, selectLoading, selectProfile, setProfile } from '../../../redux/slices/userProfileSlice';
 import ContactInfo from './components/ContactInfo';
 import PasswordSection from './components/passwordSection';
-import axios from 'axios';
 import CircularLoader from '../../../components/Loading/CircularLoader';
 import userAPI from '../../../api/apiConfigUser';
 

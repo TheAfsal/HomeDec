@@ -1,10 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import SideNavbar from '../../../components/NavigationComponents/SideNavBar';
 import Navbar from '../../../components/NavigationComponents/Navbar';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserRole } from '../../../redux/slices/authSlice';
 import { AUTH_ROUTES } from '../../../config/routerConstants';
+import { ScrollArea } from "@/components/ui/scroll-area"
+
 
 const AdminHomePage = () => {
 
@@ -12,6 +14,8 @@ const AdminHomePage = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const urlRole = useLocation();
+    const [isCollapsed, setIsCollapsed] = useState(false);
+
 
     useEffect(() => {
         console.log(urlRole);
@@ -31,14 +35,14 @@ const AdminHomePage = () => {
     if (loading) return <>Loading...</>
 
     return (
-        <div className="flex">
-            <SideNavbar />
-            <div className="flex-1 bg-pure_white">
+        <div className="flex bg-background_grey ">
+            <SideNavbar isCollapsed={isCollapsed} />
+            <div className="flex-1 ">
                 <div className="flex flex-col h-screen">
-                    <Navbar />
-                    <main className="flex-1 p-4 bg-background_grey  overflow-y-auto">
+                    <Navbar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
+                    <ScrollArea className="flex-1 overflow-y-auto my-2 rounded-lg">
                         <Outlet />
-                    </main>
+                    </ScrollArea>
                 </div>
             </div>
 

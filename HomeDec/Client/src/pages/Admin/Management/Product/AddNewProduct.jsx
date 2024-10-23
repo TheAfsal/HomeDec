@@ -1,480 +1,392 @@
-import React, { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import ImageCrop from '../../../Test/ImageCrop';
-import { useNavigate, useParams } from 'react-router-dom';
-import { GiCancel } from 'react-icons/gi';
-import { useSelector } from 'react-redux';
-import api from '../../../../api/apiConfigAdmin';
-import { listCategory } from '../../../../api/administrator/categoryManagement';
-import { MANAGEMENT_ROUTES } from '../../../../config/routerConstants';
-import { fetchDetails } from '../../../../api/administrator/productManagement';
+"use client"
 
-const AddNewProduct = () => {
-    const { register, handleSubmit, setValue, watch, formState: { errors }, reset } = useForm();
+import React, { useState, useEffect, useCallback } from 'react'
+import { useForm, Controller } from 'react-hook-form'
+import { useNavigate, useParams } from 'react-router-dom'
+import { useSelector } from 'react-redux'
+import { X, Plus, Crop } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Card, CardContent } from "@/components/ui/card"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
+import { listCategory } from '../../../../api/administrator/categoryManagement'
+import { addProduct, fetchDetails } from '../../../../api/administrator/productManagement'
+import api from '../../../../api/apiConfigAdmin'
+import { MANAGEMENT_ROUTES } from '../../../../config/routerConstants'
+import ImageCrop from '../../../Test/ImageCrop'
+
+const AddProductPopup = ({ isOpen, onClose }) => {
+    const { register, control, handleSubmit, setValue, watch, formState: { errors }, reset } = useForm()
     const [error, setError] = useState("")
     const [categoryList, setCategoryList] = useState([])
-    const [variants, setVariants] = useState([{ color: '', colorHex: '', stock: '', images: [] }]);
-    const navigate = useNavigate();
-    const { role } = useSelector(state => state.auth);
-    // const [selectedCategory, setSelectedCategory] = useState('');
-    const [subCategories, setSubCategories] = useState([]);
+    const [variants, setVariants] = useState([{ color: '', colorHex: '', stock: '', price: '', images: [] }])
+    const [subCategories, setSubCategories] = useState([])
+    const navigate = useNavigate()
+    const { role } = useSelector(state => state.auth)
     const { id } = useParams()
 
     useEffect(() => {
         const fetchCategories = async () => {
             try {
                 const categoryList = await listCategory(role)
-                console.log(categoryList);
-                setCategoryList(categoryList);
+                setCategoryList(categoryList)
                 if (id !== "add-new-product") {
-                    const fetchProductDetails = async () => {
-                        try {
-                            const details = await fetchDetails(id);
-                            console.log({ ...details.product, subCategory: details.product.subCategory._id });
-                            console.log('category', details.product.category)
-
-                            // Set Category
-                            const selectedCategoryData = categoryList.find(category => category._id === details.product.category);
-
-                            if (selectedCategoryData) {
-                                setSubCategories(selectedCategoryData.subcategories);
-                            } else {
-                                setSubCategories([]);
-                            }
-
-                            setVariants(details.product.variants)
-
-                            reset({ ...details.product, subCategory: details.product.subCategory._id });
-
-                        } catch (error) {
-                            console.error('Error fetching product details:', error);
-                        }
-                    };
-
-                    fetchProductDetails();
+                    const details = await fetchDetails(id)
+                    const selectedCategoryData = categoryList.find(category => category._id === details.product.category)
+                    if (selectedCategoryData) {
+                        setSubCategories(selectedCategoryData.subcategories)
+                    }
+                    setVariants(details.product.variants)
+                    reset({ ...details.product, subCategory: details.product.subCategory._id })
                 }
-
             } catch (error) {
-                console.error('Error fetching products:', error);
+                console.error('Error fetching data:', error)
             }
-        };
-
-        fetchCategories();
-    }, [])
-
-    useEffect(() => {
-
-        // reset({
-        //     category: "66f652519ba6e551e5af6131",
-        //     subCategory: "66f652519ba6e551e5af6134",
-        //     title: "Table For India",
-        //     description: "fsd sdfa",
-        //     variants: [
-        //         {
-        //             color: "Green",
-        //             colorHex: "#000000",
-        //             stock: 0,
-        //             price: 2500,
-        //             isActive: true,
-        //             images: [
-        //                 {
-        //                     public_id: "zsqnqenh3mhrd2gf2p2n",
-        //                     secure_url: "https://res.cloudinary.com/dnw0c83bh/image/upload/v1727431676/zsqnqenh3mhrd2gf2p2n.jpg"
-        //                 },
-        //                 {
-        //                     public_id: "jjknboyymkf79vesvae0",
-        //                     secure_url: "https://res.cloudinary.com/dnw0c83bh/image/upload/v1727431677/jjknboyymkf79vesvae0.jpg"
-        //                 },
-        //                 {
-        //                     public_id: "i5w7kwz79ivqfhxepgav",
-        //                     secure_url: "https://res.cloudinary.com/dnw0c83bh/image/upload/v1727431676/i5w7kwz79ivqfhxepgav.jpg"
-        //                 }
-        //             ],
-        //         }
-        //     ],
-        //     itemProperties: [
-        //         {
-        //             "field": "Height",
-        //             "value": "100CM",
-        //         },
-        //         {
-        //             "field": "Height",
-        //             "value": "100CM",
-        //         }
-        //     ],
-        //     deliveryCondition: "Assembled",
-        //     warranty: "fsaf fsadf",
-        //     relatedKeywords: "asdf sdf dsaf",
-        // })
-        // }
-        // else console.log("new");
-
-
-    }, []);
+        }
+        fetchCategories()
+    }, [id, role, reset])
 
     const onSubmit = async (data) => {
-        console.log(data);
-
         if (variants.length === 0) {
-            setError("You must add at least one variant.");
-            return;
+            setError("You must add at least one variant.")
+            return
         }
-
         for (let i = 0; i < variants.length; i++) {
             if (variants[i].images.length < 3) {
-                setError(`Variant ${i + 1} must have at least 3 images.`);
-                return;
+                setError(`Variant ${i + 1} must have at least 3 images.`)
+                return
             }
         }
-
 
         try {
-            // Create FormData object
-            const formData = new FormData();
 
-            // Append non-array fields
-            formData.append('category', data.category);
-            formData.append('subCategory', data.subCategory);
-            formData.append('title', data.title);
-            formData.append('description', data.description);
-            formData.append('deliveryCondition', data.deliveryCondition);
-            formData.append('warranty', data.warranty);
-            formData.append('relatedKeywords', data.relatedKeywords);
+            console.log(data);
 
-            // Append item properties
-            data.itemProperties.forEach((property, index) => {
-                formData.append(`itemProperties[${index}][field]`, property.field);
-                formData.append(`itemProperties[${index}][value]`, property.value);
+            data.variants = data.variants.map((variant, index) => {
+                const imageIds = variants[index]?.images.map(image => image.id) || [];
+                return {
+                    ...variant,
+                    images: imageIds
+                };
             });
 
-            // Append variants
-            variants.forEach((variant, index) => {
-                formData.append(`variants[${index}][color]`, variant.color);
-                formData.append(`variants[${index}][colorHex]`, variant.colorHex);
-                formData.append(`variants[${index}][stock]`, variant.stock);
-                formData.append(`variants[${index}][price]`, variant.price);
+            console.log(data);
 
-                // Append images
-                variant.images.forEach((img, imgIndex) => {
-                    console.log(`variants[${index}][images][${imgIndex}]`);
 
-                    formData.append(`variants[${index}][images][${imgIndex}]`, img.blob);
-                });
-            });
-
-            // Send request to the API
-            let response
-            if (id === "add-new-product") {
-                response = await api.post('/seller/products/add', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                });
-            } else {
-                response = await api.post('/seller/products/edit', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                });
-            }
-
-            // Handle success response
-            console.log('Product added successfully:', response.data);
-            navigate(`/${MANAGEMENT_ROUTES.MANAGEMENT}/${MANAGEMENT_ROUTES.PRODUCTS}/${MANAGEMENT_ROUTES.PRODUCTS_LIST}`)
+            addProduct(data)
+                .then((_) => {
+                    onClose()
+                    navigate(`/${MANAGEMENT_ROUTES.MANAGEMENT}/${MANAGEMENT_ROUTES.PRODUCTS}/${MANAGEMENT_ROUTES.PRODUCTS_LIST}`)
+                }).catch((error) => {
+                    console.error('Error:', error)
+                })
         } catch (error) {
-            setError("Failed to add product.");
-            console.error('Error:', error);
+            setError("Failed to add product.")
+            console.error('Error:', error)
         }
-    };
+    }
 
     const handleAddVariant = () => {
-        setVariants((prev) => [...prev, { color: '', colorHex: '#000000', stock: '', price: '', images: [] }]);
-    };
+        setVariants((prev) => [...prev, { color: '', colorHex: '#000000', stock: '', price: '', images: [] }])
+    }
 
     const handleRemoveVariant = (index) => {
-        const newVariants = variants.filter((_, i) => i !== index);
-        setVariants(newVariants);
-    };
+        setVariants((prev) => prev.filter((_, i) => i !== index))
+    }
 
-    const handleAddImageToVariant = (index, croppedImage) => {
-        const updatedVariants = [...variants];
+    const handleCategoryChange = (value) => {
+        const selectedCategoryData = categoryList.find(category => category._id === value)
+        setSubCategories(selectedCategoryData ? selectedCategoryData.subcategories : [])
+    }
 
-        // Convert base64 image string to a Blob
-        const blob = dataURLtoBlob(croppedImage);
-        console.log(blob);
-
-        updatedVariants[index].images.push({ imageUrl: croppedImage, blob });
-        setVariants(updatedVariants);
-    };
-
-    const dataURLtoBlob = (dataURL) => {
-        const arr = dataURL.split(',');
-        const mime = arr[0].match(/:(.*?);/)[1];
-        const bstr = atob(arr[1]);
-        let n = bstr.length;
-        const u8arr = new Uint8Array(n);
-        while (n--) {
-            u8arr[n] = bstr.charCodeAt(n);
-        }
-        return new Blob([u8arr], { type: mime });
-    };
-
-    const handleRemoveImageFromVariant = (variantIndex, imageIndex) => {
-        const updatedVariants = [...variants];
-        updatedVariants[variantIndex].images.splice(imageIndex, 1);
-        setVariants(updatedVariants);
-    };
-
-    const handleCategoryChange = (event) => {
-        const categoryId = event.target.value;
-
-        // Find the selected category and update subcategories
-        const selectedCategoryData = categoryList.find(category => category._id === categoryId);
-
-        if (selectedCategoryData) {
-            setSubCategories(selectedCategoryData.subcategories);
-        } else {
-            setSubCategories([]); // Reset if no category is selected
-        }
-    };
 
     return (
-        <div className='max-w-4xl'>
-            <h1 className="text-2xl font-semibold mb-2 mt-6 px-5 font-nunito">Add New Product</h1>
-            <hr className='mb-5 mx-4' />
-            <form onSubmit={handleSubmit(onSubmit)} className="w-auto bg-white m-3 p-16 rounded-lg shadow-lg font-nunito flex flex-col gap-5">
-
-                {/* Product Details */}
-                <h3 className="font-semibold text-green_600">Product Details</h3>
-                <div className="grid grid-cols-3 gap-5">
-                    <div>
-                        <label className="block text-sm mb-1 text-form_label_grey">Category</label>
-                        <select {...register('category', { required: 'Category is required' })} className={`w-full px-3 py-2 border ${errors.category ? 'border-red-500' : 'border-form_inputFeild_stroke_grey'} rounded-md bg-form_inputFeild_background_grey`} onChange={handleCategoryChange}
-                        >
-                            <option value="no">Select a category</option>
-                            {
-                                categoryList.map((category) => (
-                                    <option key={category._id} value={category._id}>
-                                        {category.name}
-                                    </option>
-                                ))
-                            }
-                        </select>
-                        {errors.category && <p className="text-errorRed text-xs mt-1">{errors.category.message}</p>}
-                    </div>
-
-                    <div>
-                        <label className="block text-sm mb-1 text-form_label_grey">Sub Category</label>
-                        <select {...register('subCategory', { required: 'Sub Category is required' })} className={`w-full px-3 py-2 border ${errors.subCategory ? 'border-red-500' : 'border-form_inputFeild_stroke_grey'} rounded-md bg-form_inputFeild_background_grey`}>
-                            <option value="">Select a subcategory</option>
-                            {
-                                subCategories.map((subCategory) => (
-                                    <option key={subCategory._id} value={subCategory._id}>
-                                        {subCategory.name}
-                                    </option>
-                                ))
-                            }
-                        </select>
-                        {errors.subCategory && <p className="text-errorRed text-xs mt-1">{errors.subCategory.message}</p>}
-                    </div>
-
-                    <div className='col-span-2'>
-                        <label className="block text-sm mb-1 text-form_label_grey">Title</label>
-                        <input {...register('title', { required: 'Title is required' })} type="text" className={`w-full px-3 py-2 border ${errors.title ? 'border-red-500' : 'border-form_inputFeild_stroke_grey'} rounded-md bg-form_inputFeild_background_grey`} />
-                        {errors.title && <p className="text-errorRed text-xs mt-1">{errors.title.message}</p>}
-                    </div>
-                </div>
-
-                <div>
-                    <label className="block text-sm mb-1 text-form_label_grey">Description</label>
-                    <textarea {...register('description', { required: 'Description is required' })} className={`w-full px-3 py-2 border ${errors.description ? 'border-red-500' : 'border-form_inputFeild_stroke_grey'} rounded-md bg-form_inputFeild_background_grey`} rows="4"></textarea>
-                    {errors.description && <p className="text-errorRed text-xs mt-1">{errors.description.message}</p>}
-                </div>
-
-                {/* Variants Section */}
-                <div>
-                    <h3 className="font-semibold mt-4 text-green_600 mb-3">Product Variants</h3>
-                    {variants.map((variant, index) => (
-                        <div key={index} className="border-2 p-4 rounded-md mt-1">
-                            {/* <button type="button" onClick={() => handleRemoveVariant(index)} className=" text-errorRed text-xs "><GiCancel size={20} /></button> */}
-
-                            <div className="flex justify-between items-center mb-2">
-
-                                <div className='flex'>
-                                    {/* Color Hex Input */}
-                                    <input
-                                        type="color"
-                                        value={variant.colorHex}
-                                        onChange={(e) => {
-                                            const newVariants = [...variants];
-                                            newVariants[index].colorHex = e.target.value;
-                                            setVariants(newVariants);
-                                        }}
-                                        className="h-10 w-10 border-0 rounded-md"
-                                        style={{ backgroundColor: variant.colorHex }}
-                                    />
-                                </div>
-
-                                {/* Color Input */}
-                                <div className=" flex items-center gap-3 mt-1">
-                                    <input
-                                        {...register(`variants.${index}.color`, { required: 'Color is required' })}
-                                        placeholder="Color"
-                                        value={variant.color}
-                                        onChange={(e) => {
-                                            const newVariants = [...variants];
-                                            newVariants[index].color = e.target.value;
-                                            setVariants(newVariants);
-                                        }}
-                                        className={`px-3 py-2 border ${errors.variants?.[index]?.color ? 'border-red-500' : 'border-form_inputFeild_stroke_grey'} rounded-md`}
-                                    />
-                                    {/* Display error message for Color */}
-                                    {errors.variants?.[index]?.color && (
-                                        <p className="text-errorRed text-xs mt-1">
-                                            {errors.variants[index].color.message}
-                                        </p>
-                                    )}
-                                </div>
-
-
-                                {/* Stock Input */}
-                                <div className=" mt-1">
-                                    <input
-                                        {...register(`variants.${index}.stock`, {
-                                            required: 'Stock is required',
-                                            valueAsNumber: true,
-                                            min: { value: 0, message: 'Stock must be a positive number' },
-                                        })}
-                                        placeholder="Stock"
-                                        type="number"
-                                        value={variant.stock}
-                                        onChange={(e) => {
-                                            const newVariants = [...variants];
-                                            newVariants[index].stock = e.target.value;
-                                            setVariants(newVariants);
-                                        }}
-                                        className={`px-3 py-2 border ${errors.variants?.[index]?.stock ? 'border-red-500' : 'border-form_inputFeild_stroke_grey'} rounded-md`}
-                                    />
-                                    {/* Display error message for Stock */}
-                                    {errors.variants?.[index]?.stock && (
-                                        <p className="text-errorRed text-xs mt-1">
-                                            {errors.variants[index].stock.message}
-                                        </p>
-                                    )}
-                                </div>
-
-                                {/* Price */}
-                                <div className=" mt-1">
-                                    <input
-                                        {...register(`variants.${index}.price`, {
-                                            required: 'Price is required',
-                                            valueAsNumber: true,
-                                            min: { value: 0, message: 'Price must be a positive number' },
-                                        })}
-                                        placeholder="Price"
-                                        type="number"
-                                        value={variant.price}
-                                        onChange={(e) => {
-                                            const newVariants = [...variants];
-                                            newVariants[index].price = e.target.value;
-                                            setVariants(newVariants);
-                                        }}
-                                        className={`px-3 py-2 border ${errors.variants?.[index]?.price ? 'border-red-500' : 'border-form_inputFeild_stroke_grey'} rounded-md`}
-                                    />
-                                    {/* Display error message for Stock */}
-                                    {errors.variants?.[index]?.price && (
-                                        <p className="text-errorRed text-xs mt-1">
-                                            {errors.variants[index].price.message}
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-
-
-                            <div className="flex flex-wrap space-x-4">
-                                {variant.images.map((img, imgIndex) => (
-                                    <div key={imgIndex} className="flex flex-col items-center">
-                                        <img src={img.imageUrl || img.secure_url} alt="product" className="w-28 h-28 object-cover rounded-lg mt-2" />
-                                        <button type="button" onClick={() => handleRemoveImageFromVariant(index, imgIndex)} className="text-errorRed text-xs mt-1">Remove</button>
+        <Dialog open={isOpen} onOpenChange={onClose}>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                    <DialogTitle>{id === "add-new-product" ? "Add New Product" : "Edit Product"}</DialogTitle>
+                    <DialogDescription>
+                        Fill in the details to {id === "add-new-product" ? "add a new product" : "edit the product"}.
+                    </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+                    <Tabs defaultValue="details" className="w-full">
+                        <TabsList className="grid w-full grid-cols-4">
+                            <TabsTrigger value="details">Details</TabsTrigger>
+                            <TabsTrigger value="variants">Variants</TabsTrigger>
+                            <TabsTrigger value="properties">Properties</TabsTrigger>
+                            <TabsTrigger value="additional">Additional Info</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="details">
+                            <Card>
+                                <CardContent className="pt-6">
+                                    <h3 className="text-xl font-semibold mb-4">Product Details</h3>
+                                    <div className="grid grid-cols-2 gap-6">
+                                        <div>
+                                            <Label htmlFor="category">Category</Label>
+                                            <Controller
+                                                name="category"
+                                                control={control}
+                                                rules={{ required: 'Category is required' }}
+                                                render={({ field }) => (
+                                                    <Select onValueChange={(value) => { field.onChange(value); handleCategoryChange(value); }}>
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select a category" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {categoryList.map((category) => (
+                                                                <SelectItem key={category._id} value={category._id}>
+                                                                    {category.name}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                )}
+                                            />
+                                            {errors.category && <p className="text-red-500 text-sm mt-1">{errors.category.message}</p>}
+                                        </div>
+                                        <div>
+                                            <Label htmlFor="subCategory">Sub Category</Label>
+                                            <Controller
+                                                name="subCategory"
+                                                control={control}
+                                                rules={{ required: 'Sub Category is required' }}
+                                                render={({ field }) => (
+                                                    <Select onValueChange={field.onChange}>
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select a subcategory" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {subCategories.map((subCategory) => (
+                                                                <SelectItem key={subCategory._id} value={subCategory._id}>
+                                                                    {subCategory.name}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                )}
+                                            />
+                                            {errors.subCategory && <p className="text-red-500 text-sm mt-1">{errors.subCategory.message}</p>}
+                                        </div>
                                     </div>
-                                ))}
-                                <label className="w-28 h-28 flex items-center justify-center bg-green_100 mt-2 rounded-lg cursor-pointer">
-                                    <ImageCrop index={index} handleAddImageToVariant={handleAddImageToVariant} />
-                                    +
-                                </label>
+                                    <div className="mt-4">
+                                        <Label htmlFor="title">Title</Label>
+                                        <Input {...register('title', { required: 'Title is required' })} />
+                                        {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>}
+                                    </div>
+                                    <div className="mt-4">
+                                        <Label htmlFor="description">Description</Label>
+                                        <Textarea {...register('description', { required: 'Description is required' })} rows={4} />
+                                        {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description.message}</p>}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
+                        <TabsContent value="variants">
+                            <Card>
+                                <CardContent className="pt-6">
+                                    <h3 className="text-xl font-semibold mb-4">Product Variants</h3>
+                                    <AnimatePresence>
+                                        {variants.map((variant, index) => (
+                                            <motion.div
+                                                key={index}
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -20 }}
+                                                transition={{ duration: 0.3 }}
+                                                className="border p-4 rounded-md mt-4"
+                                            >
+                                                <div className="flex justify-between items-center mb-4">
+                                                    <h4 className="text-lg font-medium">Variant {variants[index].color}</h4>
+                                                    <Button variant="ghost" size="icon" onClick={() => handleRemoveVariant(index)}>
+                                                        <X className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                                <div className="grid gap-4">
+                                                    <div className="flex w-full items-center space-x-2">
+                                                        <div className=' w-full'>
+                                                            <Label htmlFor={`variants.${index}.color`}>Color</Label>
+                                                            <Input
+                                                                {...register(`variants.${index}.color`, { required: 'Color is required' })}
+                                                                value={variant.color}
+                                                                onChange={(e) => {
+                                                                    const newVariants = [...variants]
+                                                                    newVariants[index].color = e.target.value
+                                                                    setVariants(newVariants)
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <div className=' w-full'>
+                                                            <Label htmlFor={`variants.${index}.color`}>Color Hex</Label>
+                                                            <Input
+                                                                {...register(`variants.${index}.colorHex`, { required: 'Hexadecimal Color is required' })}
+                                                                type="color"
+                                                                value={variant.colorHex}
+                                                                onChange={(e) => {
+                                                                    const newVariants = [...variants]
+                                                                    newVariants[index].colorHex = e.target.value
+                                                                    setVariants(newVariants)
+                                                                }}
+                                                                className="p-0 rounded-md cursor-pointer"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <Label htmlFor={`variants.${index}.stock`}>Stock</Label>
+                                                        <Input
+                                                            type="number"
+                                                            {...register(`variants.${index}.stock`, {
+                                                                required: 'Stock is required',
+                                                                min: { value: 0, message: 'Stock must be a positive number' },
+                                                            })}
+                                                            value={variant.stock}
+                                                            onChange={(e) => {
+                                                                const newVariants = [...variants]
+                                                                newVariants[index].stock = e.target.value
+                                                                setVariants(newVariants)
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <Label htmlFor={`variants.${index}.price`}>Price</Label>
+                                                        <Input
+                                                            type="number"
+                                                            {...register(`variants.${index}.price`, {
+                                                                required: 'Price is required',
+                                                                min: { value: 0, message: 'Price must be a positive number' },
+                                                            })}
+                                                            value={variant.price}
+                                                            onChange={(e) => {
+                                                                const newVariants = [...variants]
+                                                                newVariants[index].price = e.target.value
+                                                                setVariants(newVariants)
+                                                            }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                {/* {
+                                                        cropper &&
+                                                        <ImageCrop index={index} handleAddImageToVariant={handleAddImageToVariant} />
+                                                    } */}
+                                                <div className="mt-4">
+                                                    <Label>Images</Label>
+                                                    <ImageCrop variant={variant} setVariants={setVariants} index={index} />
 
-                            </div>
+                                                </div>
+                                            </motion.div>
+                                        ))}
+                                    </AnimatePresence>
+                                    <Button type="button" onClick={handleAddVariant} className="mt-4 bg-green_600">
+                                        <Plus className="mr-2 h-4 w-4" /> Add Variant
+                                    </Button>
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
+                        <TabsContent value="properties">
+                            <Card>
+                                <CardContent className="pt-6">
+                                    <h3 className="text-xl font-semibold mb-4">Product Properties</h3>
+                                    {watch('itemProperties', [{}]).map((property, index) => (
+                                        <div key={index} className="flex gap-4 mt-4">
+                                            <div className="flex-1">
+                                                <Label htmlFor={`itemProperties.${index}.field`}>Field</Label>
+                                                <Input
+                                                    {...register(`itemProperties.${index}.field`, { required: 'Field is required' })}
+                                                    placeholder="e.g., Height"
+                                                />
+                                            </div>
+                                            <div className="flex-1">
+                                                <Label htmlFor={`itemProperties.${index}.value`}>Value</Label>
+                                                <Input
+                                                    {...register(`itemProperties.${index}.value`, { required: 'Value is required' })}
+                                                    placeholder="e.g., 100 CM"
+                                                />
+                                            </div>
+                                        </div>
+                                    ))}
+                                    <Button
+                                        type="button"
+                                        onClick={() => {
+                                            const currentProperties = watch('itemProperties') || []
+                                            setValue('itemProperties', [...currentProperties, { field: '', value: '' }])
+                                        }}
+                                        className="mt-4 bg-green_600"
+                                    >
+                                        <Plus className="mr-2 h-4 w-4" /> Add Property
+                                    </Button>
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
+                        <TabsContent value="additional">
+                            <Card>
+                                <CardContent className="pt-6">
+                                    <h3 className="text-xl font-semibold mb-4">Additional Information</h3>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <Label htmlFor="deliveryCondition">Delivery Condition</Label>
+                                            <Controller
+                                                name="deliveryCondition"
+                                                control={control}
+                                                rules={{ required: 'Delivery condition is required' }}
+                                                render={({ field }) => (
+                                                    <Select onValueChange={field.onChange}>
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select a delivery condition" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="Assembled">Assembled</SelectItem>
+                                                            <SelectItem value="Non-Assembled">Non-Assembled</SelectItem>
+                                                            <SelectItem value="Installation by Service Partner">Installation by Service Partner</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                )}
+                                            />
+                                            {errors.deliveryCondition && <p className="text-red-500 text-sm mt-1">{errors.deliveryCondition.message}</p>}
+                                        </div>
+                                        <div>
+                                            <Label htmlFor="warranty">Warranty Information</Label>
+                                            <Textarea {...register('warranty', { required: 'Warranty information is required' })} rows={2} />
+                                            {errors.warranty && <p className="text-red-500 text-sm mt-1">{errors.warranty.message}</p>}
+                                        </div>
+                                        <div>
+                                            <Label htmlFor="relatedKeywords">Related Keywords</Label>
+                                            <Input {...register('relatedKeywords', { required: 'Keywords are required' })} />
+                                            {errors.relatedKeywords && <p className="text-red-500 text-sm mt-1">{errors.relatedKeywords.message}</p>}
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
+                    </Tabs>
 
-                        </div>
-                    ))}
-                    <button type="button" onClick={handleAddVariant} className="w-44 mt-3 bg-green_500 hover:bg-green_600 text-white px-6 py-3 rounded-3xl text-sm font-medium">Add Variants</button>
-                </div>
+                    {error && <p className="text-red-500 text-sm">{error}</p>}
 
-                {/*Product Properties*/}
-                <div>
-                    <label className="block text-sm mb-1 text-form_label_grey">Add Item Property</label>
-                    {watch('itemProperties', [0]).map((property, index) => (
-                        <div key={index} className="flex gap-6 mt-1">
-                            <input
-                                {...register(`itemProperties.${index}.field`, { required: 'Field is required' })}
-                                placeholder="Field (e.g., Height)"
-                                className={`w-64 px-3 py-2 border ${errors.itemProperties?.[index]?.field ? 'border-red-500' : 'border-form_inputFeild_stroke_grey'} rounded-md bg-form_inputFeild_background_grey focus:border-2 focus:border-green_500 focus:outline-none`}
-                            />
-                            <input
-                                {...register(`itemProperties.${index}.value`, { required: 'Value is required' })}
-                                placeholder="Value (e.g., 100 CM)"
-                                className={`w-64 px-3 py-2 border ${errors.itemProperties?.[index]?.value ? 'border-red-500' : 'border-form_inputFeild_stroke_grey'} rounded-md bg-form_inputFeild_background_grey focus:border-2 focus:border-green_500 focus:outline-none`}
-                            />
-                            {errors.itemProperties?.[index]?.field && (
-                                <p className="text-errorRed text-xs mt-1">{errors.itemProperties[index].field.message}</p>
-                            )}
+                    <div className="flex justify-end space-x-4">
+                        <Button type="button" variant="outline" onClick={onClose} className="text-green_600">
+                            Cancel
+                        </Button>
+                        <Button type="submit" className="bg-green_600">
+                            {id === "add-new-product" ? "Add Product" : "Update Product"}
+                        </Button>
+                    </div>
+                </form>
+            </DialogContent>
+        </Dialog>
+    )
+}
 
-                        </div>
-                    ))}
-                    <button type="button" onClick={() => {
-                        const currentProperties = watch('itemProperties') || [];
-                        setValue('itemProperties', [...currentProperties, { field: '', value: '' }]);
-                    }} className="w-44 bg-green_500 hover:bg-green_600 text-white px-6 py-3 rounded-3xl text-sm font-medium mt-3">
-                        Add Properties
-                    </button>
-                </div>
-
-                {/*Delivery Condition*/}
-                <div>
-                    <label className="block text-sm mb-1 text-form_label_grey">Delivery Condition</label>
-                    <select {...register('deliveryCondition', { required: 'Delivery condition is required' })} className={`w-1/2 px-3 py-2 border ${errors.deliveryCondition ? 'border-red-500' : 'border-form_inputFeild_stroke_grey'} rounded-md bg-form_inputFeild_background_grey focus:border-2 focus:border-green_500 focus:outline-none`}>
-                        <option value="">Select a delivery condition</option>
-                        <option value="Assembled">Assembled</option>
-                        <option value="Non-Assembled">Non-Assembled</option>
-                        <option value="Installation by Service Partner">Installation by Service Partner</option>
-                    </select>
-                    {errors.deliveryCondition && <p className="text-errorRed text-xs mt-1">{errors.deliveryCondition.message}</p>}
-                </div>
-
-                {/*Warranty Information*/}
-                <div>
-                    <label className="block text-sm mb-1 text-form_label_grey">Warranty Information</label>
-                    <textarea {...register('warranty', { required: 'Warranty information is required' })} className={`w-full px-3 py-2 border ${errors.warranty ? 'border-red-500' : 'border-form_inputFeild_stroke_grey'} rounded-md bg-form_inputFeild_background_grey focus:border-2 focus:border-green_500 focus:outline-none`} rows="2"></textarea>
-                    {errors.warranty && <p className="text-errorRed text-xs mt-1">{errors.warranty.message}</p>}
-                </div>
-
-                {/*Related Keywords*/}
-                <div>
-                    <label className="block text-sm mb-1 text-form_label_grey">Related Keywords</label>
-                    <textarea {...register('relatedKeywords', { required: 'Keywords are required' })} className={`w-full px-3 py-2 border ${errors.relatedKeywords ? 'border-red-500' : 'border-form_inputFeild_stroke_grey'} rounded-md bg-form_inputFeild_background_grey focus:border-2 focus:border-green_500 focus:outline-none`} rows="1"></textarea>
-                    {errors.relatedKeywords && <p className="text-errorRed text-xs mt-1">{errors.relatedKeywords.message}</p>}
-                </div>
-
-                {/* Show Error */}
-                {error && <p className="text-errorRed text-xs">{error}</p>}
-
-                {/* Submit Button */}
-                <button type="submit" className="w-full bg-green_500 hover:bg-green_600 text-white px-6 py-3 rounded-md text-sm font-medium mt-5">
-                    Add Now
-                </button>
-            </form>
-        </div>
-    );
-};
-
-export default AddNewProduct;
+export default AddProductPopup
