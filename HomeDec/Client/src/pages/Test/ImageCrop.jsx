@@ -89,7 +89,7 @@ const ImageCrop = ({ variant, setVariants, index }) => {
       formData.append('filename', newId);
 
       try {
-        addProductImage(formData,variantIndex, updated[variantIndex].images.length - 1, setVariants)
+        addProductImage(formData, variantIndex, updated[variantIndex].images.length - 1, setVariants)
           .then((response) => {
           }).catch((error) => {
             console.log(error);
