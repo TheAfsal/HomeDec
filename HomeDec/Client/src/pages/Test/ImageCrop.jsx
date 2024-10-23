@@ -1,13 +1,10 @@
 import React, { useState, useCallback } from 'react';
-import { DndContext, closestCenter } from '@dnd-kit/core';
-import { SortableContext, horizontalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Button } from '@/components/ui/button';
 import { Crop, X } from 'lucide-react';
 import Cropper from 'react-easy-crop';
-import axios from 'axios';
 import { addProductImage } from '@/api/administrator/productManagement';
-import { Progress } from "@/components/ui/progress"
 
 const SortableItem = ({ id, children }) => {
   const {
