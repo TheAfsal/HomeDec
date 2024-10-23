@@ -8,8 +8,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+} from "@components/ui/alert-dialog";
 
 // Create the context
 const ConfirmationContext = createContext();
