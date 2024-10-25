@@ -25,7 +25,10 @@ import { addProduct, fetchDetails } from '../../../../api/administrator/productM
 import { MANAGEMENT_ROUTES } from '../../../../config/routerConstants'
 import ImageCrop from '../../../Test/ImageCrop'
 
-const AddProductPopup = ({ isOpen, onClose }) => {
+const ProductModalForm = ({ usedFor, isOpen, onClose }) => {
+    console.log(usedFor);
+    console.log(isOpen);
+
     const { register, control, handleSubmit, setValue, watch, formState: { errors }, reset } = useForm()
     const [error, setError] = useState("")
     const [categoryList, setCategoryList] = useState([])
@@ -33,28 +36,34 @@ const AddProductPopup = ({ isOpen, onClose }) => {
     const [subCategories, setSubCategories] = useState([])
     const navigate = useNavigate()
     const { role } = useSelector(state => state.auth)
-    const { id } = useParams()
+
 
     useEffect(() => {
         const fetchCategories = async () => {
             try {
                 const categoryList = await listCategory(role)
+                console.log(categoryList);
                 setCategoryList(categoryList)
-                if (id !== "add-new-product") {
-                    const details = await fetchDetails(id)
+                if (usedFor !== "add") {
+                    const details = await fetchDetails(usedFor)
                     const selectedCategoryData = categoryList.find(category => category._id === details.product.category)
+                    console.log("selectedCategoryData", selectedCategoryData);
+
                     if (selectedCategoryData) {
                         setSubCategories(selectedCategoryData.subcategories)
                     }
+
                     setVariants(details.product.variants)
-                    reset({ ...details.product, subCategory: details.product.subCategory._id })
+                    console.log("details.product", details.product);
+                    handleCategoryChange("66f652519ba6e551e5af6131")
+                    reset({ ...details.product, category: "66f652519ba6e551e5af6131", subCategory: "66f652519ba6e551e5af6134" })
                 }
             } catch (error) {
                 console.error('Error fetching data:', error)
             }
         }
         fetchCategories()
-    }, [id, role, reset])
+    }, [usedFor, role, reset])
 
     const onSubmit = async (data) => {
         if (variants.length === 0) {
@@ -110,13 +119,15 @@ const AddProductPopup = ({ isOpen, onClose }) => {
     }
 
 
+
+
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>{id === "add-new-product" ? "Add New Product" : "Edit Product"}</DialogTitle>
+                    <DialogTitle>{usedFor === "add" ? "Add New Product" : "Edit Product"}</DialogTitle>
                     <DialogDescription>
-                        Fill in the details to {id === "add-new-product" ? "add a new product" : "edit the product"}.
+                        Fill in the details to {usedFor === "add" ? "add a new product" : "edit the product"}.
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
@@ -376,7 +387,7 @@ const AddProductPopup = ({ isOpen, onClose }) => {
                             Cancel
                         </Button>
                         <Button type="submit" className="bg-green_600">
-                            {id === "add-new-product" ? "Add Product" : "Update Product"}
+                            {usedFor === "add" ? "Add Product" : "Update Product"}
                         </Button>
                     </div>
                 </form>
@@ -385,4 +396,4 @@ const AddProductPopup = ({ isOpen, onClose }) => {
     )
 }
 
-export default AddProductPopup
+export default ProductModalForm

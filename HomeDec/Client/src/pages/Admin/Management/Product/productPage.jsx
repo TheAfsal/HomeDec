@@ -42,7 +42,7 @@ import { changeProductStatus, ListAllProducts, ListProducts } from '../../../../
 import { MANAGEMENT_ROUTES } from '../../../../config/routerConstants'
 import IsSeller from '../../../../components/Admin/IsSeller'
 import { useConfirmation } from "@/context/ConfirmationContext"
-import AddNewProduct from "./AddNewProduct"
+import ProductModalForm from "./ProductModalForm"
 
 
 const ProductsPage = () => {
@@ -51,7 +51,7 @@ const ProductsPage = () => {
   const [columnFilters, setColumnFilters] = useState([])
   const [columnVisibility, setColumnVisibility] = useState({})
   const [rowSelection, setRowSelection] = useState({})
-  const [addPopUp, setAddPopUp] = useState(false)
+  const [addEditModal, setAddEditModal] = useState(false);
   const navigate = useNavigate()
   const { role } = useSelector(state => state.auth)
   const requestConfirmation = useConfirmation();
@@ -220,7 +220,7 @@ const ProductsPage = () => {
                         Copy product ID
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => navigate(`/${MANAGEMENT_ROUTES.MANAGEMENT}/${MANAGEMENT_ROUTES.PRODUCTS}/${MANAGEMENT_ROUTES.PRODUCTS_EDIT}/${product._id}`)}>
+                      <DropdownMenuItem onClick={() => setAddEditModal(product._id)}>
                         Edit product
                       </DropdownMenuItem>
                       <DropdownMenuItem>View details</DropdownMenuItem>
@@ -260,14 +260,14 @@ const ProductsPage = () => {
         <h2 className="text-2xl font-bold font-nunito">Product Details</h2>
         <IsSeller>
           <Button
-            onClick={() => setAddPopUp(true)}
+            onClick={() => setAddEditModal("add")}
             className="bg-green-600 hover:bg-green-700 text-white "
           >
             <PackagePlus className="mr-2 h-4 w-4" />
             Add Product
           </Button>
           {
-            addPopUp && <AddNewProduct isOpen={addPopUp} onClose={setAddPopUp} />
+            addEditModal && <ProductModalForm usedFor={addEditModal} isOpen={true} onClose={setAddEditModal} />
           }
 
         </IsSeller>
