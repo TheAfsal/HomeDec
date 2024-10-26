@@ -121,7 +121,6 @@ module.exports = {
   },
 
   addNewProduct: async (req, res) => {
-
     const sellerId = req.user._id;
     try {
       const result = await productServices.addProduct(req.body, sellerId);
@@ -129,6 +128,23 @@ module.exports = {
     } catch (error) {
       console.log(error);
 
+      return res.status(error.statusCode || 500).json({ error: error.message });
+    }
+  },
+
+  editProduct: async (req, res) => {
+    const sellerId = req.user._id;
+    const prodId = req.body.prodId;
+
+    try {
+      const result = await productServices.editProduct(
+        req.body.details,
+        prodId,
+        sellerId
+      );
+      return res.status(200).json(result);
+    } catch (error) {
+      console.log(error);
       return res.status(error.statusCode || 500).json({ error: error.message });
     }
   },

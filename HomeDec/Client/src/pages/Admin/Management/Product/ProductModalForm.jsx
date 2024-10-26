@@ -21,13 +21,11 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import { listCategory } from '../../../../api/administrator/categoryManagement'
-import { addProduct, fetchDetails } from '../../../../api/administrator/productManagement'
+import { addProduct, addProductImage, fetchDetails, updateProduct } from '../../../../api/administrator/productManagement'
 import { MANAGEMENT_ROUTES } from '../../../../config/routerConstants'
 import ImageCrop from '../../../Test/ImageCrop'
 
 const ProductModalForm = ({ usedFor, isOpen, onClose }) => {
-    console.log(usedFor);
-    console.log(isOpen);
 
     const { register, control, handleSubmit, setValue, watch, formState: { errors }, reset } = useForm()
     const [error, setError] = useState("")
@@ -41,31 +39,127 @@ const ProductModalForm = ({ usedFor, isOpen, onClose }) => {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const categoryList = await listCategory(role)
-                console.log(categoryList);
-                setCategoryList(categoryList)
+                const categoryList = await listCategory(role);
+                setCategoryList(categoryList);
+
                 if (usedFor !== "add") {
-                    const details = await fetchDetails(usedFor)
-                    const selectedCategoryData = categoryList.find(category => category._id === details.product.category)
-                    console.log("selectedCategoryData", selectedCategoryData);
+                    const details = await fetchDetails(usedFor);
+
+                    const selectedCategoryData = categoryList.find(category => category._id === details.product.category);
 
                     if (selectedCategoryData) {
-                        setSubCategories(selectedCategoryData.subcategories)
+                        setSubCategories(selectedCategoryData.subcategories);
+                        setValue('subCategory', details.product.subCategory?._id)
                     }
 
-                    setVariants(details.product.variants)
-                    console.log("details.product", details.product);
-                    handleCategoryChange("66f652519ba6e551e5af6131")
-                    reset({ ...details.product, category: "66f652519ba6e551e5af6131", subCategory: "66f652519ba6e551e5af6134" })
+
+
+                    transformVariants(details)
+                        .then(updatedVariants => {
+                            setVariants(updatedVariants);
+                            uploadImagesForVariants(updatedVariants, setVariants);
+                        })
+                        .catch(error => {
+                            console.error('Error transforming variants:', error);
+                        });
+
+                    setTimeout(() => {
+                        reset({
+                            ...details.product,
+                            subCategory: details.product.subCategory?._id
+                        })
+                    }, 0)
+
                 }
             } catch (error) {
-                console.error('Error fetching data:', error)
+                console.error('Error fetching data:', error);
+            }
+        };
+
+        fetchCategories();
+    }, [usedFor, role, reset]);
+
+    // const watchCategory = watch('category')
+
+    // useEffect(() => {
+    //     const selectedCategory = categoryList.find(category => category._id === watchCategory)
+    //     if (selectedCategory) {
+    //         setSubCategories(selectedCategory.subcategories)
+    //     }
+    // }, [watchCategory, categoryList])
+
+    async function transformVariants(details) {
+        const updatedVariants = await Promise.all(details.product.variants.map(async (variant) => {
+            const newImages = await convertImages(variant.images);
+            return {
+                ...variant,
+                images: newImages
+            };
+        }));
+
+        return updatedVariants;
+    }
+
+    async function convertImages(imageArray) {
+        const blobPromises = imageArray.map(async (image) => {
+            const response = await fetch(image.secure_url);
+            const blob = await response.blob();
+
+            const base64 = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+
+            return {
+                id: Date.now() + Math.random(),
+                imageUrl: base64,
+                blob: blob,
+                progress: 100
+            };
+        });
+
+        return Promise.all(blobPromises);
+    }
+
+    async function uploadImagesForVariants(updatedVariants, setVariants) {
+        const uploadPromises = [];
+
+        for (const variantIndex in updatedVariants) {
+            const variant = updatedVariants[variantIndex];
+
+            console.log(updatedVariants[variantIndex]);
+
+
+            for (const posIndex in variant.images) {
+                const image = variant.images[posIndex];
+
+                const formData = new FormData();
+                formData.append('image', image.blob, `image-${Date.now()}.png`);
+                formData.append('filename', image.id);
+
+                const uploadPromise = addProductImage(formData, variantIndex, posIndex, setVariants)
+                    .catch((error) => {
+                        console.log(`Error uploading image for variant ${variantIndex}, image ${posIndex}:`, error);
+                    });
+
+                uploadPromises.push(uploadPromise);
             }
         }
-        fetchCategories()
-    }, [usedFor, role, reset])
+
+        try {
+            await Promise.all(uploadPromises);
+            console.log('All images uploaded successfully');
+        } catch (error) {
+            console.log('Error during image upload:', error);
+        }
+    }
 
     const onSubmit = async (data) => {
+
+        console.log("submit clicked");
+
         if (variants.length === 0) {
             setError("You must add at least one variant.")
             return
@@ -78,9 +172,7 @@ const ProductModalForm = ({ usedFor, isOpen, onClose }) => {
         }
 
         try {
-
-            console.log(data);
-
+            
             data.variants = data.variants.map((variant, index) => {
                 const imageIds = variants[index]?.images.map(image => image.id) || [];
                 return {
@@ -88,17 +180,25 @@ const ProductModalForm = ({ usedFor, isOpen, onClose }) => {
                     images: imageIds
                 };
             });
+            
+            if (usedFor !== "add") {
+                updateProduct(data, usedFor)
+                    .then((_) => {
+                        onClose()
+                        navigate(`/${MANAGEMENT_ROUTES.MANAGEMENT}/${MANAGEMENT_ROUTES.PRODUCTS}/${MANAGEMENT_ROUTES.PRODUCTS_LIST}`)
+                    }).catch((error) => {
+                        console.error('Error:', error)
+                    })
+            } else {
+                addProduct(data)
+                    .then((_) => {
+                        onClose()
+                        navigate(`/${MANAGEMENT_ROUTES.MANAGEMENT}/${MANAGEMENT_ROUTES.PRODUCTS}/${MANAGEMENT_ROUTES.PRODUCTS_LIST}`)
+                    }).catch((error) => {
+                        console.error('Error:', error)
+                    })
+            }
 
-            console.log(data);
-
-
-            addProduct(data)
-                .then((_) => {
-                    onClose()
-                    navigate(`/${MANAGEMENT_ROUTES.MANAGEMENT}/${MANAGEMENT_ROUTES.PRODUCTS}/${MANAGEMENT_ROUTES.PRODUCTS_LIST}`)
-                }).catch((error) => {
-                    console.error('Error:', error)
-                })
         } catch (error) {
             setError("Failed to add product.")
             console.error('Error:', error)
@@ -150,7 +250,13 @@ const ProductModalForm = ({ usedFor, isOpen, onClose }) => {
                                                 control={control}
                                                 rules={{ required: 'Category is required' }}
                                                 render={({ field }) => (
-                                                    <Select onValueChange={(value) => { field.onChange(value); handleCategoryChange(value); }}>
+                                                    <Select
+                                                        value={field.value}
+                                                        onValueChange={(value) => {
+                                                            field.onChange(value);
+                                                            handleCategoryChange(value);
+                                                        }}
+                                                    >
                                                         <SelectTrigger>
                                                             <SelectValue placeholder="Select a category" />
                                                         </SelectTrigger>
@@ -166,6 +272,7 @@ const ProductModalForm = ({ usedFor, isOpen, onClose }) => {
                                             />
                                             {errors.category && <p className="text-red-500 text-sm mt-1">{errors.category.message}</p>}
                                         </div>
+
                                         <div>
                                             <Label htmlFor="subCategory">Sub Category</Label>
                                             <Controller
@@ -173,8 +280,8 @@ const ProductModalForm = ({ usedFor, isOpen, onClose }) => {
                                                 control={control}
                                                 rules={{ required: 'Sub Category is required' }}
                                                 render={({ field }) => (
-                                                    <Select onValueChange={field.onChange}>
-                                                        <SelectTrigger>
+                                                    <Select onValueChange={field.onChange} value={field.value}>
+                                                        <SelectTrigger id="subCategory">
                                                             <SelectValue placeholder="Select a subcategory" />
                                                         </SelectTrigger>
                                                         <SelectContent>
@@ -187,8 +294,9 @@ const ProductModalForm = ({ usedFor, isOpen, onClose }) => {
                                                     </Select>
                                                 )}
                                             />
-                                            {errors.subCategory && <p className="text-red-500 text-sm mt-1">{errors.subCategory.message}</p>}
+                                            {errors.subCategory && <p className="text-errorRed text-xs mt-1">{errors.subCategory.message}</p>}
                                         </div>
+
                                     </div>
                                     <div className="mt-4">
                                         <Label htmlFor="title">Title</Label>
@@ -236,9 +344,12 @@ const ProductModalForm = ({ usedFor, isOpen, onClose }) => {
                                                                     setVariants(newVariants)
                                                                 }}
                                                             />
+                                                            {errors.variants && errors.variants[index]?.color && (
+                                                                <span className="text-errorRed text-xs mt-1">{errors.variants[index].color.message}</span>
+                                                            )}
                                                         </div>
                                                         <div className=' w-full'>
-                                                            <Label htmlFor={`variants.${index}.color`}>Color Hex</Label>
+                                                            <Label htmlFor={`variants.${index}.colorHex`}>Color Hex</Label>
                                                             <Input
                                                                 {...register(`variants.${index}.colorHex`, { required: 'Hexadecimal Color is required' })}
                                                                 type="color"
@@ -250,6 +361,9 @@ const ProductModalForm = ({ usedFor, isOpen, onClose }) => {
                                                                 }}
                                                                 className="p-0 rounded-md cursor-pointer"
                                                             />
+                                                            {errors.variants && errors.variants[index]?.colorHex && (
+                                                                <span className="text-errorRed text-xs mt-1">{errors.variants[index].colorHex.message}</span>
+                                                            )}
                                                         </div>
                                                     </div>
                                                     <div>
@@ -267,6 +381,9 @@ const ProductModalForm = ({ usedFor, isOpen, onClose }) => {
                                                                 setVariants(newVariants)
                                                             }}
                                                         />
+                                                        {errors.variants && errors.variants[index]?.stock && (
+                                                            <span className="text-errorRed text-xs mt-1">{errors.variants[index].stock.message}</span>
+                                                        )}
                                                     </div>
                                                     <div>
                                                         <Label htmlFor={`variants.${index}.price`}>Price</Label>
@@ -283,6 +400,9 @@ const ProductModalForm = ({ usedFor, isOpen, onClose }) => {
                                                                 setVariants(newVariants)
                                                             }}
                                                         />
+                                                        {errors.variants && errors.variants[index]?.price && (
+                                                            <span className="text-errorRed text-xs mt-1">{errors.variants[index].price.message}</span>
+                                                        )}
                                                     </div>
                                                 </div>
                                                 {/* {
@@ -292,7 +412,6 @@ const ProductModalForm = ({ usedFor, isOpen, onClose }) => {
                                                 <div className="mt-4">
                                                     <Label>Images</Label>
                                                     <ImageCrop variant={variant} setVariants={setVariants} index={index} />
-
                                                 </div>
                                             </motion.div>
                                         ))}
@@ -315,6 +434,9 @@ const ProductModalForm = ({ usedFor, isOpen, onClose }) => {
                                                     {...register(`itemProperties.${index}.field`, { required: 'Field is required' })}
                                                     placeholder="e.g., Height"
                                                 />
+                                                {errors.itemProperties && errors.itemProperties[index]?.field && (
+                                                    <span className="text-errorRed text-xs mt-1">{errors.itemProperties[index].field.message}</span>
+                                                )}
                                             </div>
                                             <div className="flex-1">
                                                 <Label htmlFor={`itemProperties.${index}.value`}>Value</Label>
@@ -322,6 +444,9 @@ const ProductModalForm = ({ usedFor, isOpen, onClose }) => {
                                                     {...register(`itemProperties.${index}.value`, { required: 'Value is required' })}
                                                     placeholder="e.g., 100 CM"
                                                 />
+                                                {errors.itemProperties && errors.itemProperties[index]?.value && (
+                                                    <span className="text-errorRed text-xs mt-1">{errors.itemProperties[index].value.message}</span>
+                                                )}
                                             </div>
                                         </div>
                                     ))}
@@ -362,17 +487,17 @@ const ProductModalForm = ({ usedFor, isOpen, onClose }) => {
                                                     </Select>
                                                 )}
                                             />
-                                            {errors.deliveryCondition && <p className="text-red-500 text-sm mt-1">{errors.deliveryCondition.message}</p>}
+                                            {errors.deliveryCondition && <p className="text-errorRed text-xs mt-1">{errors.deliveryCondition.message}</p>}
                                         </div>
                                         <div>
                                             <Label htmlFor="warranty">Warranty Information</Label>
                                             <Textarea {...register('warranty', { required: 'Warranty information is required' })} rows={2} />
-                                            {errors.warranty && <p className="text-red-500 text-sm mt-1">{errors.warranty.message}</p>}
+                                            {errors.warranty && <p className="text-errorRed text-xs mt-1">{errors.warranty.message}</p>}
                                         </div>
                                         <div>
                                             <Label htmlFor="relatedKeywords">Related Keywords</Label>
                                             <Input {...register('relatedKeywords', { required: 'Keywords are required' })} />
-                                            {errors.relatedKeywords && <p className="text-red-500 text-sm mt-1">{errors.relatedKeywords.message}</p>}
+                                            {errors.relatedKeywords && <p className="text-errorRed text-xs mt-1">{errors.relatedKeywords.message}</p>}
                                         </div>
                                     </div>
                                 </CardContent>

@@ -1,6 +1,6 @@
 // AuthHandler.js
 import React, { useEffect } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from '../../../../redux/slices/authSlice';
 

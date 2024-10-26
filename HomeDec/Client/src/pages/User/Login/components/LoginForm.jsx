@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-import TextInput from '@components/FormComponents/TextInput';
-import SubmitButton from '@components/Buttons/SubmitButton';
-import GoogleLoginButton from '@components/Buttons/GoogleLoginButton';
+import TextInput from '@/components/FormComponents/TextInput';
+import SubmitButton from '@/components/Buttons/SubmitButton';
+import GoogleLoginButton from '@/components/Buttons/GoogleLoginButton';
 import { userLogin } from '../../../../api/auth';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';

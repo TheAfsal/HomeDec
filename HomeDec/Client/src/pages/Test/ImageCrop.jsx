@@ -35,6 +35,10 @@ const SortableItem = ({ id, children }) => {
 };
 
 const ImageCrop = ({ variant, setVariants, index }) => {
+
+  console.log("variant", variant);
+
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [image, setImage] = useState({ src: "", index: 0 });
   const [croppedImage, setCroppedImage] = useState(null);
@@ -90,8 +94,7 @@ const ImageCrop = ({ variant, setVariants, index }) => {
 
       try {
         addProductImage(formData, variantIndex, updated[variantIndex].images.length - 1, setVariants)
-          .then((response) => {
-          }).catch((error) => {
+          .catch((error) => {
             console.log(error);
 
           })
@@ -196,7 +199,7 @@ const ImageCrop = ({ variant, setVariants, index }) => {
       <div className='flex flex-wrap mt-4 gap-2'>
         {variant.images.map((img, imgIndex) => (
           // <SortableItem key={img?.imageUrl} id={img?.imageUrl} className="p-0 shadow-none">
-          <div className="relative h-24 w-24">
+          <div key={imgIndex} className="relative h-24 w-24">
             <img
               src={img?.blob ? URL.createObjectURL(img.blob) : img?.imageUrl}
               alt="product"
@@ -209,6 +212,7 @@ const ImageCrop = ({ variant, setVariants, index }) => {
               className="absolute inset-0 flex items-center justify-center bg-slate-200 bg-opacity-25 cursor-pointer z-10"
               onClick={(e) => {
                 e.stopPropagation();
+                console.log(img?.imageUrl);
                 OpenCropper(img?.imageUrl, imgIndex);
               }}
             >

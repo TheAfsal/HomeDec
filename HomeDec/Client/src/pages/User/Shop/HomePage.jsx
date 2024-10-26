@@ -7,6 +7,16 @@ import { USER_ROUTES } from '../../../config/routerConstants';
 import OfferPriceDisplay from '../../../utils/calculateOfferPrice.jsx';
 import FilterBar from './FilterBar.jsx';
 import { listCategoryForUser } from '../../../api/administrator/categoryManagement.js';
+import { Button } from "@/components/ui/button"
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination"
 
 const ShopPage = () => {
 
@@ -17,6 +27,8 @@ const ShopPage = () => {
     const [selectedFilter, setSelectedFilter] = useState({});
     const [filterSection, setFilterSection] = useState(false);
     const [categories, setCategories] = useState([])
+    const [currentPage, setCurrentPage] = useState(1)
+    const [productsPerPage] = useState(5)
 
     const options = [
         { value: 'sortBy', label: 'Sort By' },
@@ -44,38 +56,10 @@ const ShopPage = () => {
             }).catch((error) => {
                 console.error('Error fetching products:', error.message);
             })
-
-        // ListAllProducts()
-        //     .then((list) => {
-        //         setProducts(list);
-
-        //     }).catch((error) => {
-        //         console.error('Error fetching products:', error.message);
-        //     })
-
-        // listCategory(role)
-        //     .then((list) => {
-        //         setCategories(list);
-        //     }).catch((error) => {
-        //         console.error('Error fetching categories:', error.message);
-        //     })
-        // const fetchProduct = async () => {
-        //     try {
-        //         const list = await ListAllProducts()
-        //         console.log(list);
-        //         setProducts(list);
-
-        //     } catch (error) {
-        //         console.error('Error fetching products:', error);
-        //     }
-        // };
-
-        // fetchProduct();
     }, [])
 
     useEffect(() => {
         fetchSearchingProducts(searchedText, selectedOption, selectedFilter).then((searchedResults) => {
-            // console.log(searchedResults);
             setSearchedText(searchedText)
             setSelectedOption(selectedOption === "sortBy" ? "" : selectedOption)
             setSearchedProducts(searchedResults);
@@ -102,18 +86,19 @@ const ShopPage = () => {
         setSearchedProducts(searchedResults);
     };
 
+    // Get current products
+    const indexOfLastProduct = currentPage * productsPerPage;
+    const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+    const currentProducts = searchedText || selectedOption !== 'sortBy'
+        ? searchedProducts.slice(indexOfFirstProduct, indexOfLastProduct)
+        : products.slice(indexOfFirstProduct, indexOfLastProduct);
+
+    // Change page
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
     return (
         <div className='bg-background_grey font-nunito mt-20'>
             <div className="mx-auto p-8 max-w-5xl">
-                {/* Category Section */}
-                {/* <div className="flex justify-around mb-10">
-                    {categories.map((category) => (
-                        <div key={category.name} className="text-center">
-                            <img src={category.icon} alt={category.name} className="w-12 h-12 mx-auto" />
-                            <p className="text-sm text-gray-600 mt-2">{category.name}</p>
-                        </div>
-                    ))}
-                </div> */}
 
                 <div className='flex'>
                     {/* Search and Filter Section */}
@@ -145,7 +130,7 @@ const ShopPage = () => {
                     </button>
                 </div>
 
-                {/* Products Section */}
+                {/* Products Header Section */}
                 <div className='flex items-center justify-between gap-2'>
                     <div className='flex items-center gap-3'>
                         <h2 className="text-3xl font-bold text-green_900 my-10">
@@ -172,6 +157,8 @@ const ShopPage = () => {
                         </div>
                     </div>
                 </div>
+
+                {/* Products Section */}
                 <div className="flex w-full gap-8">
                     {
                         filterSection &&
@@ -206,8 +193,8 @@ const ShopPage = () => {
                                         <div className='w-full h-[30vh] items-center flex justify-center text-green_600'>No Products Found</div>
                                     )
                                 :
-                                products.length ?
-                                    products.map((product, index) => (
+                                currentProducts.length ?
+                                    currentProducts.map((product, index) => (
                                         <Link to={`/${USER_ROUTES.SHOP}/${product._id}`} key={index} >
                                             <div className="relative bg-gray-50 break-words mb-7">
                                                 {
@@ -235,6 +222,47 @@ const ShopPage = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Pagination */}
+            {
+                !searchedText && (
+                    <Pagination className="mt-8 pb-4">
+                        <PaginationContent>
+                            <PaginationItem>
+                                <Button
+                                    onClick={() => paginate(currentPage - 1)}
+                                    disabled={currentPage === 1}
+                                    className="cursor-pointer border-0 bg-transparent shadow-none"
+                                    variant="outline"
+                                >
+                                    <PaginationPrevious />
+                                </Button>
+                            </PaginationItem>
+                            {[...Array(Math.ceil((searchedText || selectedOption !== 'sortBy' ? searchedProducts.length : products.length) / productsPerPage))].map((_, index) => (
+                                <PaginationItem key={index}>
+                                    <PaginationLink
+                                        onClick={() => paginate(index + 1)}
+                                        isActive={currentPage === index + 1}
+                                    >
+                                        {index + 1}
+                                    </PaginationLink>
+                                </PaginationItem>
+                            ))}
+                            <PaginationItem>
+                                <Button
+                                    onClick={() => paginate(currentPage + 1)}
+                                    disabled={currentPage === Math.ceil((searchedText || selectedOption !== 'sortBy' ? searchedProducts.length : products.length) / productsPerPage)}
+                                    className="cursor-pointer border-0 bg-transparent shadow-none"
+                                    variant="outline"
+                                >
+                                    <PaginationNext />
+                                </Button>
+                            </PaginationItem>
+                        </PaginationContent>
+                    </Pagination>
+                )
+            }
+
 
         </div>
 

@@ -20,9 +20,8 @@ const uploadImageToCloudinary = async (bucket, image) => {
         const fileBuffer = Buffer.concat(chunks);
 
         // Upload to Cloudinary
-        cloudinary.uploader.upload_stream(
-          { resource_type: "image" },
-          (error, result) => {
+        cloudinary.uploader
+          .upload_stream({ resource_type: "image" }, (error, result) => {
             if (error) {
               reject(error);
             } else {
@@ -33,8 +32,8 @@ const uploadImageToCloudinary = async (bucket, image) => {
               };
               resolve(newImage);
             }
-          }
-        ).end(fileBuffer);
+          })
+          .end(fileBuffer);
       });
 
       downloadStream.on("error", (error) => {
@@ -71,7 +70,6 @@ const processProductImages = async (bucket, product) => {
 
       // After all uploads, mark variant as active
       variant.isActive = true;
-
     } catch (error) {
       console.error("Error uploading images:", error);
     }
@@ -88,13 +86,16 @@ const deleteAllFilesFromGridFS = async (bucket) => {
 
   // Get all files in the GridFS bucket
   const files = await filesCollection.find({}).toArray();
-  
+
   // Delete all files
   const deletePromises = files.map((file) => {
     return new Promise((resolve, reject) => {
       bucket.delete(file._id, (error) => {
         if (error) {
-          console.error(`Failed to delete image from GridFS: ${file.filename}`, error);
+          console.error(
+            `Failed to delete image from GridFS: ${file.filename}`,
+            error
+          );
           reject(error);
         } else {
           console.log(`Deleted image from GridFS: ${file.filename}`);
@@ -110,7 +111,7 @@ const deleteAllFilesFromGridFS = async (bucket) => {
 
 // Scheduler function
 const scheduleImageUpload = () => {
-  cron.schedule("0 * * * *", async () => {
+  cron.schedule("* * * * *", async () => {
     console.log("Scheduler initiated");
 
     try {
@@ -118,6 +119,8 @@ const scheduleImageUpload = () => {
         "variants.images.temp_url": { $exists: true },
         "variants.images.secure_url": "pending",
       });
+
+      console.log(products);
 
       const { getBucket } = require("../database/dbConfig.js");
       const bucket = getBucket();

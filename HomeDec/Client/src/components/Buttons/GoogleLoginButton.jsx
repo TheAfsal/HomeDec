@@ -5,7 +5,7 @@ import GoogleIcon from '../../assets/Images/google_icon.svg';
 const GoogleLoginButton = () => {
 
     const handleSignIn = () => {
-        window.location.href = 'http://localhost:3000/auth/google';
+        window.location.href = `${import.meta.env.MODE === 'development' ? 'http://localhost:3000' : import.meta.env.VITE_SERVER_URL}auth/google`;
     };
 
     return (

@@ -17,7 +17,6 @@ import ListingCategory from "./pages/Admin/Management/Category/ListingCategoryPa
 import ShopPage from "./pages/User/Shop/HomePage";
 import SellerListPage from "./pages/Admin/Management/Seller/SellerListPage";
 import AddSellerForm from "./pages/Admin/Management/Seller/AddSeller";
-// import EditProduct from "./pages/Admin/Management/Product/EditProduct";
 import UserLayout from "./pages/User/Home/UserLayout";
 import CartPage from "./pages/User/Cart/CartPage";
 import AccountLayout from "./pages/User/Account/AccountLayout";
@@ -28,7 +27,6 @@ import OrderSuccessPage from "./pages/User/Cart/Checkout/OrderSuccessPage";
 import OrderListPage from "./pages/Admin/Management/Orders/OrderListPage";
 import Orders from "./pages/User/Account/Orders";
 import OrderDetailPage from "./pages/User/Account/OrderDetailPage";
-import TestToast from "./pages/Test/AddNewProductTestPage";
 import GoogleAuth from "./pages/User/Login/components/GoogleAuth";
 import { AUTH_ROUTES, MANAGEMENT_ROUTES, USER_ROUTES } from "./config/routerConstants";
 import WishListPage from "./pages/User/WishList/WishListPage";

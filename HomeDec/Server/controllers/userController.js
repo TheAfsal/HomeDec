@@ -131,6 +131,15 @@ module.exports = {
     }
   },
 
+  distinctCatForHome: async (req, res) => {
+    try {
+      const result = await productServices.distinctCatForHome();
+      return res.status(200).json(result);
+    } catch (error) {
+      return res.status(500).json({ error: "Failed to fetch products" });
+    }
+  },
+
   fetchMyCart: async (req, res) => {
     try {
       const cartId = req.user.cartId;

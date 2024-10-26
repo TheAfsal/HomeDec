@@ -9,6 +9,7 @@ const OrderListPage = () => {
 
   const [orderData, setOrderData] = useState([])
   const [expandStatus, setExpandStatus] = useState();
+  const [showDetials, setShowDetials] = useState();
   const { role } = useSelector(state => state.auth);
 
   const openModal = (item) => setExpandStatus(item);
@@ -42,21 +43,23 @@ const OrderListPage = () => {
       <table className="table-auto w-full text-left">
         {
           role === "admin" ? (
-            <TableHeader headerContent={["CUSTOMER NAME", "ADDRESS", "DATE", "PRODUCT", "QUANTITY", "PRICE", "STATUS", "TOTAL PRICE"]} />
+            <TableHeader headerContent={["ORDER#ID", "DATE", "PRODUCT", "QUANTITY", "PRICE", "STATUS", "TOTAL PRICE", "ACTIONS"]} />
           ) : (
-            <TableHeader headerContent={["CUSTOMER NAME", "ADDRESS", "DATE", "PRODUCT", "VARIANT", "QUANTITY", "PRICE", "STATUS", "TOTAL PRICE"]} />
+            <TableHeader headerContent={["ORDER#ID", "DATE", "PRODUCT", "VARIANT", "QUANTITY", "PRICE", "STATUS", "TOTAL PRICE", "ACTIONS"]} />
           )
+        }
+        {
+          showDetials &&
+          <OrderDetailsPopup isAdmin={role === "admin" ? true : false} order={showDetials} onClose={setShowDetials} />
         }
         <tbody className='text-sm'>
           {orderData.map((item, index) => (
             <tr key={index} className="border-b ">
-              <td className="px-4 py-2 text-center">{item?.userId?.firstName || item?.firstName}</td>
-              <td className="px-4 py-2 text-center max-w-36">{item?.street} {item?.city} {item?.state} {item?.country} {item?.postaCode}</td>
+              <td className="px-4 py-2 text-center max-w-36">{item?.orderLabel.toUpperCase()}</td>
               <td className="px-4 py-2 text-center max-w-36">{item?.dateOrdered?.toString().split('T')[0]}</td>
               {
                 role === "admin" ? (
                   <>
-
                     <td className="px-4 py-2 text-center max-w-36">
                       {
                         item?.orderItems.map((variant, index) => (
@@ -95,6 +98,12 @@ const OrderListPage = () => {
                       }
                     </td>
                     <td className="px-4 py-2 text-center">{item?.totalAmount}</td>
+                    <td>
+                      <div className={"w-24 px-2 py-2 text-center my-4 rounded-md text-xs hover:font-bold duration-500 border-2 text-purple-800 cursor-pointer hover:bg-gray-200"}
+                        onClick={() => setShowDetials(item)} >
+                        View Details
+                      </div>
+                    </td>
                   </>
                 ) : (
                   <>
@@ -124,6 +133,12 @@ const OrderListPage = () => {
                       </div>
                     </td>
                     <td className="px-4 py-2 text-center">{(item?.orderItems?.price) * (item?.orderItems?.quantity)}</td>
+                    <td>
+                      <div className={"w-24 px-2 py-2 text-center my-4 rounded-md text-xs hover:font-bold duration-500 border-2 text-purple-800 cursor-pointer hover:bg-gray-200"}
+                        onClick={() => setShowDetials(item)} >
+                        View Details
+                      </div>
+                    </td>
                   </>
                 )
               }
@@ -175,3 +190,53 @@ const OrderListPage = () => {
 };
 
 export default OrderListPage;
+
+
+const OrderDetailsPopup = ({ isAdmin, order, onClose }) => {
+
+  console.log(order);
+
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
+        <h2 className="text-lg font-bold mb-4">Order Details</h2>
+        <p><strong>Order ID:</strong> {order?.orderLabel.toUpperCase()}</p>
+        <p><strong>Name:</strong> {order?.firstName || order?.userId?.firstName}</p>
+        {
+          !isAdmin && <p><strong>Status:</strong> {order.orderItems.status}</p>
+        }
+        <p><strong>Total Amount:</strong> ₹{order.totalAmount}</p>
+        <h3 className="mt-4 font-bold">Address</h3>
+        <div className="border-t py-2">
+          <p className='py-2 text-left max-w-36' >{order?.street} {order?.city} {order?.state} {order?.country} {order?.postaCode}</p>
+        </div>
+        <h3 className="mt-4 font-semibold">Items:</h3>
+        {
+          isAdmin ? (
+            order.orderItems.map((item) => (
+              <div key={item.productId} className="border-t py-2">
+                <p><strong>Product:</strong> {item.productId.title}</p>
+                <p><strong>Price:</strong> ₹{item.price}</p>
+                <p><strong>Quantity:</strong> {item.quantity}</p>
+                <p><strong>Status:</strong> {item.status}</p>
+              </div>
+            ))
+          ) : (
+            <div className="border-t py-2">
+              <p><strong>Product:</strong> {order.productDetails.title}</p>
+              <p><strong>Price:</strong> ₹{order.orderItems.price}</p>
+              <p><strong>Quantity:</strong> {order.orderItems.quantity}</p>
+            </div>
+          )
+        }
+        <button
+          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+          onClick={() => onClose(false)}
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  );
+};

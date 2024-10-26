@@ -14,8 +14,8 @@ const otpSchema = new mongoose.Schema({
   otp: {
     type: String,
     required: true,
-    minlength: 4, // Minimum length for OTP
-    maxlength: 6, // Maximum length for OTP
+    minlength: 4,
+    maxlength: 6,
   },
   createdAt: {
     type: Date,

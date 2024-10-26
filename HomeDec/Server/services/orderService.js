@@ -390,9 +390,9 @@ module.exports = {
         },
         {
           $lookup: {
-            from: "users", // Name of the Users collection
-            localField: "userId", // Field in orders
-            foreignField: "_id", // Field in users
+            from: "users", 
+            localField: "userId", 
+            foreignField: "_id", 
             as: "userDetails",
           },
         },
@@ -418,6 +418,7 @@ module.exports = {
             country: 1,
             postalCode: 1,
             street: 1,
+            orderLabel:1,
             "orderItems.isCancelled": 1,
             "orderItems.isReturned": 1,
             "orderItems.reason": 1,
@@ -443,11 +444,12 @@ module.exports = {
       const formattedResults = finalResults.map((order) => ({
         _id: order._id,
         userId: order.userId,
-        firstName: order.userDetails.firstName, // Extract firstName directly
+        firstName: order.userDetails.firstName, 
         orderItems: order.orderItems,
         shippingCharge: order.shippingCharge,
         totalAmount: order.totalAmount,
         dateOrdered: order.dateOrdered,
+        orderLabel: order.orderLabel,
         city: order.city,
         state: order.state,
         country: order.country,
@@ -683,7 +685,7 @@ module.exports = {
       // Step 1: Fetch orders for the user
       const orders = await Order.find({ userId })
         .populate("orderItems.productId")
-        .sort({ dateOrdered: -1 });
+        .sort({ createdAt: -1 });
 
       // Step 2: Enrich order items with variant details
       const enrichedOrders = await Promise.all(

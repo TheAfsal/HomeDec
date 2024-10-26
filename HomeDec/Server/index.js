@@ -112,36 +112,12 @@ app.get(
 
     // Return the token to the client
     // res.json({ token });
-    res.redirect(`http://localhost:5173/auth/google/${token}`);
+    res.redirect(`https://home-dec-omega.vercel.app/auth/google/${token}`);
   }
 );
 
-// Middleware to authenticate JWT
-// const authenticateJWT = (req, res, next) => {
-//   const token =
-//     req.cookies["session"] || req.header("Authorization")?.split(" ")[1];
-
-//   if (token) {
-//     jwt.verify(token, process.env.JWT_SECRET_USER, (err, user) => {
-//       if (err) {
-//         return res.sendStatus(403);
-//       }
-//       req.user = user;
-//       next();
-//     });
-//   } else {
-//     res.sendStatus(401);
-//   }
-// };
-
-// Protected route
-// app.get("/profile", authenticateJWT, (req, res) => {
-//   res.json(req.user);
-// });
-
 // Body parser middleware to parse form data
 app.use(express.urlencoded({ extended: true }));
-
 
 //setting Cors policy
 app.use(
@@ -153,16 +129,15 @@ app.use(
 // parsing data
 app.use(express.json());
 
+app.use((req, res, next) => {
+  console.log(req.url);
+  next();
+});
+
 // Routes Handling
 app.use("/", userRouters);
 app.use("/admin", adminRouters);
 app.use("/seller", sellerRouters);
-
-// app.use((err, req, res, next) => {
-//   console.log(err.field);
-//   console.log(err);
-//   next();
-// });
 
 app.use(express.static(path.join(__dirname, "./uploads")));
 

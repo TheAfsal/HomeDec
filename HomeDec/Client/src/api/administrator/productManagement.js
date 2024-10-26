@@ -4,8 +4,21 @@ import userAPI from "../apiConfigUser";
 export const addProduct = async (details) => {
   try {
     console.log("addProduct called");
-    
+
     const response = await api.post("/seller/products/add", details);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw new Error(error?.response?.data?.error);
+  }
+};
+
+export const updateProduct = async (details, prodId) => {
+  try {
+    const response = await api.post("/seller/products/edit", {
+      details,
+      prodId,
+    });
     return response.data;
   } catch (error) {
     console.log(error);
@@ -38,6 +51,16 @@ export const ListAllProducts = async (role) => {
 export const fetchDetails = async (productId) => {
   try {
     const response = await api.get(`/product/details/${productId}`);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw new Error(error?.response?.data?.error);
+  }
+};
+
+export const distinctCatForHome = async () => {
+  try {
+    const response = await userAPI.get(`/category/list-dist`);
     return response.data;
   } catch (error) {
     console.log(error);

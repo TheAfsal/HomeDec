@@ -7,8 +7,20 @@ import Met1 from '../../../assets/Images/Met1.jpg';
 import Met2 from '../../../assets/Images/Met2.jpg';
 import Met3 from '../../../assets/Images/Met3.jpg';
 import { WhyChooseUs } from './NewHome';
-
+import { distinctCatForHome } from '@/api/administrator/productManagement';
 const HomePage = () => {
+
+    const [distCat, setDistCat] = useState([])
+
+    useEffect(() => {
+        distinctCatForHome()
+            .then((response) => {
+                setDistCat(response);
+                console.log(response);
+            }).catch((error) => {
+                console.log(error);
+            })
+    }, [])
 
     return (
         <div className="flex flex-col min-h-screen font-nunito">
@@ -94,35 +106,20 @@ const HomePage = () => {
                     <div className="container mx-auto">
                         <h2 className="text-3xl font-semibold text-center mb-8">Featured Categories</h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                            <div className="bg-white p-4 rounded-lg shadow-lg">
-                                <img src={HeroImage} alt="Chairs" className="w-full h-48 object-cover rounded-lg" />
-                                <h3 className="text-xl mt-4 font-medium">Chairs</h3>
-                                <p className="text-gray-600">Comfortable and stylish seating for every room.</p>
-                            </div>
-
-                            <div className="bg-white p-4 rounded-lg shadow-lg">
-                                <img src={HeroImage} alt="Chairs" className="w-full h-48 object-cover rounded-lg" />
-                                <h3 className="text-xl mt-4 font-medium">Chairs</h3>
-                                <p className="text-gray-600">Comfortable and stylish seating for every room.</p>
-                            </div>
-
-                            <div className="bg-white p-4 rounded-lg shadow-lg">
-                                <img src={HeroImage} alt="Chairs" className="w-full h-48 object-cover rounded-lg" />
-                                <h3 className="text-xl mt-4 font-medium">Chairs</h3>
-                                <p className="text-gray-600">Comfortable and stylish seating for every room.</p>
-                            </div>
-
-                            <div className="bg-white p-4 rounded-lg shadow-lg">
-                                <img src={HeroImage} alt="Chairs" className="w-full h-48 object-cover rounded-lg" />
-                                <h3 className="text-xl mt-4 font-medium">Chairs</h3>
-                                <p className="text-gray-600">Comfortable and stylish seating for every room.</p>
-                            </div>
+                            {
+                                distCat.map((category) =>
+                                    <div className="bg-white p-4 rounded-lg shadow-lg">
+                                        {/* <img src={HeroImage} alt="Chairs" className="w-full h-48 object-cover rounded-lg" /> */}
+                                        <h3 className="text-xl mt-4 font-medium">{category}</h3>
+                                    </div>
+                                )
+                            }
                         </div>
                     </div>
                 </section>
 
                 {/* Latest Products */}
-                <section className="py-12 bg-gray-200">
+                {/* <section className="py-12 bg-gray-200">
                     <div className="container mx-auto">
                         <h2 className="text-3xl font-semibold text-center mb-8">Latest Products</h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -134,7 +131,7 @@ const HomePage = () => {
                             </div>
                         </div>
                     </div>
-                </section>
+                </section> */}
             </div>
 
         </div>

@@ -12,6 +12,7 @@ const {
   fetchSalesReportForSeller,
   rejectCancelOrReturn,
   addProductImage,
+  editProduct,
 } = require("../controllers/sellerController");
 const router = express.Router();
 
@@ -32,6 +33,8 @@ const upload = multer({ storage: storage });
 router.post("/login", loginSeller);
 
 router.post("/products/add", verifyTokenSeller, addNewProduct);
+
+router.post("/products/edit", verifyTokenSeller, editProduct);
 
 // router.post("/products/edit", verifyTokenSeller, upload.any(), EditNewProduct);
 

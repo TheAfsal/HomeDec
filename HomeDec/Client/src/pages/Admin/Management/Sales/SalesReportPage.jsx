@@ -122,6 +122,7 @@ const SalesReportPage = () => {
                             value={startDate}
                             onChange={(e) => setStartDate(e.target.value)}
                             className="border rounded p-2"
+                            max={new Date(new Date().getTime() + (5.5 * 60 * 60 * 1000)).toISOString().split('T')[0]}
                         />
                     </div>
                     <div>
@@ -132,6 +133,7 @@ const SalesReportPage = () => {
                             value={endDate}
                             onChange={(e) => setEndDate(e.target.value)}
                             className="border rounded p-2"
+                            max={new Date(new Date().getTime() + (5.5 * 60 * 60 * 1000)).toISOString().split('T')[0]}
                         />
                     </div>
                     <button

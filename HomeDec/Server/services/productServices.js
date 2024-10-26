@@ -3,6 +3,7 @@ const Product = require("../models/productModel");
 const { handleError } = require("../Utils/handleError");
 const findBestOffer = require("../Utils/findBestOffer");
 const Offer = require("../models/offerModel");
+const { Category } = require("../models/categoryModel");
 
 module.exports = {
   fetchDetails: async (productId) => {
@@ -159,15 +160,32 @@ module.exports = {
     }
   },
 
+  distinctCatForHome: async () => {
+    try {
+      const distinctCategoryIds = await Product.distinct("category", { "variants.isActive": true });
+  
+      const categories = await Category.find({ _id: { $in: distinctCategoryIds } })
+        .select("name")
+        .limit(4); 
+  
+      const categoryNames = categories.map(category => category.name);
+  
+      console.log(categoryNames);
+      return categoryNames;
+    } catch (error) {
+      console.log(error);
+      throw new Error("Failed to fetch categories");
+    }
+  },
+  
+
   fetchProductsforAdmin: async () => {
     try {
-      const products = await Product.find({ "variants.isActive": true })
+      const products = await Product.find()
         .select("title description variants category subCategory _id")
-        .populate({ path: "categories", select: "name" })
-        .populate({ path: "subcategories", select: "name" });
+        .populate({ path: "category", select: "name" })
+        .populate({ path: "subCategory", select: "name" });
 
-      console.log("products");
-      console.log(products);
 
       const formattedProducts = products.map((product) => {
         const firstVariant =
@@ -275,6 +293,54 @@ module.exports = {
 
       const product = new Product(productData);
       await product.save();
+    } catch (error) {
+      console.log(error);
+      throw handleError(error);
+    }
+  },
+
+  editProduct: async (
+    {
+      category,
+      subCategory,
+      title,
+      description,
+      deliveryCondition,
+      warranty,
+      relatedKeywords,
+      itemProperties,
+      variants,
+    },
+    prodId,
+    sellerId
+  ) => {
+    try {
+      const product = await Product.findById({ _id: prodId, sellerId });
+
+      if (!product) {
+        throw new Error("Product not found");
+      }
+
+      product.category = category;
+      product.subCategory = subCategory;
+      product.title = title;
+      product.description = description;
+      product.deliveryCondition = deliveryCondition;
+      product.warranty = warranty;
+      product.relatedKeywords = relatedKeywords;
+      product.itemProperties = itemProperties;
+
+      product.variants = variants.map((variant) => ({
+        ...variant,
+        images: variant.images.map((img) => ({
+          temp_url: `${img}.png`,
+          secure_url: "pending",
+        })),
+      }));
+
+      await product.save();
+
+      console.log("Product updated successfully:", product);
     } catch (error) {
       console.log(error);
       throw handleError(error);

@@ -125,6 +125,9 @@ router.put(
 //Category
 router.get("/category/list", userController.listCategory);
 
+router.get("/category/list-dist", userController.distinctCatForHome);
+
+
 //Wallet
 router.get("/wallet/history", verifyToken, userController.getWalletDetails);
 
