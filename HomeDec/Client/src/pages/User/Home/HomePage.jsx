@@ -99,7 +99,9 @@ const HomePage = () => {
                         </div>
 
                     </div>
-                </div>
+                </div>  
+
+                {/* ds */}
 
                 {/* Featured Categories */}
                 <section className="py-12">
