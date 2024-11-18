@@ -5,6 +5,9 @@ import { Outlet } from 'react-router-dom'
 import { verifyUserRole } from '../../../redux/slices/authSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import CircularLoader from '../../../components/Loading/CircularLoader'
+import { LoginProvider } from '@/context/LoginSheetContext'
+import { Toaster } from "@/components/ui/sonner"
+
 
 const UserLayout = () => {
 
@@ -24,8 +27,11 @@ const UserLayout = () => {
 
   return (
     <div>
-      <UserNavBar />
-      <Outlet />
+      <LoginProvider>
+          <UserNavBar />
+          <Outlet />
+      </LoginProvider >
+      <Toaster />
       <UserFooter />
     </div>
   )

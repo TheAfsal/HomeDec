@@ -47,11 +47,11 @@ const SalesGraph = ({ salesData, setSalesData, role }) => {
     const handleDropDown = (selectedValue) => {
         generateSalesReport(role, selectedValue, undefined, undefined)
             .then((data) => {
-                console.log(data);
+
                 setSalesData(data.reverse());
             })
             .catch((error) => {
-                console.log(error.message);
+
             })
     };
 

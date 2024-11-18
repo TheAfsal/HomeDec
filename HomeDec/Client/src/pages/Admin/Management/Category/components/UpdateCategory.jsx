@@ -22,7 +22,7 @@ const UpdateCategory = ({ category, categoryId, subCategory, subCategoryId, setC
 
             // Call your API to update the category and subcategory
             const { message, updatedCategory, updatedSubcategory } = await updateCategoryAndSubCategory({ categoryName, categoryId, subCategoryName, subCategoryId });
-            console.log(message, updatedCategory, updatedSubcategory);
+
 
             setCategories((prevCategories) =>
                 prevCategories.map((category) => {

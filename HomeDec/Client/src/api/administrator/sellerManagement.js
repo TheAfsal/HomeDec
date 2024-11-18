@@ -5,7 +5,6 @@ export const listSellers = async () => {
     const response = await api.get(`/admin/seller/list`);
     return response.data;
   } catch (error) {
-    console.log(error);
     throw new Error(error?.response?.data?.error);
   }
 };

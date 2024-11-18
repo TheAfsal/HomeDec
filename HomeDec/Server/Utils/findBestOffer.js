@@ -1,8 +1,4 @@
 const findBestOffer = (offers, price) => {
-  console.log("--------------------------------");
-  console.log(offers);
-  console.log(price);
-
   let bestOffer = null;
 
   const calculateEffectivePrice = (offer) => {
@@ -29,9 +25,6 @@ const findBestOffer = (offers, price) => {
       }
     }
   });
-
-  console.log("bestOffer--------------");
-  console.log(bestOffer);
 
   return bestOffer;
 };

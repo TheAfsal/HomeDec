@@ -22,7 +22,7 @@ const OfferPageList = () => {
         const fetchOffers = async () => {
             try {
                 const list = await listOffers(role)
-                console.log(list);
+
                 setOffers(list);
             } catch (error) {
                 console.error('Error fetching offers:', error);

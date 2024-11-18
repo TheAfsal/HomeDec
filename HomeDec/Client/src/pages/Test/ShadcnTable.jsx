@@ -1,20 +1,57 @@
-import React, { useState, useEffect } from 'react';
-import { Loader as IconLoader } from 'lucide-react'; // Import the desired icon
+import { Toaster } from "@/components/ui/sonner"
+import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
 
-const ShadcnTable = () => {
-    const [progress, setProgress] = useState(0);
+
+export default function ShadcnTable() {
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-100">
-            <div className="relative flex items-center justify-center w-24 h-24">
-                <IconLoader className="text-gray-300 w-24 h-24" />
-                <div
-                    className="absolute inset-0 bg-green-500 transition-all duration-500 ease-in-out"
-                    style={{ clipPath: `inset(${100 - progress}% 0 0 0)` }}
-                />
-                <span className="absolute text-white font-bold">{progress}%</span>
-            </div>
-        </div>
-    );
-};
+        <html lang="en">
+            <head />
+            <body>
+                <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+                    <h1 className="text-2xl font-bold">Sonner Toast Examples</h1>
+                    <Button
+                        onClick={() => toast("Event has been created")}
+                    >
+                        Show Simple Toast
+                    </Button>
+                    <Button
+                        onClick={() =>
+                            toast.success("Profile updated successfully", {
+                                description: "Your changes have been saved.",
+                            })
+                        }
+                    >
+                        Show Success Toast
+                    </Button>
+                    <Button
+                        onClick={() =>
+                            toast.error("Failed to save changes", {
+                                description: "Please try again later.",
+                            })
+                        }
+                    >
+                        Show Error Toast
+                    </Button>
+                    <Button
+                        onClick={() =>
+                            toast.promise(
+                                new Promise((resolve) => setTimeout(resolve, 2000)),
+                                {
+                                    loading: "Saving changes...",
+                                    success: "Changes saved successfully",
+                                    error: "Failed to save changes",
+                                }
+                            )
+                        }
+                    >
+                        Show Promise Toast
+                    </Button>
+                </div>
+                <Toaster />
+            </body>
+        </html>
+    )
+}
 
-export default ShadcnTable;
+

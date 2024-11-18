@@ -25,7 +25,7 @@ const AddOfferPage = ({ isOpen, onClose, offerData, setRefresh, setToast }) => {
         const loadData = async () => {
             const fetchedProducts = await ListAllProducts();
             const fetchedCategories = await listCategory(role);
-            console.log(fetchedProducts, fetchedCategories);
+
             setProducts(fetchedProducts);
             setCategories(fetchedCategories);
         };
@@ -41,7 +41,7 @@ const AddOfferPage = ({ isOpen, onClose, offerData, setRefresh, setToast }) => {
     const watchStartDate = watch('startDate');
 
     const onSubmit = async (data) => {
-        console.log({ data, selectedProducts, selectedCategories });
+
         try {
             if (offerData !== true) {
                 await updateOffer({ data, selectedProducts, selectedCategories }, offerData._id);

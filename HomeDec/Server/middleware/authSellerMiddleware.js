@@ -2,7 +2,6 @@ const jwt = require("jsonwebtoken");
 
 const verifyTokenSeller = (req, res, next) => {
   const token = req.headers["authorization"].split(" ")[1];
-  console.log(token);
 
   if (!token) {
     return res
@@ -13,10 +12,8 @@ const verifyTokenSeller = (req, res, next) => {
   try {
     const secretKey = process.env.JWT_SECRET_SELLER;
     const decoded = jwt.verify(token, secretKey);
-    console.log(decoded);
-    
+
     if (!decoded.admin) {
-        console.log("seller");
       req.user = decoded;
       next();
     } else {

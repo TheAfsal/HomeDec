@@ -2,10 +2,21 @@ import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { createCoupon, updateCoupon } from '../../../../api/administrator/couponManagement';
 
-const AddCouponPage = ({ isOpen, onClose, couponData, setRefresh ,setToast }) => {
+const AddCouponPage = ({ isOpen, onClose, couponData, setRefresh, setToast }) => {
     const { register, handleSubmit, formState: { errors }, reset } = useForm();
 
     useEffect(() => {
+
+
+        // Cleanup function
+        return () => {
+
+        };
+    }, []);
+
+
+    useEffect(() => {
+
         if (isOpen && couponData !== true) {
             // Reset form fields to coupon data when the modal is opened for editing
             reset(couponData);
@@ -13,20 +24,20 @@ const AddCouponPage = ({ isOpen, onClose, couponData, setRefresh ,setToast }) =>
     }, [isOpen, couponData, reset]);
 
     const onSubmit = async (data) => {
-        console.log(data);
+
         try {
             if (couponData !== true) {
                 await updateCoupon(data)
-                setToast(true,"Coupon updated successfully")
+                setToast(true, "Coupon updated successfully")
             } else {
                 await createCoupon(data);
-                setToast(true,"Coupon created successfully")
+                setToast(true, "Coupon created successfully")
             }
             onClose(false);
             setRefresh((prev) => !prev)
         } catch (error) {
-            console.log(error.message);
-            setToast(false,error.message)
+
+            setToast(false, error.message)
         }
     };
 

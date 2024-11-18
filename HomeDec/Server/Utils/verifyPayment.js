@@ -14,12 +14,9 @@ const verifyPayment = async (response) => {
     }),
   });
 
-  console.log("verify Payment");
-  console.log(res);
   const data = await res.json();
-  console.log(data);
 
   // return data; // Return success or failure response
 };
 
-module.exports = verifyPayment 
+module.exports = verifyPayment;

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { createOrder, verifyPromoCode } from '../../../../api/user/account';
 import { AUTH_ROUTES, USER_ROUTES } from '../../../../config/routerConstants';
 import OfferPriceDisplay from '../../../../utils/calculateOfferPrice';
 import { useSelector } from 'react-redux';
+import { useLoginSheet } from '@/context/LoginSheetContext';
 
 const OrderSummary = ({ cartItems, pushToast }) => {
     const navigate = useNavigate();
@@ -13,6 +14,8 @@ const OrderSummary = ({ cartItems, pushToast }) => {
     const [discount, setDiscount] = useState(0);
     const [finalAmount, setFinalAmount] = useState(0);
     const { role } = useSelector((state) => state.auth)
+    const { AutherizeUser } = useLoginSheet();
+
 
     const subtotal = cartItems.reduce((acc, item) =>
         acc + (item.variantDetails.price * item.quantity), 0
@@ -48,8 +51,6 @@ const OrderSummary = ({ cartItems, pushToast }) => {
             // setFinalAmount(newFinalAmount);
             setShowInput(false);
         } catch (error) {
-            console.log(error);
-
             pushToast(false, error.message);
         }
     };
@@ -57,13 +58,9 @@ const OrderSummary = ({ cartItems, pushToast }) => {
 
     const handleOrderCreation = async () => {
         try {
-            console.log(cartItems);
-
             const orderId = await createOrder(cartItems, approvedPromoCode);
-            console.log(orderId);
             navigate(`/${USER_ROUTES.CHECKOUT}/${orderId}`);
         } catch (error) {
-            console.log(error);
             pushToast(false, error.message);
         }
     };
@@ -77,7 +74,7 @@ const OrderSummary = ({ cartItems, pushToast }) => {
 
     return (
         <div className='w-2/6'>
-            <div className="mt-6 gap-4">
+            <div className="gap-4">
                 <div className="col-span-4 bg-order_card_background p-6 rounded-lg shadow">
                     <h2 className="text-lg font-bold mb-4">Order Summary</h2>
                     <div className='flex gap-3 flex-wrap'>
@@ -110,7 +107,7 @@ const OrderSummary = ({ cartItems, pushToast }) => {
                     </div>
 
 
-                    <button className="w-full bg-green_600 text-sm text-white py-2 rounded-md hover:bg-green_400" onClick={() => role !== "user" ? navigate(`/${AUTH_ROUTES.LOGIN_USER}`) : handleOrderCreation()}>Proceed to checkout</button>
+                    <button className="w-full bg-green_600 text-sm text-white py-2 rounded-md hover:bg-green_400" onClick={() => AutherizeUser(handleOrderCreation)}>Proceed to checkout</button>
 
                 </div>
             </div>

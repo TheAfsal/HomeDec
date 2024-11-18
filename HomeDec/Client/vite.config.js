@@ -11,4 +11,9 @@ export default defineConfig({
         '@utils': resolve(__dirname, 'src/utils'),  
     },
 },
+server: {
+  host: '0.0.0.0',  // This allows connections from any device on the network
+  port: 5173,        // Optionally change this port to whatever you need
+  strictPort: true,  // If you want to make sure the server fails if the port is taken
+},
 });

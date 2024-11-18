@@ -14,7 +14,7 @@ const Orders = () => {
         const fetchMyOrders = async () => {
             const orders = await fetchUserOrders()
             setOrders(orders);
-            console.log(orders);
+
 
         }
         fetchMyOrders()

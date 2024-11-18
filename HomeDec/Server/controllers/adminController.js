@@ -44,7 +44,6 @@ module.exports = {
       const result = await adminServices.toggleUserStatus(userId);
       return res.status(200).json(result);
     } catch (error) {
-      console.log(error);
       if (error.message === "User not found") {
         return res.status(404).json({ error: error.message });
       } else {
@@ -77,8 +76,6 @@ module.exports = {
       );
       return res.status(200).json(result);
     } catch (error) {
-      console.log(error);
-
       return res.status(500).json({ error: "Error in creating new category" });
     }
   },
@@ -91,7 +88,6 @@ module.exports = {
       const result = await categoryServices.toggleCategoryStatus(catId);
       return res.status(200).json(result);
     } catch (error) {
-      console.log(error);
       if (error.message) {
         return res.status(404).json({ error: error.message });
       } else {
@@ -116,7 +112,6 @@ module.exports = {
       );
       return res.status(200).json(result);
     } catch (error) {
-      console.log(error);
       if (error.message) {
         return res.status(404).json({ error: error.message });
       } else {
@@ -183,8 +178,7 @@ module.exports = {
   createCoupon: async (req, res) => {
     try {
       const couponData = req.body;
-      console.log(req.body);
-      console.log(couponData);
+
       const coupon = await couponServices.createCoupon(couponData);
       return res.status(201).json({
         message: "Coupon created successfully!",
@@ -198,8 +192,7 @@ module.exports = {
   updateCoupon: async (req, res) => {
     try {
       const { _id, ...couponData } = req.body;
-      console.log(_id);
-      console.log(couponData);
+
       const coupon = await couponServices.updateCoupon(_id, couponData);
       return res.status(201).json({
         message: "Coupon created successfully!",
@@ -223,7 +216,7 @@ module.exports = {
     try {
       const couponId = req.params.id;
       const updatedCoupon = await couponServices.toggleCouponStatus(couponId);
-      console.log("Coupon status updated:", updatedCoupon);
+
       return res.status(200).json();
     } catch (error) {
       console.error(error.message);
@@ -233,7 +226,7 @@ module.exports = {
   createOffer: async (req, res) => {
     try {
       const OfferData = req.body;
-      console.log(OfferData);
+
       const coupon = await offerServices.createOffer(OfferData);
 
       return res.status(201).json({
@@ -241,8 +234,6 @@ module.exports = {
         coupon,
       });
     } catch (error) {
-      console.log(error);
-
       return res.status(500).json({ error: error.message });
     }
   },
@@ -256,7 +247,6 @@ module.exports = {
         coupon,
       });
     } catch (error) {
-      console.log(error);
       return res.status(500).json({ error: error.message });
     }
   },
@@ -274,7 +264,7 @@ module.exports = {
     try {
       const offerId = req.params.id;
       const updatedOffer = await offerServices.toggleOfferStatus(offerId);
-      console.log("Offer status updated:", updatedOffer);
+
       return res.status(200).json();
     } catch (error) {
       console.error(error.message);
@@ -284,13 +274,10 @@ module.exports = {
   fetchSalesReport: async (req, res) => {
     try {
       const { tf, sd, ed } = req.query;
-      console.log(tf, sd, ed);
 
       const offers = await inventoryServices.fetchSalesReport(tf, sd, ed);
       return res.status(200).json(offers);
     } catch (error) {
-      console.log(error);
-
       return res.status(500).json({ error: error.message });
     }
   },

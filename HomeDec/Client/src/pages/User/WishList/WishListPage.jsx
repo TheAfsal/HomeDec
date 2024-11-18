@@ -20,7 +20,7 @@ const WishListPage = () => {
             .then((items) => {
                 setWishlistItems(items);
             }).catch((error) => {
-                console.log(error.message);
+
             })
     }, []);
 

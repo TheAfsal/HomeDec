@@ -18,8 +18,6 @@ module.exports = {
       throw { status: 400, message: "At least one category must be selected." };
     }
 
-    console.log(restOfOfferData.discountType);
-
     // Validate discount type
     if (!["percentage", "fixed"].includes(restOfOfferData.discountType)) {
       throw {
@@ -184,10 +182,6 @@ module.exports = {
     const categoriesToRemove = Object.keys(existingCategories).filter(
       (id) => !newCategories[id]
     );
-
-    console.log(2);
-    console.log("productsToRemove", productsToRemove);
-    console.log("categoriesToRemove", categoriesToRemove);
 
     // Update the offer
     Object.assign(existingOffer, {

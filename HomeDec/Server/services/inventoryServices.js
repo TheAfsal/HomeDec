@@ -11,9 +11,6 @@ module.exports = {
         : new Date(startDate);
     let end = endDate === "undefined" ? new Date() : new Date(endDate);
 
-    console.log("Default Date on server", start, end);
-    console.log("Default values", startDate, endDate);
-
     // Adjust the end date based on the time frame
     switch (timeFrame) {
       case "daily":

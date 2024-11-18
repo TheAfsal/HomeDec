@@ -27,11 +27,11 @@ export const ConfirmationProvider = ({ children }) => {
 
   const handleConfirm = () => {
     if (confirmation.onConfirm) confirmation.onConfirm();
-    setConfirmation({ ...confirmation, visible: false }); // Hide the alert after confirming
+    setConfirmation({ ...confirmation, visible: false }); 
   };
 
   const handleCancel = () => {
-    setConfirmation({ ...confirmation, visible: false }); // Hide the alert on cancel
+    setConfirmation({ ...confirmation, visible: false }); 
   };
 
   return (

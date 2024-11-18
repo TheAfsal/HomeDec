@@ -45,16 +45,13 @@ const calculateTotalAmount = async (orderItems) => {
         const subcategoryOffers = product.subCategory?.offers || []; // Fetch subcategory offers
         const allOffers = [...offers, ...subcategoryOffers];
 
-        console.log("Combined Offers:", allOffers); // Debugging log
+        // Debugging log
 
         // Find the best offer for this variant's price
         const bestOffer = findBestOffer(allOffers, originalPrice);
         let discountAmount = 0;
 
-        console.log("Best Offer: ", bestOffer);
-
         if (bestOffer) {
-
           if (bestOffer.discountType === "percentage") {
             const calculatedDiscount =
               (originalPrice * bestOffer.discountValue) / 100;
@@ -72,10 +69,8 @@ const calculateTotalAmount = async (orderItems) => {
           // Apply discount to the variant price
           variantPrice -= discountAmount; // Deduct the discount from the variant price
         } else {
-          console.log("No valid offer found");
         }
 
-        console.log("Discount Amount: ", discountAmount);
         total += originalPrice * item.quantity;
         totalDiscounts += discountAmount * item.quantity;
 

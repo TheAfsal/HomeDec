@@ -16,13 +16,13 @@ const SalesReportPage = () => {
 
     const fetchSalesReport = async () => {
         try {
-            console.log(role, timeFrame, startDate, endDate);
+
 
             const data = await generateSalesReport(role, timeFrame, startDate, endDate);
             setSalesData(data);
-            console.log(data);
+
         } catch (error) {
-            console.log(error);
+
         }
     };
 

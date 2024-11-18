@@ -22,7 +22,6 @@ const sendOTP = async (email, otp) => {
     subject: "Your OTP for Signup",
     text: `Your OTP is: ${otp}`,
   });
-  console.log(sendedMail);
 };
 
 module.exports = sendOTP;

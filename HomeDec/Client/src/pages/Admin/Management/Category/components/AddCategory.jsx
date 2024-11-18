@@ -42,8 +42,8 @@ const AddCategory = ({ categories, setCategories, setIsPopupOpen }) => {
             const response = await addCategory({ newCategory, description, newSubCategory });
 
             const categoryExists = categories.find(category => category.name === response.categoryName);
-            console.log(response);
-            console.log(categoryExists);
+
+
 
             if (categoryExists) {
                 // Update the existing category
@@ -57,7 +57,7 @@ const AddCategory = ({ categories, setCategories, setIsPopupOpen }) => {
                         : category
                 );
 
-                console.log(updatedCategories);
+
                 setCategories(updatedCategories);
             } else {
                 // Add a new category
@@ -70,7 +70,7 @@ const AddCategory = ({ categories, setCategories, setIsPopupOpen }) => {
             setNewSubCategory('');
             setIsPopupOpen(false);
         } catch (error) {
-            console.log(error);
+
 
             setError(error.message)
 

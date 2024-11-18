@@ -1,8 +1,8 @@
 import React from "react";
 
 const OfferPriceDisplay = ({ productPrice, offerDetails }) => {
-  // console.log("productPrice", productPrice);
-  // console.log("offerDetails", offerDetails);
+  // 
+  // 
 
   if (
     offerDetails !== undefined &&

@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 
 const verifyTokenAdmin = (req, res, next) => {
   const token = req.headers["authorization"].split(" ")[1];
-  console.log(token);
+
   if (!token) {
     return res
       .status(401)
@@ -12,11 +12,8 @@ const verifyTokenAdmin = (req, res, next) => {
   try {
     const secretKey = process.env.JWT_SECRET_ADMIN;
     const decoded = jwt.verify(token, secretKey);
-    console.log(decoded.admin);
 
     if (decoded.admin) {
-      console.log("admin");
-
       next();
     } else {
       res.status(400).json({ message: "Invalid request" });

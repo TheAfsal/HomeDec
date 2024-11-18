@@ -3,12 +3,9 @@ import userAPI from "../apiConfigUser";
 
 export const addProduct = async (details) => {
   try {
-    console.log("addProduct called");
-
     const response = await api.post("/seller/products/add", details);
     return response.data;
   } catch (error) {
-    console.log(error);
     throw new Error(error?.response?.data?.error);
   }
 };
@@ -21,7 +18,6 @@ export const updateProduct = async (details, prodId) => {
     });
     return response.data;
   } catch (error) {
-    console.log(error);
     throw new Error(error?.response?.data?.error);
   }
 };
@@ -31,19 +27,21 @@ export const ListProducts = async () => {
     const response = await api.get("seller/products/list");
     return response.data;
   } catch (error) {
-    console.log(error);
     throw new Error(error?.response?.data?.error);
   }
 };
 
-export const ListAllProducts = async (role) => {
+export const ListAllProducts = async ({ pageParam }) => {
   try {
     const response = await api.get(
-      role === "admin" ? "admin/products/list" : "products/list"
+      // role === "admin"
+      //   ? "admin/products/list"
+      //   :
+      `products/list?limit=6&cursor=${pageParam}`
     );
+
     return response.data;
   } catch (error) {
-    console.log(error);
     throw new Error(error?.response?.data?.error);
   }
 };
@@ -53,7 +51,6 @@ export const fetchDetails = async (productId) => {
     const response = await api.get(`/product/details/${productId}`);
     return response.data;
   } catch (error) {
-    console.log(error);
     throw new Error(error?.response?.data?.error);
   }
 };
@@ -63,7 +60,6 @@ export const distinctCatForHome = async () => {
     const response = await userAPI.get(`/category/list-dist`);
     return response.data;
   } catch (error) {
-    console.log(error);
     throw new Error(error?.response?.data?.error);
   }
 };
@@ -73,31 +69,23 @@ export const changeProductStatus = async ({ pId, index }) => {
     const response = await api.patch(
       `/seller/products/toggle-status/${pId}/${index}`
     );
-    console.log(response.data);
 
     return response.data;
   } catch (error) {
-    console.log(error);
-
     throw new Error(error?.response?.data?.error);
   }
 };
 
 export const fetchSearchingProducts = async (query, sort, filter) => {
   try {
-    console.log(query, sort, filter);
     filter?.value.length !== 0 && filter?.value.join(",");
-
-    console.log(filter);
 
     const response = await userAPI.get(
       `/products/search?q=${query}&sort=${sort}&option=category&value=${filter?.value}`
     );
-    console.log(response.data);
+
     return response.data;
   } catch (error) {
-    console.log(error);
-
     throw new Error(error?.response?.data?.error);
   }
 };
@@ -109,8 +97,6 @@ export const addProductImage = async (
   setVariants
 ) => {
   try {
-    console.log(variantIndex, posIndex);
-
     const response = await api.post(
       `/seller/products/add-product-image`,
       formData,
@@ -122,7 +108,6 @@ export const addProductImage = async (
           const percentComplete = Math.round(
             (progressEvent.loaded * 100) / progressEvent.total
           );
-          console.log(percentComplete);
 
           setVariants((prev) => {
             const updated = [...prev];
@@ -146,11 +131,9 @@ export const addProductImage = async (
         },
       }
     );
-    console.log(response.data);
+
     return response.data;
   } catch (error) {
-    console.log(error);
-
     throw new Error(error?.response?.data?.error);
   }
 };

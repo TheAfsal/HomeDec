@@ -129,7 +129,7 @@ const ProductModalForm = ({ usedFor, isOpen, onClose }) => {
         for (const variantIndex in updatedVariants) {
             const variant = updatedVariants[variantIndex];
 
-            console.log(updatedVariants[variantIndex]);
+
 
 
             for (const posIndex in variant.images) {
@@ -141,7 +141,7 @@ const ProductModalForm = ({ usedFor, isOpen, onClose }) => {
 
                 const uploadPromise = addProductImage(formData, variantIndex, posIndex, setVariants)
                     .catch((error) => {
-                        console.log(`Error uploading image for variant ${variantIndex}, image ${posIndex}:`, error);
+
                     });
 
                 uploadPromises.push(uploadPromise);
@@ -150,15 +150,15 @@ const ProductModalForm = ({ usedFor, isOpen, onClose }) => {
 
         try {
             await Promise.all(uploadPromises);
-            console.log('All images uploaded successfully');
+
         } catch (error) {
-            console.log('Error during image upload:', error);
+
         }
     }
 
     const onSubmit = async (data) => {
 
-        console.log("submit clicked");
+
 
         if (variants.length === 0) {
             setError("You must add at least one variant.")
@@ -172,7 +172,7 @@ const ProductModalForm = ({ usedFor, isOpen, onClose }) => {
         }
 
         try {
-            
+
             data.variants = data.variants.map((variant, index) => {
                 const imageIds = variants[index]?.images.map(image => image.id) || [];
                 return {
@@ -180,7 +180,7 @@ const ProductModalForm = ({ usedFor, isOpen, onClose }) => {
                     images: imageIds
                 };
             });
-            
+
             if (usedFor !== "add") {
                 updateProduct(data, usedFor)
                     .then((_) => {
@@ -327,7 +327,7 @@ const ProductModalForm = ({ usedFor, isOpen, onClose }) => {
                                             >
                                                 <div className="flex justify-between items-center mb-4">
                                                     <h4 className="text-lg font-medium">Variant {variants[index].color}</h4>
-                                                    <Button variant="ghost" size="icon" onClick={() => handleRemoveVariant(index)}>
+                                                    <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveVariant(index)}>
                                                         <X className="h-4 w-4" />
                                                     </Button>
                                                 </div>

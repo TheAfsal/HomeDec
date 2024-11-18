@@ -84,19 +84,19 @@ const ProfilePage = () => {
                 dispatch(enableLoading());
 
                 const uploadFormData = new FormData();
-                console.log(formData.firstName);
-                console.log(formData.lastName);
-                console.log(formData.dob);
-                console.log(formData.gender);
-                console.log(formData.image);
+
+
+
+
+
 
                 uploadFormData.append('firstName', formData.firstName);
                 uploadFormData.append('lastName', formData.lastName);
                 uploadFormData.append('dob', formData.dob);
                 uploadFormData.append('gender', formData.gender);
-                console.log(profile?.image);
-                console.log(formData?.image);
-                console.log(formData?.image?.secure_url);
+
+
+
 
                 if (!formData?.image?.secure_url) {
                     uploadFormData.append('image', formData.image);
@@ -114,11 +114,11 @@ const ProfilePage = () => {
 
                 setToast(true, "Detials updated successfully")
                 dispatch(setProfile(response.data));
-                console.log('Detials updated successfully:', response.data);
+
 
             } catch (error) {
                 setToast(false, error.message)
-                console.log('Error:', error);
+
                 setErrors({ serverError: error });
             }
         }

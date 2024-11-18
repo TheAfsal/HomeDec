@@ -36,7 +36,7 @@ const SortableItem = ({ id, children }) => {
 
 const ImageCrop = ({ variant, setVariants, index }) => {
 
-  console.log("variant", variant);
+
 
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -95,12 +95,12 @@ const ImageCrop = ({ variant, setVariants, index }) => {
       try {
         addProductImage(formData, variantIndex, updated[variantIndex].images.length - 1, setVariants)
           .catch((error) => {
-            console.log(error);
+
 
           })
 
       } catch (error) {
-        console.log(error);
+
       }
 
       return updated;
@@ -122,7 +122,7 @@ const ImageCrop = ({ variant, setVariants, index }) => {
   };
 
   const handleRemoveImageFromVariant = (variantIndex, imageIndex) => {
-    console.log(variantIndex, imageIndex);
+
     setVariants((prev) => {
       const updated = [...prev];
       updated[variantIndex].images.splice(imageIndex, 1);
@@ -212,7 +212,7 @@ const ImageCrop = ({ variant, setVariants, index }) => {
               className="absolute inset-0 flex items-center justify-center bg-slate-200 bg-opacity-25 cursor-pointer z-10"
               onClick={(e) => {
                 e.stopPropagation();
-                console.log(img?.imageUrl);
+
                 OpenCropper(img?.imageUrl, imgIndex);
               }}
             >

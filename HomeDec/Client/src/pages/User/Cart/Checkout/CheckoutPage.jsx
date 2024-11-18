@@ -31,7 +31,7 @@ const CheckoutPage = () => {
     const fetchAllAdresses = async () => {
       const items = await fetchMyAddresses()
       setAddressList(items.addresses);
-      console.log(items.addresses);
+
       setShippingAddress(items.addresses[0]);
 
     }
@@ -86,7 +86,7 @@ const CheckoutPage = () => {
     try {
       setLoading(true)
       const details = await updateOrder(orderId, paymentMethod, shippingAddress)
-      console.log(details);
+
 
       if (details.orderDetails.paymentMethod === "online") {
         const options = {
@@ -96,7 +96,7 @@ const CheckoutPage = () => {
           name: "Your Company Name",
           order_id: details.orderDetails.orderId.id,
           handler: async function (response) {
-            console.log("123123");
+
             try {
               await addTransactionId(true, orderId, response.razorpay_payment_id)
               dispatch(clearCart())
@@ -104,7 +104,7 @@ const CheckoutPage = () => {
 
 
             } catch (error) {
-              console.log("transaction id storing failed");
+
 
             }
           },
@@ -121,8 +121,8 @@ const CheckoutPage = () => {
         try {
           const razorpay = new window.Razorpay(options);
           razorpay.on('payment.failed', async function (response) {
-            console.log("321321");
-            console.log(response);
+
+
             await addTransactionId(false, orderId, response.razorpay_payment_id)
             dispatch(clearCart())
             navigate(`/${USER_ROUTES.SHOP}`)
@@ -132,7 +132,7 @@ const CheckoutPage = () => {
           razorpay.open();
 
         } catch (error) {
-          console.log(error);
+
 
         }
 
@@ -152,8 +152,8 @@ const CheckoutPage = () => {
       setLoading(false)
       toast.error(error.message)
     }
-    // console.log(paymentMethod);
-    // console.log(shippingAddress);
+    // 
+    // 
   };
 
   if (loading) return (<CircularLoader />)

@@ -82,18 +82,14 @@ module.exports = {
     try {
       const user = await User.find({ email });
       return user[0];
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
   },
 
   registerWithGoogle: async (email) => {
     try {
       const user = await User.find({ email });
       return user[0];
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
   },
 
   loginAdmin: async ({ email, password }) => {
@@ -141,7 +137,6 @@ module.exports = {
       false,
       false
     );
-    console.log(token);
 
     return { token, role: "seller" };
   },

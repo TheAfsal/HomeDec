@@ -64,7 +64,7 @@ const UserGraph = ({ role }) => {
                 )
             })
             .catch((error) => {
-                console.log(error);
+
             })
     }, [])
 

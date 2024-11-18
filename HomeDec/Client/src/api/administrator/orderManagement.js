@@ -7,7 +7,6 @@ export const ListAllOrders = async () => {
     const response = await api.get("/admin/orders/list");
     return response.data;
   } catch (error) {
-    console.log(error);
     throw new Error(error?.response?.data?.error);
   }
 };
@@ -17,7 +16,6 @@ export const ListMyOrders = async () => {
     const response = await api.get("/seller/orders/list");
     return response.data;
   } catch (error) {
-    console.log(error);
     throw new Error(error?.response?.data?.error);
   }
 };
@@ -27,7 +25,6 @@ export const fetchUserOrders = async () => {
     const response = await userAPI.get("/account/orders/list");
     return response.data;
   } catch (error) {
-    console.log(error);
     throw new Error(error?.response?.data?.error);
   }
 };
@@ -37,7 +34,6 @@ export const fetchOrder = async (orderId) => {
     const response = await userAPI.get(`/account/orders/details/${orderId}`);
     return response.data;
   } catch (error) {
-    console.log(error);
     throw new Error(error?.response?.data?.error);
   }
 };
@@ -61,7 +57,6 @@ export const generateReturnOrCancelRequest = async (
     });
     return response.data;
   } catch (error) {
-    console.log(error);
     throw new Error(error?.response?.data?.error);
   }
 };
@@ -81,7 +76,6 @@ export const changeOrderStatus = async (
     });
     return response.data;
   } catch (error) {
-    console.log(error);
     throw new Error(error?.response?.data?.error);
   }
 };
@@ -100,7 +94,6 @@ export const rejectCancelOrReturnOrder = async (
     });
     return response.data;
   } catch (error) {
-    console.log(error);
     throw new Error(error?.response?.data?.error);
   }
 };
@@ -120,7 +113,6 @@ export const changeOrderStatusByUser = async (
     });
     return response.data;
   } catch (error) {
-    console.log(error);
     throw new Error(error?.response?.data?.error);
   }
 };

@@ -49,7 +49,6 @@ module.exports = {
       await order.save();
       return { orderId: order._id };
     } catch (error) {
-      console.log(error);
       throw new Error("Error creating order: " + error.message);
     }
   },
@@ -62,9 +61,6 @@ module.exports = {
     cartId
   ) => {
     try {
-      console.log("_id, shippingAddress, paymentMethod, userId, cartId");
-      console.log(_id, shippingAddress, paymentMethod, userId, cartId);
-
       // Step 1: Retrieve the existing order
       const orderDoc = await Order.findOne({ _id });
       if (!orderDoc) {
@@ -113,7 +109,6 @@ module.exports = {
           const couponDoc = await Coupon.findById(couponId);
 
           if (!couponDoc) {
-            console.log(`Coupon not found: ${couponId}`);
             continue; // Skip if the coupon doesn't exist
           }
 
@@ -135,7 +130,7 @@ module.exports = {
           ).length;
 
           // if (couponDoc.isUserLimitExceeded(userUsageCount)) {
-          //   console.log(`User usage limit exceeded for coupon: ${coupon.code}`);
+          //
           //   continue;
           // }
 
@@ -160,12 +155,9 @@ module.exports = {
 
           // Apply discount
           if (couponDoc.discountType === "fixed") {
-            console.log("value2", couponDoc.discountValue);
-
             totalDiscounts += couponDoc.discountValue;
             finalAmount -= couponDoc.discountValue;
           } else {
-            console.log("value1", couponDoc.discountValue);
             const discountAmount =
               finalAmount * (couponDoc.discountValue / 100);
             totalDiscounts += discountAmount;
@@ -174,24 +166,17 @@ module.exports = {
           // }
         }
 
-        console.log("totalDiscounts", totalDiscounts);
-        console.log("finalAmount", finalAmount);
         orderUpdates.finalAmount = finalAmount;
 
         // Save the updated user document
         await user.save();
-        console.log("Promo codes added to user successfully.");
       } else {
-        console.log("No coupons applied to the order.");
       }
 
       // Step 5: Payment Methods
       if (paymentMethod === "online") {
         try {
-          console.log("finalAmount", finalAmount);
-          console.log("!!!!!!");
           orderId = await createOrder(finalAmount);
-          console.log("Online Order ID:", orderId);
 
           const transactionDoc = new Transaction({
             userId,
@@ -205,9 +190,7 @@ module.exports = {
             method: "online",
             transactionId: transactionDoc._id,
           };
-          console.log("Transaction saved successfully:", transactionDoc);
         } catch (error) {
-          console.log(error);
           throw { status: 500, message: error.message };
         }
       } else if (paymentMethod === "wallet") {
@@ -258,7 +241,6 @@ module.exports = {
             updatedBalance
           );
         } catch (error) {
-          console.log(error);
           throw { status: 500, message: error.message };
         }
       } else if (paymentMethod === "cod") {
@@ -301,8 +283,6 @@ module.exports = {
       cart.products = [];
       await cart.save();
 
-      console.log("Order updated successfully:", updatedOrder);
-
       return { orderId, paymentMethod, updatedOrder };
     } catch (error) {
       if (error.status) throw error;
@@ -317,8 +297,6 @@ module.exports = {
     paymentStatus
   ) => {
     try {
-      console.log(orderId, userId, razorpayPaymentId);
-
       const transactionDoc = await Transaction.findOne({ orderId, userId });
 
       if (!transactionDoc) {
@@ -344,7 +322,6 @@ module.exports = {
         transactionDoc
       );
     } catch (error) {
-      console.log(error);
       throw new Error("Failed to fetch Orders");
     }
   },
@@ -358,7 +335,6 @@ module.exports = {
         .populate("orderItems.productId", "title");
       return orderList;
     } catch (error) {
-      console.log(error);
       throw new Error("Failed to fetch Orders");
     }
   },
@@ -390,9 +366,9 @@ module.exports = {
         },
         {
           $lookup: {
-            from: "users", 
-            localField: "userId", 
-            foreignField: "_id", 
+            from: "users",
+            localField: "userId",
+            foreignField: "_id",
             as: "userDetails",
           },
         },
@@ -418,7 +394,7 @@ module.exports = {
             country: 1,
             postalCode: 1,
             street: 1,
-            orderLabel:1,
+            orderLabel: 1,
             "orderItems.isCancelled": 1,
             "orderItems.isReturned": 1,
             "orderItems.reason": 1,
@@ -444,7 +420,7 @@ module.exports = {
       const formattedResults = finalResults.map((order) => ({
         _id: order._id,
         userId: order.userId,
-        firstName: order.userDetails.firstName, 
+        firstName: order.userDetails.firstName,
         orderItems: order.orderItems,
         shippingCharge: order.shippingCharge,
         totalAmount: order.totalAmount,
@@ -459,18 +435,14 @@ module.exports = {
         variantDetails: order.variantDetails,
       }));
 
-      console.log(formattedResults);
       return formattedResults;
     } catch (error) {
-      console.log(error);
       throw new Error("Failed to fetch Orders");
     }
   },
 
   changeOrderStatus: async (status, orderId, productId, variantId) => {
     try {
-      console.log(status);
-
       // Find the order by orderId
       const order = await Order.findById(orderId);
 
@@ -499,10 +471,9 @@ module.exports = {
 
       if (status === "Cancelled" && order.payment.method === "online") {
         const user = await User.findOne({ _id: order.userId });
-        console.log(user);
 
         user.walletBalance += orderItem.price;
-        console.log(user.walletBalance);
+
         user.save();
         // Create a new wallet transaction
         const walletHistory = new Wallet({
@@ -514,7 +485,6 @@ module.exports = {
 
         // Save the wallet transaction
         await walletHistory.save();
-        console.log("Wallet transaction saved:", walletHistory);
       }
 
       await order.save();
@@ -733,7 +703,6 @@ module.exports = {
 
       return enrichedOrders;
     } catch (error) {
-      console.log(error);
       throw new Error("Failed to fetch Orders");
     }
   },
@@ -791,7 +760,6 @@ module.exports = {
 
       return enrichedOrders;
     } catch (error) {
-      console.log(error);
       throw new Error("Failed to fetch Orders");
     }
   },
@@ -809,7 +777,6 @@ module.exports = {
       doc.pipe(res);
 
       const user = await User.findOne({ _id: userId });
-      console.log(user);
 
       const order = await Order.findOne({ _id: orderId, userId })
         .populate("orderItems.productId")
@@ -863,8 +830,6 @@ module.exports = {
         totalAmount: orderItem.price * orderItem.quantity,
       };
 
-      console.log(invoiceDetails);
-
       doc.moveDown();
 
       // Add company name
@@ -914,7 +879,6 @@ module.exports = {
       // Finalize the PDF document
       doc.end();
     } catch (error) {
-      console.log(error);
       // Only send a response if headers have not been sent
       if (!res.headersSent) {
         return res.status(500).json({ message: "Failed to generate Invoice" });

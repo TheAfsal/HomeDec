@@ -248,9 +248,7 @@ module.exports = {
         ? (finalAmount - coupon.discountValue).toFixed(2)
         : (finalAmount * (1 - coupon.discountValue / 100)).toFixed(2);
 
-    console.log("userRequiredByAmount", userRequiredByAmount);
-
-    if ((finalAmount-userRequiredByAmount) >= coupon.maxDiscountAmount) {
+    if (finalAmount - userRequiredByAmount >= coupon.maxDiscountAmount) {
       return {
         couponId: coupon?._id,
         discountType: "fixed",

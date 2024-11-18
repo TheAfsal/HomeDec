@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { loginFailure, loginSuccess } from '../../../../redux/slices/authSlice';
 import { AUTH_ROUTES } from '../../../../config/routerConstants';
 
-const LoginForm = () => {
+const LoginForm = ({ proceedAction }) => {
 
     const { register, handleSubmit, formState: { errors } } = useForm();
     const navigate = useNavigate();
@@ -26,7 +26,12 @@ const LoginForm = () => {
                 token: response.token,
                 role: "user",
             }));
-            navigate('/');
+            if (proceedAction) {
+                proceedAction(false);
+            } else {
+                navigate('/');
+            }
+
 
         } catch (error) {
             dispatch(loginFailure(error.message));

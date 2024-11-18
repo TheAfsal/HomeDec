@@ -27,7 +27,7 @@ const OrderDetailPage = () => {
     useEffect(() => {
         const fetchDetailedOrder = async () => {
             const order = await fetchOrder(orderId)
-            console.log(order[0]);
+
             setOrder(order[0]);
 
         }
@@ -41,7 +41,7 @@ const OrderDetailPage = () => {
 
 
     const changeItemStatus = async (status, orderId, productId, variantId) => {
-        console.log(orderId, productId, variantId);
+
         await changeOrderStatusByUser(status, orderId, productId, variantId)
 
         setOrder(prevOrder => {
@@ -302,12 +302,12 @@ const ReturnComponent = ({ buttonName, order, selectedItem, refresh, setRefresh 
         }
 
         // Log the values if validation passes
-        console.log('Product: Luxury Sofa');
-        console.log('Order ID: 123456');
-        console.log('Reason for Return:', reason);
-        console.log('Additional Comments:', comments);
-        console.log('selectedItem:', selectedItem);
-        console.log(order._id, selectedItem.productId._id, selectedItem.variantId, reason, comments);
+
+
+
+
+
+
 
         await generateReturnOrCancelRequest(order._id, selectedItem.productId._id, selectedItem.variantId, reason, comments, returnOrCancel)
 

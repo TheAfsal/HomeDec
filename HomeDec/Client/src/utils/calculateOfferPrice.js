@@ -1,7 +1,4 @@
-const OfferPriceDisplay = ( productPrice, offerDetails ) => {
-  console.log(productPrice);
-  console.log(offerDetails);
-
+const OfferPriceDisplay = (productPrice, offerDetails) => {
   if (
     offerDetails !== null &&
     productPrice >= offerDetails?.minPurchaseAmount

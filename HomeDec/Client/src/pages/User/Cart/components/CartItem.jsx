@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import { addProductToCart, removeProduct } from '../../../../redux/slices/cartSlice';
 import { removeVariantFromCart, updateCartCount } from '../../../../api/administrator/cartManagement';
 import OfferPriceDisplay from '../../../../utils/calculateOfferPrice.jsx';
+import { Trash2 } from 'lucide-react';
 
 const CartItem = ({ item, pushToast }) => {
 
@@ -11,7 +12,6 @@ const CartItem = ({ item, pushToast }) => {
     const updateQuantity = async (quantity) => {
         try {
             const newCartItem = await updateCartCount(item.productDetails._id, item.variantId, quantity)
-            console.log(newCartItem);
             dispatch(addProductToCart(newCartItem))
         } catch (error) {
             pushToast(false, error.message)
@@ -20,42 +20,29 @@ const CartItem = ({ item, pushToast }) => {
 
     const deleteItem = async () => {
         const removedItem = await removeVariantFromCart(item.productDetails._id, item.variantId)
-        console.log(removedItem);
         dispatch(removeProduct(removedItem))
         pushToast(true, "Product removed from cart")
     }
 
-    console.log(item);
+
 
 
     return (
-        <tr key={item.id} className="border-t">
-            <td className="py-7">
-                <div className="flex items-center">
-                    <img src={item.variantDetails.image} alt={item.name} className="w-16 h-16 object-cover mr-4" />
-                    <div>
-                        <div className="font-semibold text-sm">{item.productDetails.title}</div>
-                        <div className=" text-gray-500 text-xs">Color: {item.variantDetails.color} | Model: {item.model}</div>
-                    </div>
+        <div key={item.id} className="border p-3 rounded-lg flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 mb-2">
+            <div className="flex items-center w-full md:w-1/3">
+                <img src={item.variantDetails.image} alt={item.name} className="w-24 h-24 object-cover mr-4 rounded-lg" />
+                <div>
+                    <div className="font-semibold text-sm">{item.productDetails.title}</div>
+                    <div className="text-gray-500 text-xs">Color: {item.variantDetails.color}</div>
                 </div>
-            </td>
-            <td className="py-4">
-                {/* {
-                    (item.productDetails.offers.length !== 0 && item.variantDetails.price >= item.productDetails.offers[0].minPurchaseAmount)
-                        ?
-                        <span className="font-nunito">
-                            {
-                                item.productDetails.offers[0].discountType === "fixed"
-                                    ? `₹${item.variantDetails.price - item.productDetails.offers[0].discountValue}`
-                                    : `₹${item.variantDetails.price - (item.variantDetails.price * (item.productDetails.offers[0].discountValue / 100))}`
-                            }
-                        </span>
-                        : <span className="font-nunito">₹{item.variantDetails.price}</span>
-                } */}
+            </div>
+
+            <div className="w-full md:w-1/4 py-4">
                 <OfferPriceDisplay productPrice={item.variantDetails.price} offerDetails={item.productDetails.bestOffer} />
-            </td>
-            <td className="py-4">
-                <div className="flex justify-around items-center space-x-2 border-2 rounded-md p-1 w-28 h-10 ">
+            </div>
+
+            <div className="w-full md:w-1/4 py-4 flex justify-center">
+                <div className="flex justify-around items-center space-x-2 border-2 rounded-md p-1 w-28 h-10">
                     <button
                         onClick={() => updateQuantity(-1)}
                         className="w-10 flex items-center justify-center hover:bg-background_grey rounded"
@@ -71,9 +58,9 @@ const CartItem = ({ item, pushToast }) => {
                         +
                     </button>
                 </div>
-            </td>
-            {/* <td className="py-4">${item.variantDetails.price * item.quantity}</td> */}
-            <td className="py-4">
+            </div>
+
+            <div className="w-full md:w-1/4 py-4">
                 {
                     (item?.productDetails?.offers?.length !== 0 && item?.variantDetails?.price >= item?.productDetails?.bestOffer?.minPurchaseAmount)
                         ?
@@ -86,12 +73,13 @@ const CartItem = ({ item, pushToast }) => {
                         </span>
                         : <span className="font-nunito">₹{item.variantDetails.price * item.quantity}</span>
                 }
-                {/* <OfferPriceDisplay productPrice={item.variantDetails.price} offerDetails={item.productDetails.offers[0]} /> */}
-            </td>
-            <td className="py-4 text-right pr-6">
-                <button className='border-2 rounded-md py-1 px-3' onClick={deleteItem}>×</button>
-            </td>
-        </tr>
+            </div>
+
+            <div className="w-full md:w-1/12 py-4 text-right">
+                <button className='hover:bg-green_600 p-3 rounded-full hover:text-white duration-200' onClick={deleteItem}><Trash2 size={20} /></button>
+            </div>
+        </div>
+
     )
 }
 

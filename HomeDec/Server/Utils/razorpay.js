@@ -6,8 +6,6 @@ const razorpay = new Razorpay({
 });
 
 const createOrder = async (amount) => {
-  console.log("razorpayAmount", amount);
-
   const options = {
     amount: amount * 100,
     currency: "INR",
@@ -15,13 +13,10 @@ const createOrder = async (amount) => {
   };
 
   try {
-    console.log(amount);
     const order = await razorpay.orders.create(options);
-    console.log(order);
+
     return order;
   } catch (error) {
-    console.log(error);
-
     throw new Error("Order creation failed");
   }
 };

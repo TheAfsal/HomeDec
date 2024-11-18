@@ -25,7 +25,7 @@ const OrderListPage = () => {
         } else {
           list = await ListAllOrders()
         }
-        console.log(list);
+
         setOrderData(list);
 
       } catch (error) {
@@ -194,7 +194,7 @@ export default OrderListPage;
 
 const OrderDetailsPopup = ({ isAdmin, order, onClose }) => {
 
-  console.log(order);
+
 
 
   return (

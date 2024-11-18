@@ -36,7 +36,7 @@ const CouponListPage = () => {
             setRefresh((prev) => !prev)
             setToast(true, "Coupon status updated")
         } catch (error) {
-            console.log('Error in toggling', error);
+
             setToast(false, "Error in toggling Coupon status")
         }
     }

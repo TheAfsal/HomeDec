@@ -94,7 +94,7 @@ async function deleteImageFromCloudinary(req, res) {
 
   try {
     const result = await cloudinary.uploader.destroy(publicId);
-    console.log(result); // Log the result to see if the deletion was successful
+    // Log the result to see if the deletion was successful
 
     if (result.result === "ok") {
       return res.status(200).send({ message: "Image deleted successfully" });

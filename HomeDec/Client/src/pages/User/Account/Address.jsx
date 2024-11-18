@@ -14,10 +14,10 @@ const Addresses = ({ userId }) => {
     const fetchAddressesList = async () => {
       try {
         const addressList = await fetchMyAddresses()
-        console.log(addressList.addresses);
+
         setAddresses(addressList.addresses);
       } catch (error) {
-        console.log(error);
+
 
       }
     }
@@ -33,7 +33,7 @@ const Addresses = ({ userId }) => {
   };
 
   const handleCancelEdit = (id) => {
-    console.log(id);
+
 
     setAddresses((prevAddresses) =>
       prevAddresses.map((address) =>
@@ -47,12 +47,12 @@ const Addresses = ({ userId }) => {
     if (confirmed) {
       try {
         const removedItem = await removeAddress(id)
-        console.log(removedItem);
+
         setAddresses((prev) => prev.filter(address => address._id !== removedItem));
         toast.success("Address deleted Successfully")
 
       } catch (error) {
-        console.log(error);
+
         toast.error(error.message)
       }
     }
@@ -102,11 +102,11 @@ const Addresses = ({ userId }) => {
       setError("");
     }
 
-    console.log(updatedAddress);
+
     try {
       const result = await addNewAddresses(updatedAddress)
       toast.success("Address added Successfully")
-      console.log(result);
+
       setAddresses(result.addresses);
       // setAddresses((prevAddresses) =>
       //   prevAddresses.map((address) =>
@@ -117,7 +117,7 @@ const Addresses = ({ userId }) => {
       // );
 
     } catch (error) {
-      console.log(error);
+
       toast.error(error.message)
     }
 

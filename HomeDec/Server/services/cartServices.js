@@ -26,8 +26,6 @@ module.exports = {
         ],
       });
 
-      console.log(cart);
-
       const cartWithVariants = cart.products.map((item) => {
         const product = item.productId;
         const variant = product.variants.find(
@@ -79,14 +77,11 @@ module.exports = {
         products: cartWithVariants,
       };
     } catch (error) {
-      console.log(error);
       throw new Error("Failed to fetch cart items");
     }
   },
 
   addProductToCart: async (cartId, productId, variantId, quantity) => {
-    console.log(cartId, productId, variantId, quantity);
-
     try {
       let cart = await Cart.findOne({ _id: cartId });
 
@@ -143,7 +138,7 @@ module.exports = {
       }
       return details;
     } catch (error) {
-      throw error
+      throw error;
     }
   },
 
@@ -154,16 +149,12 @@ module.exports = {
       if (!cart) {
         throw { status: 400, message: "Cart not found for this user." };
       }
-      console.log(productId, variantId);
-      console.log(cart);
 
       const productIndex = cart.products.findIndex(
         (item) =>
           item.productId.toString() === productId &&
           item.variantId.toString() === variantId
       );
-
-      console.log(productIndex);
 
       if (productIndex === -1) {
         throw { status: 400, message: "Product not found in the cart." };
@@ -174,15 +165,11 @@ module.exports = {
       await cart.save();
       return { productId, variantId };
     } catch (error) {
-      console.log(error);
-
       throw error;
     }
   },
 
   addMultipleProductsToCart: async (cartId, products, wishlistId) => {
-    console.log(cartId, products);
-
     try {
       let cart = await Cart.findOne({ _id: cartId });
 
@@ -273,8 +260,6 @@ module.exports = {
 
       return; // Return details for all products added to the cart
     } catch (error) {
-      console.log(error);
-
       throw error;
     }
   },

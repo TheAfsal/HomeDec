@@ -13,14 +13,11 @@ const fs = require("fs");
 module.exports = {
   loginSeller: async (req, res) => {
     const { email, password } = req.body;
-    console.log(email, password);
 
     try {
       const result = await authServices.loginSeller({ email, password });
       res.status(200).json(result);
     } catch (error) {
-      console.log(error);
-
       handleLoginError(error, res);
     }
   },
@@ -39,11 +36,9 @@ module.exports = {
   listCategory: async (req, res) => {
     try {
       const result = await categoryServices.listCategory("name");
-      console.log(result);
 
       return res.status(200).json(result);
     } catch (error) {
-      console.log(error);
       return res.status(500).json({ error: "Failed to fetch categories" });
     }
   },
@@ -59,7 +54,6 @@ module.exports = {
       );
       return res.status(200).json(result);
     } catch (error) {
-      console.log(error);
       if (
         error.message === ("Product not found" || "Failed to update product")
       ) {
@@ -90,7 +84,6 @@ module.exports = {
         if (err) {
           console.error("Error uploading buffer:", err);
         } else {
-          console.log("Buffer uploaded successfully");
         }
       });
     } catch (error) {
@@ -126,8 +119,6 @@ module.exports = {
       const result = await productServices.addProduct(req.body, sellerId);
       return res.status(200).json(result);
     } catch (error) {
-      console.log(error);
-
       return res.status(error.statusCode || 500).json({ error: error.message });
     }
   },
@@ -144,7 +135,6 @@ module.exports = {
       );
       return res.status(200).json(result);
     } catch (error) {
-      console.log(error);
       return res.status(error.statusCode || 500).json({ error: error.message });
     }
   },
@@ -164,9 +154,6 @@ module.exports = {
     } = req.body;
 
     // const sellerId = req.user._id;
-
-    console.log(req.body);
-    console.log(req.files);
 
     // try {
     //   const updatedProduct = await Product.findByIdAndUpdate(id, req.body, {
@@ -231,7 +218,6 @@ module.exports = {
 
       return res.status(200).json(result);
     } catch (error) {
-      console.log(error);
       return res.status(error.statusCode || 500).json({ error: error.message });
     }
   },
@@ -279,7 +265,6 @@ module.exports = {
     try {
       const { tf, sd, ed } = req.query;
       const { _id } = req.user;
-      console.log(_id, tf, sd, ed);
 
       const offers = await inventoryServices.fetchSalesReportForSeller(
         _id,
@@ -289,8 +274,6 @@ module.exports = {
       );
       return res.status(200).json(offers);
     } catch (error) {
-      console.log(error);
-
       return res.status(500).json({ error: error.message });
     }
   },

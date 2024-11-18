@@ -28,18 +28,18 @@ const AddSellerForm = () => {
             const objectUrl = URL.createObjectURL(file);
             setImagePreview(objectUrl);
         }
-        console.log(file);
+
     };
 
     const onSubmit = async (data) => {
         try {
-            console.log('Form Data: ', data);
+
             const response = await createSeller(data)
-            console.log(response);
+
             navigate(`/${MANAGEMENT_ROUTES.SELLERS}/${MANAGEMENT_ROUTES.SELLERS_LIST}`)
 
         } catch (err) {
-            console.log(err.error);
+
             setError(err.message);
         }
     };

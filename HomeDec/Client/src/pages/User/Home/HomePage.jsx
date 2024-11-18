@@ -16,9 +16,9 @@ const HomePage = () => {
         distinctCatForHome()
             .then((response) => {
                 setDistCat(response);
-                console.log(response);
+
             }).catch((error) => {
-                console.log(error);
+
             })
     }, [])
 
@@ -99,7 +99,7 @@ const HomePage = () => {
                         </div>
 
                     </div>
-                </div>  
+                </div>
 
                 {/* ds */}
 

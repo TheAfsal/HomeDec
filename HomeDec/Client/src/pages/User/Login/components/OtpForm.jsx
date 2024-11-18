@@ -44,7 +44,7 @@ const OtpModal = ({ credentials, onClose }) => {
         try {
             setSuccess(false);
             let response = await registerUser({ otp, credentials })
-            console.log(response);
+
             localStorage.setItem("key", response.token)
             dispatch(loginSuccess({
                 user: response.user,

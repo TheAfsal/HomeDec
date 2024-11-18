@@ -13,14 +13,12 @@ module.exports = {
         { _id: addressId },
         { userId: 0, updatedAt: 0, createdAt: 0 }
       );
-      console.log(addressList);
 
       if (!addressList) {
         throw { status: 400, message: "Address list not exist" };
       }
       return addressList;
     } catch (error) {
-      console.log(error);
       throw error;
     }
   },
@@ -60,8 +58,6 @@ module.exports = {
 
       return itemId;
     } catch (error) {
-      console.log(error);
-
       if (error.status) throw error;
       else throw handleError(error);
     }
@@ -96,14 +92,11 @@ module.exports = {
 
       return wishlistWithVariants;
     } catch (error) {
-      console.log(error);
       throw error;
     }
   },
 
   addProductToWishList: async (wishlistId, productId, variantId) => {
-    console.log(wishlistId, productId, variantId);
-
     try {
       let wishlist = await Wishlist.findOne({ _id: wishlistId });
 
@@ -120,8 +113,6 @@ module.exports = {
       if (!variant) {
         throw { status: 400, message: "Variant not found" };
       }
-
-      console.log(wishlist);
 
       const existingProduct = wishlist?.items.find(
         (item) =>
@@ -152,15 +143,11 @@ module.exports = {
 
       return details;
     } catch (error) {
-      console.log(error);
-
       throw error;
     }
   },
 
   removeProductsFromWishList: async (wishlistId, itemsToRemoveArray) => {
-    console.log(wishlistId, itemsToRemoveArray);
-
     try {
       // Find the wishlist by ID
       let wishlist = await Wishlist.findOne({ _id: wishlistId });
@@ -196,7 +183,6 @@ module.exports = {
       // Return a success message
       return { message: "Selected items successfully removed from wishlist" };
     } catch (error) {
-      console.log(error);
       throw error;
     }
   },
@@ -214,7 +200,7 @@ module.exports = {
           },
         },
         {
-          $sort: { "_id.year": 1, "_id.month": 1 }, 
+          $sort: { "_id.year": 1, "_id.month": 1 },
         },
       ]);
 

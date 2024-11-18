@@ -19,7 +19,6 @@ module.exports = {
   createUser: async (req, res) => {
     const { otp } = req.body;
     const { firstName, lastName, email, password } = req.body.credentials;
-    console.log(firstName, lastName, email, password, otp);
 
     try {
       const existingOtp = await Otp.findOne({ email });
@@ -42,8 +41,6 @@ module.exports = {
       await Otp.deleteOne({ email });
       res.status(201).json(result);
     } catch (error) {
-      console.log(error);
-
       if (error.code === 11000) {
         return res.status(400).json({ error: "User already exists" });
       } else {
@@ -56,13 +53,11 @@ module.exports = {
 
   verifyEmail: async (req, res) => {
     const { email } = req.body;
-    console.log(email);
 
     const otp = generateOTP();
 
     try {
       const existingUser = await authServices.isUserExist(email);
-      console.log(existingUser);
 
       if (existingUser) {
         return res.status(400).json({ error: "User already exists" });
@@ -76,7 +71,6 @@ module.exports = {
       if (error.code === 11000) {
         return res.status(400).json({ error: "User already exists" });
       } else {
-        console.log(error);
         return res
           .status(500)
           .json({ error: "An error occurred during login" });
@@ -90,8 +84,14 @@ module.exports = {
 
   loginUser: async (req, res) => {
     const { email, password } = req.body;
-    console.log(email);
-    console.log(password);
+
+    res.cookie("myCookie", "dfsadfsafsdff", {
+      maxAge: 900000,
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      path: "/",
+    });
 
     try {
       const result = await authServices.loginUser({ email, password });
@@ -112,7 +112,6 @@ module.exports = {
 
   fetchProductDetails: async (req, res) => {
     const productId = req.params.id;
-    console.log(productId);
 
     try {
       const result = await productServices.fetchDetails(productId);
@@ -124,7 +123,10 @@ module.exports = {
 
   fetchProducts: async (req, res) => {
     try {
-      const result = await productServices.listAllProducts();
+      const limit = parseInt(req.query.limit) || 20;
+      const cursor = req.query.cursor === "0" ? null : req.query.cursor;
+      const result = await productServices.listAllProducts(limit, cursor);
+      
       return res.status(200).json(result);
     } catch (error) {
       return res.status(500).json({ error: "Failed to fetch products" });
@@ -155,8 +157,6 @@ module.exports = {
       const { productId, variantId, quantity } = req.body;
       const { cartId } = req.user;
 
-      console.log(productId, variantId, quantity);
-
       const items = await cartServices.addProductToCart(
         cartId,
         productId,
@@ -165,7 +165,6 @@ module.exports = {
       );
       return res.status(200).json(items);
     } catch (error) {
-      console.log(error);
       if (error.status)
         return res.status(error.status).json({ error: error.message });
       else res.status(400).json({ error: error.message });
@@ -176,7 +175,6 @@ module.exports = {
     try {
       const { productId, variantId } = req.body;
       const { cartId } = req.user;
-      console.log(productId, variantId);
 
       const items = await cartServices.removeProductToCart(
         cartId,
@@ -201,8 +199,6 @@ module.exports = {
 
   updateBasicDetails: async (req, res) => {
     try {
-      console.log("body", req.body);
-      console.log("files", req.files);
       const email = req.user.email;
       const { firstName, lastName, gender, dob } = req.body;
 
@@ -224,8 +220,6 @@ module.exports = {
       );
       return res.status(200).json(details);
     } catch (error) {
-      console.log(error);
-
       return res.status(error.status).json({ error: error.message });
     }
   },
@@ -243,9 +237,6 @@ module.exports = {
 
       return res.status(200).json(details);
     } catch (error) {
-      console.log("======");
-      console.log(error);
-
       return res.status(error.status).json({ error: error.message });
     }
   },
@@ -270,20 +261,17 @@ module.exports = {
   fetchAddresses: async (req, res) => {
     try {
       const addressId = req.user.addressId;
-      console.log(addressId);
 
       const items = await accountServices.listAddresses(addressId);
       return res.status(200).json(items);
     } catch (error) {
-      console.log(error);
-
       return res.status(500).json({ error: "Failed to fetch Addresses" });
     }
   },
 
   addAdress: async (req, res) => {
     const { label, street, city, state, postalCode, country, mob } = req.body;
-    console.log(label, street, city, state, postalCode, country);
+
     if (
       !label ||
       !street ||
@@ -316,7 +304,7 @@ module.exports = {
 
   removeAdress: async (req, res) => {
     const { id } = req.params;
-    console.log(id);
+
     if (!id) {
       return res.status(400).json({ message: "Invalid ID" });
     }
@@ -326,8 +314,6 @@ module.exports = {
       const items = await accountServices.deleteAddress(addressId, id);
       return res.status(200).json(items);
     } catch (error) {
-      console.log(error);
-
       return res.status(error.status).json({ error: error.message });
     }
   },
@@ -373,8 +359,6 @@ module.exports = {
         orderDetails: order,
       });
     } catch (error) {
-      console.log(error);
-
       return res.status(400).json({
         success: false,
         message: error.message,
@@ -399,8 +383,6 @@ module.exports = {
         orderDetails: order,
       });
     } catch (error) {
-      console.log(error);
-
       return res.status(400).json({
         success: false,
         message: error.message,
@@ -428,7 +410,7 @@ module.exports = {
         comments,
         returnOrCancel,
       } = req.body;
-      console.log(orderId, productId, variantId, reason, comments);
+
       const items = await orderService.requestReturnOrcancel(
         orderId,
         productId,
@@ -476,7 +458,6 @@ module.exports = {
   fetchWishList: async (req, res) => {
     try {
       const { wishlistId } = req.user;
-      console.log(wishlistId);
 
       const wishlistProducts = await accountServices.fetchWishList(wishlistId);
       return res.status(200).json(wishlistProducts);
@@ -489,8 +470,6 @@ module.exports = {
     try {
       const { productId, variantId } = req.body;
       const { wishlistId } = req.user;
-
-      console.log(req.user);
 
       const items = await accountServices.addProductToWishList(
         wishlistId,
@@ -523,8 +502,6 @@ module.exports = {
       const { products } = req.body;
       const { cartId, wishlistId } = req.user;
 
-      console.log(products);
-
       const items = await cartServices.addMultipleProductsToCart(
         cartId,
         products,
@@ -532,7 +509,6 @@ module.exports = {
       );
       return res.status(200).json(items);
     } catch (error) {
-      console.log(error);
       return res.status(error.status).json({ error: error.message });
     }
   },
@@ -596,8 +572,6 @@ module.exports = {
       );
       return res.status(200).json(result);
     } catch (error) {
-      console.log(error);
-
       return res.status(500).json({ error: "Failed to download Invoice" });
     }
   },

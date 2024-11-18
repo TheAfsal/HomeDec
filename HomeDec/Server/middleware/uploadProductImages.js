@@ -47,8 +47,6 @@ const uploadImageToCloudinary = async (bucket, image) => {
 
 // Function to process the images of a product
 const processProductImages = async (bucket, product) => {
-  console.log(product.title, "called by scheduler");
-
   for (const variant of product.variants) {
     const imageUploadPromises = [];
 
@@ -77,7 +75,6 @@ const processProductImages = async (bucket, product) => {
 
   // Save the updated product
   await product.save();
-  console.log(`Updated product ${product.title} with new images.`);
 };
 
 // Function to delete all files in the GridFS bucket
@@ -98,7 +95,6 @@ const deleteAllFilesFromGridFS = async (bucket) => {
           );
           reject(error);
         } else {
-          console.log(`Deleted image from GridFS: ${file.filename}`);
           resolve();
         }
       });
@@ -106,21 +102,16 @@ const deleteAllFilesFromGridFS = async (bucket) => {
   });
 
   await Promise.all(deletePromises);
-  console.log("All files deleted from GridFS.");
 };
 
 // Scheduler function
 const scheduleImageUpload = () => {
   cron.schedule("* * * * *", async () => {
-    console.log("Scheduler initiated");
-
     try {
       const products = await Product.find({
         "variants.images.temp_url": { $exists: true },
         "variants.images.secure_url": "pending",
       });
-
-      console.log(products);
 
       const { getBucket } = require("../database/dbConfig.js");
       const bucket = getBucket();
@@ -131,8 +122,6 @@ const scheduleImageUpload = () => {
 
       // After processing all products, delete all images from GridFS
       await deleteAllFilesFromGridFS(bucket);
-
-      console.log("Scheduler Finished Task");
     } catch (error) {
       console.error("Error in scheduler:", error);
     }

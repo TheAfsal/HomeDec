@@ -16,7 +16,7 @@ export const USER_ROUTES = {
   PAYMENT_SUCCESS: "shop/cart/checkout/success",
   CHECKOUT: "shop/cart/checkout",
   ACCOUNT: "account",
-  ORDERS: "orders",
+    ORDERS: "orders",
   ORDER_DETAILS: "orders/in-detail",
   WISHLIST: "wishlist",
   PAYMENT_POLICY: "payment-policy",

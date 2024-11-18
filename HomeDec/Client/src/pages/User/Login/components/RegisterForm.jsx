@@ -27,7 +27,7 @@ const RegisterForm = () => {
     // const onSubmit = async (credentials) => {
     //     try {
     //         let response = await registerUser(credentials)
-    //         console.log(response);
+    //         
     //         localStorage.setItem("token", response.token)
     //         dispatch(loginSuccess({
     //             user: response.user,
@@ -45,7 +45,7 @@ const RegisterForm = () => {
         try {
             setLoading(true);
             let response = await verifyEmail(credentials.email)
-            console.log(response);
+
             setLoading(false);
             setIsModalOpen(credentials);
         } catch (error) {

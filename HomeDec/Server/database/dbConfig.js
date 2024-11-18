@@ -11,7 +11,6 @@ const connectDB = async () => {
       useUnifiedTopology: true,
     });
     console.log("DB connected successfully");
-
     const client = new MongoClient(process.env.MONGO_URL);
     const dbName = "HomeDec";
     await client.connect();
@@ -26,8 +25,6 @@ const connectDB = async () => {
 };
 
 const getBucket = () => {
-  console.log("Bucket instance fetched");
-
   if (!bucket) {
     throw new Error("Bucket is not initialized. Ensure MongoDB is connected.");
   }

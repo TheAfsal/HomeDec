@@ -22,18 +22,13 @@ const cartSlice = createSlice({
       );
 
       if (existingCartItemIndex >= 0) {
-        // Item exists, update its quantity
         const updatedCartItem = {
           ...state.cartProducts[existingCartItemIndex],
           quantity: newCartItem.quantity,
         };
 
-        // Replace the old item with the updated item
         state.cartProducts[existingCartItemIndex] = updatedCartItem;
       } else {
-        // Item does not exist, add it to the cart
-        console.log(newCartItem);
-
         state.cartProducts.push(newCartItem);
       }
     },
@@ -48,10 +43,8 @@ const cartSlice = createSlice({
       );
     },
     clearCart: (state) => {
-      console.log("clear cart called");
-
-      state.cartProducts = []; // Clear all cartProducts from the cart
-      state.isDataFetched = false; // Clear all cartProducts from the cart
+      state.cartProducts = []; 
+      state.isDataFetched = false;
     },
   },
 });

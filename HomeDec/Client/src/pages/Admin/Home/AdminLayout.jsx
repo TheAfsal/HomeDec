@@ -18,7 +18,7 @@ const AdminHomePage = () => {
 
 
     useEffect(() => {
-        console.log(urlRole);
+
 
         const token = localStorage.getItem("token");
         if (token) {

@@ -4,7 +4,6 @@ const addUserImages = async (imageFile) => {
   try {
     try {
       const uploadedId = await uploadImage(imageFile[0]);
-      console.log(uploadedId);
 
       return {
         public_id: uploadedId.public_id,
@@ -22,12 +21,10 @@ const addUserImages = async (imageFile) => {
 
 const uploadImage = (imageFile) => {
   return new Promise((resolve, reject) => {
-    console.log("Buffer size:", imageFile.buffer.length);
     const uploadedId = cloudinary.uploader.upload_stream(
       { resource_type: "image" },
       (error, result) => {
         if (error) {
-          console.log(error);
           return reject(error);
         }
         resolve(result);

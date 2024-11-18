@@ -14,8 +14,6 @@ export const toggleUserStatus = async (userId) => {
     await api.patch(`/admin/users/toggle-status/${userId}`);
     return;
   } catch (error) {
-    console.log(error);
-
     throw new Error(error?.response?.data?.error);
   }
 };

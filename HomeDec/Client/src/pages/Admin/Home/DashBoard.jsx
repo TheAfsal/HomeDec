@@ -18,7 +18,7 @@ const DashBoard = () => {
     useEffect(() => {
         Promise.allSettled([findTop10(role), generateSalesReport(role, "yearly", undefined, undefined)])
             .then((response) => {
-                console.log(response);
+
 
                 setSalesData(response[1].value.reverse());
                 setTopSellingProducts(response[0].value.topSellingProducts);
@@ -26,7 +26,7 @@ const DashBoard = () => {
                 setTopSellingSubCategory(response[0].value.topSellingSubCategories);
             })
             .catch((error) => {
-                console.log(error.message);
+
             })
     }, [])
 

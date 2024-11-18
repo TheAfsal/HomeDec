@@ -11,7 +11,7 @@ const SellerListPage = () => {
         const fetchSellers = async () => {
             try {
                 const list = await listSellers()
-                console.log(list);
+
                 setSellers(list);
 
             } catch (error) {

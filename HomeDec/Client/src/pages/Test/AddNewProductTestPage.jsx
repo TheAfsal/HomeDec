@@ -51,7 +51,7 @@ export default TestToast;
 //         const fetchCategories = async () => {
 //             try {
 //                 const list = await listCategory(role)
-//                 console.log(list);
+//
 //                 setCategoryList(list);
 
 //             } catch (error) {
@@ -104,7 +104,7 @@ export default TestToast;
 
 //                 // Append images
 //                 variant.images.forEach((img, imgIndex) => {
-//                     console.log(`variants[${index}][images][${imgIndex}]`);
+//
 
 //                     formData.append(`variants[${index}][images][${imgIndex}]`, img.blob);
 //                 });
@@ -118,7 +118,7 @@ export default TestToast;
 //             });
 
 //             // Handle success response
-//             console.log('Product added successfully:', response.data);
+//
 //             navigate(`/${MANAGEMENT_ROUTES.PRODUCTS}/${MANAGEMENT_ROUTES.PRODUCTS_LIST}`)
 //         } catch (error) {
 //             setError("Failed to add product.");
@@ -140,7 +140,7 @@ export default TestToast;
 
 //         // Convert base64 image string to a Blob
 //         const blob = dataURLtoBlob(croppedImage);
-//         console.log(blob);
+//
 
 //         updatedVariants[index].images.push({ imageUrl: croppedImage, blob });
 //         setVariants(updatedVariants);
@@ -170,7 +170,7 @@ export default TestToast;
 
 //         // Find the selected category and update subcategories
 //         const selectedCategoryData = categoryList.find(category => category._id === categoryId);
-//         console.log(selectedCategoryData);
+//
 
 //         if (selectedCategoryData) {
 //             setSubCategories(selectedCategoryData.subcategories);

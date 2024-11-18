@@ -10,7 +10,7 @@ const PasswordSection = ({ setToast }) => {
     const [error, setError] = useState('');
 
     const handleSave = async () => {
-        console.log(oldPassword, newPassword);
+
         try {
             if (oldPassword.length < 6 || newPassword.length < 6) {
                 return setError("Password must be atleast 6 characters")

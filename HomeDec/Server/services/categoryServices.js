@@ -14,7 +14,6 @@ module.exports = {
         category = new Category({ name: categoryName, description });
         await category.save({ session });
       }
-      console.log(category._id);
 
       let subcategory = await SubCategory.findOne({
         name: subCategoryName,
@@ -51,8 +50,8 @@ module.exports = {
       const categories = await Category.find({ isActive: true })
         .populate({
           path: "subcategories",
-          match: { isActive: true }, 
-          select: itemsNeeded, 
+          match: { isActive: true },
+          select: itemsNeeded,
         })
         .exec();
       return categories;
@@ -62,10 +61,7 @@ module.exports = {
   },
 
   toggleCategoryStatus: async (catId) => {
-    console.log(catId);
-
     const subCategory = await SubCategory.findById({ _id: catId });
-    console.log(subCategory);
 
     if (!subCategory) {
       throw new Error("Category not found");
@@ -86,8 +82,6 @@ module.exports = {
     subcategoryId
   ) => {
     try {
-      console.log(categoryName, categoryId, subcategoryName, subcategoryId);
-
       // Update category name
       var updatedCategory;
       if (categoryId) {

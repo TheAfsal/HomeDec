@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { FaRegHeart, FaStar } from "react-icons/fa";
 import CustomImageMagnifier from '../../Admin/Management/Product/CustomZoom';
 import { IoIosArrowRoundBack } from 'react-icons/io';
 import { useDispatch, useSelector } from 'react-redux';
-import { addProductToCart, clearCart } from '../../../redux/slices/cartSlice';
+import { clearCart } from '../../../redux/slices/cartSlice';
 import { updateCartCount } from '../../../api/administrator/cartManagement';
 import { fetchDetails } from '../../../api/administrator/productManagement';
-import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { AUTH_ROUTES, USER_ROUTES } from '../../../config/routerConstants';
+import { USER_ROUTES } from '../../../config/routerConstants';
 import { addToWishList } from '../../../api/user/account';
 import OfferPriceDisplay from '../../../utils/calculateOfferPrice.jsx';
 import CircularLoader from '../../../components/Loading/CircularLoader.jsx';
+import { toast } from "sonner"
+import { useQuery } from '@tanstack/react-query';
 
 const DetailPage = () => {
   const [product, setProduct] = useState({});
@@ -28,26 +29,34 @@ const DetailPage = () => {
     deliveryShipping: false,
   });
   const [quantity, setQuantity] = useState(1);
-  const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { cartProducts } = useSelector((state) => state.cart)
-  const { role } = useSelector((state) => state.auth)
   const { productId } = useParams();
+  const { role } = useSelector(state => state.auth)
+
+  // const { isPending, error, data } = useQuery({
+  //   queryKey: ['productData'],
+  //   queryFn: () => fetchDetails(productId)
+  //   .then((list) => {
+  //     setSelectedVariant(list.product.variants[0]);
+  //     setSelectedImage(list.product.variants[0].images[0])
+  //     setProduct(list.product);
+  //     setBestOffer(list.bestOffer);
+  //   })
+  // })
+
+  // if (isPending) return 'Loading...'
+
+  // if (error) return 'An error has occurred: ' + error.message
 
   useEffect(() => {
-    console.log(cartProducts);
-
     const fetchProductDetails = async () => {
       try {
         const list = await fetchDetails(productId)
-        console.log(list.product);
-
         setSelectedVariant(list.product.variants[0]);
         setSelectedImage(list.product.variants[0].images[0])
         setProduct(list.product);
         setBestOffer(list.bestOffer);
         setLoading(false)
-
       } catch (error) {
         console.error('Error fetching products:', error);
       }
@@ -60,35 +69,39 @@ const DetailPage = () => {
 
     if (quantity > 10) return toast.error("Maximum quantity for purchase exceeded")
 
+    console.log(!role);
+    if (!(role === "user")) {
+      console.log("Not logged In");
+      return;
+    }
+
     if (quantity > selectedVariant.stock) {
       setQuantity(1)
       return toast.error(`Only ${selectedVariant.stock} Stock left`)
     }
 
     try {
-      const item = await updateCartCount(productId, selectedVariant._id, quantity)
-      console.log(quantity);
-      console.log(selectedVariant.stock);
-      console.log(quantity > selectedVariant.stock);
+
+
+      await updateCartCount(productId, selectedVariant._id, quantity)
 
 
 
       dispatch(clearCart())
-
-      toast.success(`${quantity} items added to cart`);
       setQuantity(1)
 
-      setTimeout(() => {
-        navigate(`/${USER_ROUTES.CART}`);
-      }, 2000);
-
-
+      toast.promise(
+        new Promise((resolve) => setTimeout(resolve, 2000)),
+        {
+          loading: "Saving changes...",
+          success: "Changes saved successfully",
+          error: "Failed to save changes",
+        }
+      )
     } catch (error) {
-      console.log(error);
-      toast.error(error.message)
-      setTimeout(() => {
-        navigate(`/${USER_ROUTES.CART}`);
-      }, 2000);
+      toast.error("Failed to save changes", {
+        description: "Please try again later.",
+      })
     }
 
   }
@@ -107,9 +120,13 @@ const DetailPage = () => {
   const pushToWishList = async (title) => {
     try {
       await addToWishList(product._id, selectedVariant._id)
-      toast.success(`${title} Added to Wishlist`)
+      toast.success("Item added successfully", {
+        description: "Your changes have been saved.",
+      })
     } catch (error) {
-      toast.error(error.message)
+      toast.error("Failed to save changes", {
+        description: error.message,
+      })
     }
   }
 
@@ -117,13 +134,10 @@ const DetailPage = () => {
 
   return (
     <div className='max-w-[87vw] mx-auto mt-20'>
-      <ToastContainer />
       <div className="flex justify-between font-nunito mt-14 h-[90vh] ">
-        {/* Left Section */}
         <div className="flex flex-col w-1/2 justify-between">
 
           <div className='flex flex-col gap-y-5 text-green_700'>
-            {/* Back Button */}
             <Link to={`/${USER_ROUTES.SHOP}`}>
               <IoIosArrowRoundBack size={30} color='' />
             </Link>
@@ -137,16 +151,12 @@ const DetailPage = () => {
             </p>
           </div>
 
-          {/* Title and Price */}
           <h1 className="text-4xl font-bold">{product.title}</h1>
-          {/* <div> */}
 
-          {/* </div> */}
           <div>
             <OfferPriceDisplay productPrice={selectedVariant.price} offerDetails={bestOffer} />
           </div>
 
-          {/* Rating */}
           <div className="flex items-center space-x-2">
             <div className="flex text-yellow-400">
               {[...Array(5)].map((_, index) => (
@@ -156,13 +166,10 @@ const DetailPage = () => {
             <p className="text-gray-500 text-sm">(4.6 / 5.0 - 556 reviews)</p>
           </div>
 
-          {/* Description */}
           <p className=" text-sm font-semibold max-w-96">
             {product.description}
           </p>
 
-
-          {/* Color options */}
           <div className="flex space-x-3">
             {
               product.variants.map((variant, index) => (
@@ -206,7 +213,7 @@ const DetailPage = () => {
                 )
             }
 
-            <button className="p-2 min-w-36 h-10 bg-green_600 text-sm text-white rounded-md" onClick={() => role === "user" ? updateQuantity() : navigate(`/${AUTH_ROUTES.LOGIN_USER}`)} >
+            <button className="p-2 min-w-36 h-10 bg-green_600 text-sm text-white rounded-md" onClick={updateQuantity} >
               Add to Cart
             </button>
           </div>
@@ -215,7 +222,7 @@ const DetailPage = () => {
           <div className="text-gray-600 space-y-2">
             <p className='text-sm'>Free 3-5 day shipping • Tool-free assembly • 30-day trial</p>
             <div className="flex items-center space-x-2 text-md">
-              <button className="flex items-center text-green_500 my-2 hover:text-green_700" onClick={() => role === "user" ? pushToWishList(product?.title) : navigate(`/${AUTH_ROUTES.LOGIN_USER}`)} >
+              <button className="flex items-center text-green_500 my-2 hover:text-green_700" onClick={() => pushToWishList(product?.title)} >
                 <FaRegHeart className="mr-2" />
                 Add to Wishlist
               </button>
@@ -247,20 +254,18 @@ const DetailPage = () => {
 
 
           <div className="flex gap-3 justify-start mt-3">
-            {/* Thumbnail images */}
             {selectedVariant.images.map((url, index) => (
-              <div key={index} className="w-20 h-20 border-2 border-gray-200" onClick={() => setSelectedImage(url)} >
-                <img
-                  src={url.secure_url}
-                  alt={`Thumbnail ${index + 1}`}
-                  className="w-full h-full object-cover"
-                />
-              </div>
+              <img
+                src={url.secure_url}
+                alt={`Thumbnail ${index + 1}`}
+                className={`w-20 h-20 object-cover border-2 ${selectedImage.secure_url === url.secure_url ? "border-green_500" : "border-gray-200"}`}
+                onMouseEnter={() => setSelectedImage(url)}
+                onClick={() => setSelectedImage(url)}
+              />
             ))}
           </div>
         </div>
       </div>
-
 
 
       <div className='mt-10'>

@@ -9,7 +9,7 @@ module.exports = {
   fetchDetails: async (productId) => {
     try {
       const product = await Product.findById(productId)
-        .populate({ path: "subCategory", select: "name offers" }) // Ensure offers are populated
+        .populate({ path: "subCategory", select: "name offers" })
         .populate({
           path: "offers",
           select: "discountType discountValue expiryDate minPurchaseAmount",
@@ -50,15 +50,11 @@ module.exports = {
         expiryDate: offer.expiryDate,
       }));
 
-      console.log("allOffers", allOffers);
-
       // Use the common function to find the best offer
       const bestOffer = findBestOffer(allOffers, price);
 
       return { product, bestOffer };
     } catch (error) {
-      console.log(error);
-
       throw new Error("Failed to fetch product");
     }
   },
@@ -87,18 +83,25 @@ module.exports = {
         };
       });
 
-      console.log(formattedProducts);
       return formattedProducts;
     } catch (error) {
-      console.log(error);
       throw new Error("Failed to fetch sellers");
     }
   },
 
-  listAllProducts: async () => {
+  listAllProducts: async (limit, cursor) => {
     try {
-      const products = await Product.find({ "variants.isActive": true })
+      console.log(limit, cursor);
+
+      const query = { "variants.isActive": true };
+
+      if (cursor) {
+        query._id = { $gt: cursor };
+      }
+
+      const products = await Product.find(query)
         .select("title description variants offers subCategory _id")
+        .limit(limit)
         .populate("offers")
         .populate({
           path: "subCategory",
@@ -108,16 +111,20 @@ module.exports = {
           },
         });
 
+      console.log(products);
+
+      const nextCursor =
+        products.length > 0 ? products[products.length - 1]._id : null;
+
       const formattedProducts = products.map((product) => {
         const firstVariant =
           product.variants.length > 0 ? product.variants[0] : null;
         const price = firstVariant ? firstVariant.price : null;
         const image =
           firstVariant && firstVariant.images.length > 0
-            ? firstVariant.images[0]
+            ? firstVariant.images[0].secure_url
             : null;
 
-        // Collect all offers
         const productOfferDetails = product.offers.map((offer) => ({
           discountType: offer.discountType,
           discountValue: offer.discountValue,
@@ -138,7 +145,6 @@ module.exports = {
           ...subcategoryOfferDetails,
         ];
 
-        // Use the common function to find the best offer
         const bestOffer = findBestOffer(combinedOffers, price);
 
         return {
@@ -147,37 +153,35 @@ module.exports = {
           price,
           image,
           _id: product._id,
-          offers: combinedOffers.length > 0 ? combinedOffers : [],
           bestOffer: bestOffer || null,
         };
       });
 
-      console.log(formattedProducts);
-      return formattedProducts;
+      return { products: formattedProducts, nextCursor };
     } catch (error) {
-      console.log(error);
       throw new Error("Failed to fetch sellers");
     }
   },
 
   distinctCatForHome: async () => {
     try {
-      const distinctCategoryIds = await Product.distinct("category", { "variants.isActive": true });
-  
-      const categories = await Category.find({ _id: { $in: distinctCategoryIds } })
+      const distinctCategoryIds = await Product.distinct("category", {
+        "variants.isActive": true,
+      });
+
+      const categories = await Category.find({
+        _id: { $in: distinctCategoryIds },
+      })
         .select("name")
-        .limit(4); 
-  
-      const categoryNames = categories.map(category => category.name);
-  
-      console.log(categoryNames);
+        .limit(4);
+
+      const categoryNames = categories.map((category) => category.name);
+
       return categoryNames;
     } catch (error) {
-      console.log(error);
       throw new Error("Failed to fetch categories");
     }
   },
-  
 
   fetchProductsforAdmin: async () => {
     try {
@@ -185,7 +189,6 @@ module.exports = {
         .select("title description variants category subCategory _id")
         .populate({ path: "category", select: "name" })
         .populate({ path: "subCategory", select: "name" });
-
 
       const formattedProducts = products.map((product) => {
         const firstVariant =
@@ -206,17 +209,14 @@ module.exports = {
         };
       });
 
-      console.log(formattedProducts);
       return formattedProducts;
     } catch (error) {
-      console.log(error);
       throw new Error("Failed to fetch sellers");
     }
   },
 
   toggleVariantStatus: async (productId, variantIndex) => {
     try {
-      console.log(productId, variantIndex);
       const product = await Product.findOne({ _id: productId });
 
       if (!product) {
@@ -289,12 +289,9 @@ module.exports = {
         })),
       };
 
-      console.log(productData);
-
       const product = new Product(productData);
       await product.save();
     } catch (error) {
-      console.log(error);
       throw handleError(error);
     }
   },
@@ -339,18 +336,13 @@ module.exports = {
       }));
 
       await product.save();
-
-      console.log("Product updated successfully:", product);
     } catch (error) {
-      console.log(error);
       throw handleError(error);
     }
   },
 
   updateProduct: async (productId, updateData) => {
     try {
-      console.log("productId", productId);
-
       const product = await Product.findByIdAndUpdate(productId, updateData, {
         new: true, // Return the updated document
         runValidators: true, // Ensure validators are run
@@ -362,16 +354,13 @@ module.exports = {
 
       return product;
     } catch (error) {
-      console.log(error);
       throw handleError(error);
     }
   },
 
   searchProducts: async (query, sort, filter) => {
     try {
-      console.log(filter?.value);
       filter?.value.split(",");
-      console.log(filter?.value);
 
       const searchQuery = {
         $and: [
@@ -406,7 +395,7 @@ module.exports = {
       // Determine the sorting criteria
       const sortCriteria = sortOptions[sort] || {};
 
-      // console.log(searchQuery);
+      //
 
       // Fetch products with search query and sorting
       const products = await Product.find(searchQuery)
@@ -420,8 +409,8 @@ module.exports = {
         })
         .sort(sortCriteria);
 
-      // console.log(products.length);
-      // console.log(products);
+      //
+      //
 
       // Format products and find the best offer
       const formattedProducts = products.map((product) => {
@@ -464,9 +453,7 @@ module.exports = {
       });
 
       return formattedProducts;
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
   },
 };
 

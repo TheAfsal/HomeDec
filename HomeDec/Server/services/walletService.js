@@ -31,7 +31,6 @@ module.exports = {
         transactions,
       };
     } catch (error) {
-      console.log(error);
       throw new Error(`Error fetching wallet details: ${error.message}`);
     }
   },

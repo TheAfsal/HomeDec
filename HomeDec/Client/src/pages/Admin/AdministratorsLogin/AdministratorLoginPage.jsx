@@ -22,7 +22,7 @@ const AdministratorLoginPage = () => {
     const urlRole = location.pathname;
 
     useEffect(() => {
-        console.log("Logged User:", role);
+
         const token = localStorage.getItem("token");
 
         if (token) {

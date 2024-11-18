@@ -23,7 +23,6 @@ export const fetchUserRole = createAsyncThunk(
       const response = await api.get("/admin/role", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log(response.data);
 
       return response.data;
     } catch (error) {

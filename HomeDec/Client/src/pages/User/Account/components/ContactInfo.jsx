@@ -14,7 +14,7 @@ const ContactInfo = ({ profile, setToast }) => {
     const dispatch = useDispatch()
 
     const handleSave = async () => {
-        console.log(email, phoneNumber);
+
         try {
             if (!email || !phoneNumber) {
                 setToast(false, "Email and phone number are required");

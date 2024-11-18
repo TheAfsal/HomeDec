@@ -15,9 +15,9 @@ const FilterBar = ({ categories, setSelectedFilter }) => {
     // });
 
     const toggleCategory = (e) => {
-        console.log("e.target.value", e.target.value);
+
         const category = e.target.value
-        console.log("selectedCategories", selectedCategories);
+
 
         let tempCategories
         if (selectedCategories.includes(category)) {

@@ -45,7 +45,7 @@ module.exports = {
       if (!updatedUser) {
         throw { status: 400, message: "User not found" };
       }
-      console.log(updatedUser);
+
       return updatedUser;
     } catch (error) {
       throw error;
@@ -53,8 +53,6 @@ module.exports = {
   },
 
   updateContact: async (email, newEmail, phoneNumber) => {
-    console.log(email, newEmail, phoneNumber);
-
     try {
       const updatedUser = await User.findOneAndUpdate(
         { email },
@@ -83,17 +81,13 @@ module.exports = {
 
       const token = generateToken(payload.user, false, true);
 
-      console.log(token, updatedUser);
       return { token, updatedUser };
     } catch (error) {
-      console.log(error);
       throw handleError(error);
     }
   },
 
   changeNewPassword: async (email, oldPassword, newPassword) => {
-    console.log(email, oldPassword, newPassword);
-
     try {
       const user = await User.findOne({ email });
       if (!user) {

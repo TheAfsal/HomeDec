@@ -21,17 +21,17 @@ const OrderStatusModal = ({ expandStatus, closeModal, setOrderData }) => {
     const handleApply = async () => {
         try {
 
-            console.log('Selected Status:', selectedStatus);
-            console.log(expandStatus._id);
-            console.log(expandStatus.orderItems.productId);
-            console.log(expandStatus.orderItems.variantId);
+
+
+
+
             const updatedOrder = await changeOrderStatus(selectedStatus, expandStatus?._id, expandStatus?.orderItems?.productId, expandStatus?.orderItems?.variantId)
-            console.log(updatedOrder.order.orderItems);
-            console.log(updatedOrder.orderId);
+
+
 
             setOrderData((prev) => {
                 const updatedOrders = prev.map((order) => {
-                    console.log(order);
+
 
                     const updatedItem = updatedOrder.order.orderItems.find(
                         (item) =>
@@ -58,7 +58,7 @@ const OrderStatusModal = ({ expandStatus, closeModal, setOrderData }) => {
             closeModal()
 
         } catch (error) {
-            console.log(error);
+
 
         }
     };
@@ -66,8 +66,8 @@ const OrderStatusModal = ({ expandStatus, closeModal, setOrderData }) => {
     const handleReturnOrCancel = async (status) => {
         try {
             const updatedOrder = await changeOrderStatus(status, expandStatus?._id, expandStatus?.orderItems?.productId, expandStatus?.orderItems?.variantId)
-            console.log(updatedOrder.order.orderItems);
-            console.log(updatedOrder.orderId);
+
+
 
             setOrderData((prev) => {
                 const updatedOrders = prev.map((order) => {
@@ -95,7 +95,7 @@ const OrderStatusModal = ({ expandStatus, closeModal, setOrderData }) => {
             closeModal()
 
         } catch (error) {
-            console.log(error);
+
 
         }
     };
