@@ -1,4 +1,3 @@
-import React, { useState } from 'react'
 import TextInput from '@/components/FormComponents/TextInput';
 import SubmitButton from '@/components/Buttons/SubmitButton';
 import GoogleLoginButton from '@/components/Buttons/GoogleLoginButton';
@@ -42,7 +41,7 @@ const LoginForm = ({ proceedAction }) => {
         <>
             <p className="text-2xl font-semibold mt-3 mb-5 text-green_900 text-left">Welcome Back 👋</p>
             <p className="text-blackLikeBlue">
-                Today is a new day. It's your day. You shape it. <br />
+                Today is a new day. Its your day. You shape it. <br />
                 Sign in to start managing your projects.
             </p>
             <form onSubmit={handleSubmit(onSubmit)} className="mt-5">
@@ -81,7 +80,7 @@ const LoginForm = ({ proceedAction }) => {
                     <hr className="flex-grow" />
                 </div>
                 <GoogleLoginButton />
-                <p className="mt-4 text-md">Don't have an account?
+                <p className="mt-4 text-md">Dont have an account?
                     <Link to={`/${AUTH_ROUTES.REGISTER_USER}`} className=" text-splashBlue hover:text-black hover:cursor-pointer"> Sign up</Link>
                 </p>
             </div>

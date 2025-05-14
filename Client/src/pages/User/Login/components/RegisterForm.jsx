@@ -1,12 +1,12 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import TextInput from '../../../../components/FormComponents/TextInput';
 import SubmitButton from '../../../../components/Buttons/SubmitButton';
 import GoogleLoginButton from '../../../../components/Buttons/GoogleLoginButton';
 import { useForm } from 'react-hook-form';
-import { registerUser, verifyEmail } from '../../../../api/auth';
-import { Link, useNavigate } from 'react-router-dom';
+import { verifyEmail } from '../../../../api/auth';
+import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { loginFailure, loginSuccess } from '../../../../redux/slices/authSlice';
+import { loginFailure } from '../../../../redux/slices/authSlice';
 import OtpModal from './OtpForm';
 import CircularLoader from '../../../../components/Loading/CircularLoader';
 import { AUTH_ROUTES } from '../../../../config/routerConstants';
@@ -44,7 +44,7 @@ const RegisterForm = () => {
     const onSubmit = async (credentials) => {
         try {
             setLoading(true);
-            let response = await verifyEmail(credentials.email)
+            await verifyEmail(credentials.email)
 
             setLoading(false);
             setIsModalOpen(credentials);
@@ -61,7 +61,7 @@ const RegisterForm = () => {
         <>
             <OtpModal credentials={isModalOpen} onClose={handleCloseModal} />
             <p className="text-blackLikeBlue mt-3">
-                Today is a new day. It's your day. You shape it. <br />
+                Today is a new day. Its your day. You shape it. <br />
                 Sign up to start managing your projects.
             </p>
             <form onSubmit={handleSubmit(onSubmit)} className="mt-2">

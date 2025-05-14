@@ -9,15 +9,11 @@ const router = express.Router();
 
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 
-const GOOGLE_CLIENT_ID =
-  "892370541918-nbul51f85oii3gkg08k7esdau84ni4an.apps.googleusercontent.com";
-const GOOGLE_CLIENT_SECRET = "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";
-
 passport.use(
   new GoogleStrategy(
     {
-      clientID: GOOGLE_CLIENT_ID,
-      clientSecret: GOOGLE_CLIENT_SECRET,
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: "/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
