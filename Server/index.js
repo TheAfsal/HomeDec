@@ -37,3 +37,4 @@ app.use(express.static(path.join(__dirname, "./uploads")));
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+ 

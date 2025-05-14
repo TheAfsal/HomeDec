@@ -64,7 +64,7 @@ module.exports = {
       } else {
         const otpDoc = new Otp({ email, otp });
         await otpDoc.save();
-        // await sendOTP(email, otp);
+        await sendOTP(email, otp);
       }
       res.status(201).json();
     } catch (error) {
