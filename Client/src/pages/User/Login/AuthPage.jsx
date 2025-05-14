@@ -1,5 +1,4 @@
-// AdminLoginPage.js
-import React, { useEffect, useState } from 'react';
+import  { useEffect, useState } from 'react';
 import LoginImage from '../../../assets/Images/userLoginHeroImage.jpg';
 import webIcon from '../../../assets/Images/HomeDec.png';
 import { Outlet, useNavigate } from 'react-router-dom';

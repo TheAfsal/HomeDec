@@ -130,7 +130,7 @@ const RegisterForm = () => {
                 </div>
                 <GoogleLoginButton />
                 <p className="mt-4 text-md">Already have an account?
-                    <Link to={`${AUTH_ROUTES.LOGIN_USER}`} className=" text-splashBlue hover:text-black hover:cursor-pointer"> Sign in</Link>
+                    <Link to={`/${AUTH_ROUTES.LOGIN_USER}`} className=" text-splashBlue hover:text-black hover:cursor-pointer"> Sign in</Link>
                 </p>
             </div>
         </>
