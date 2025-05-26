@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import TextInput from '@/components/FormComponents/TextInput';
 import SubmitButton from '@/components/Buttons/SubmitButton';
 import GoogleLoginButton from '@/components/Buttons/GoogleLoginButton';
