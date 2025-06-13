@@ -36,6 +36,8 @@ import SalesReportPage from "./pages/Admin/Management/Sales/SalesReportPage";
 import PaymentPolicyPage from "./pages/User/Account/PaymentPolicyPage";
 import Wallet from "./pages/User/Account/Wallet";
 import ProductTable from "./pages/Test/ShadcnTable";
+import About from "./pages/User/Home/About";
+import Contact from "./pages/User/Home/Contact";
 
 const routers = createBrowserRouter([
 
@@ -52,6 +54,14 @@ const routers = createBrowserRouter([
       {
         path: USER_ROUTES.HOME,
         element: <HomePage />,
+      },
+      {
+        path: USER_ROUTES.ABOUT,
+        element: <About />,
+      },
+      {
+        path: USER_ROUTES.CONTACT,
+        element: <Contact />,
       },
       {
         path: USER_ROUTES.SHOP,
