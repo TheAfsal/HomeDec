@@ -25,6 +25,7 @@ export const USER_ROUTES = {
   MY_ADDRESS: "my-addresses",
   ABOUT: "about",
   CONTACT: "contact",
+  TERMS_AND_CONDITION: "terms-conditions",
 };
 
 //----------------MANAGEMENT--------------//

@@ -38,6 +38,7 @@ import Wallet from "./pages/User/Account/Wallet";
 import ProductTable from "./pages/Test/ShadcnTable";
 import About from "./pages/User/Home/About";
 import Contact from "./pages/User/Home/Contact";
+import TermsAndConditions from "./pages/User/Account/TermAndCondition";
 
 const routers = createBrowserRouter([
 
@@ -114,6 +115,10 @@ const routers = createBrowserRouter([
           {
             path: USER_ROUTES.PROFILE,
             element: <ProfilePage />,
+          },
+          {
+            path: USER_ROUTES.TERMS_AND_CONDITION,
+            element: <TermsAndConditions />,
           },
           {
             path: USER_ROUTES.MY_ADDRESS,

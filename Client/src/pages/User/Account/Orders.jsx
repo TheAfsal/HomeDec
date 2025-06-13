@@ -20,7 +20,7 @@ const Orders = () => {
             } catch (error) {
                 console.error("Failed to fetch orders:", error);
             } finally {
-                setLoading(false); 
+                setLoading(false);
             }
         };
         fetchMyOrders();
@@ -42,21 +42,24 @@ const Orders = () => {
                 </div>
             </div>
 
-            <table className="min-w-full table-auto ">
-                <thead className="bg-gray-100 text-left">
-                    <tr>
-                        <th className="p-4">Items</th>
-                        <th className="p-4">Order #</th>
-                        <th className="p-4">Order date</th>
-                        <th className="p-4">Total</th>
-                        <th className="p-4">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {
-                        loading ?
-                            <div className="text-center text-gray-500">Loading orders...</div> :
-                            orders.length ?
+            {
+                loading ? (
+                    <div className="text-center text-gray-500 py-10">Loading orders...</div>
+                ) : orders.length === 0 ? (
+                    <div className="text-center text-gray-500 py-10">No orders found</div>
+                ) : (
+                    <table className="min-w-full table-auto ">
+                        <thead className="bg-gray-100 text-left">
+                            <tr>
+                                <th className="p-4">Items</th>
+                                <th className="p-4">Order #</th>
+                                <th className="p-4">Order date</th>
+                                <th className="p-4">Total</th>
+                                <th className="p-4">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {
                                 orders.map((order, index) => (
                                     <tr key={index} className="w-full font-nunito border-b">
 
@@ -118,12 +121,13 @@ const Orders = () => {
                                         </td>
                                     </tr>
 
-                                )) :
-                                <>No orders found</>
-                    }
-                </tbody>
+                                ))
+                            }
+                        </tbody>
 
-            </table>
+                    </table>
+                )
+            }
         </div>
     );
 };

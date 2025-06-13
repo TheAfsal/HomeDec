@@ -22,7 +22,7 @@ const AccountLayout = () => {
     { content: "Addresses", link: USER_ROUTES.MY_ADDRESS },
   ]
   const service = [
-    { content: "Terms and conditions", link: "--" },
+    { content: "Terms and conditions", link: USER_ROUTES.TERMS_AND_CONDITION },
   ]
 
 
