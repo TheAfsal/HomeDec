@@ -49,6 +49,7 @@ const RegisterForm = () => {
             setLoading(false);
             setIsModalOpen(credentials);
         } catch (error) {
+            setLoading(false);
             dispatch(loginFailure(error.message));
         }
     };

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { logout, verifyUserRole } from '../../../redux/slices/authSlice'
@@ -20,10 +20,8 @@ const AccountLayout = () => {
   const manageAccount = [
     { content: "Personal info", link: USER_ROUTES.PROFILE },
     { content: "Addresses", link: USER_ROUTES.MY_ADDRESS },
-    { content: "Notifications", link: "--" }
   ]
   const service = [
-    { content: "Help center", link: "--" },
     { content: "Terms and conditions", link: "--" },
   ]
 
