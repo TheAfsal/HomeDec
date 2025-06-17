@@ -1,36 +1,38 @@
-// AuthHandler.js
 import { useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from '../../../../redux/slices/authSlice';
 
 const GoogleAuth = () => {
-    // const location = useLocation();
-    const { token } = useParams()
+    const location = useLocation();
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
     useEffect(() => {
-        // const queryParams = new URLSearchParams(location.search);
-        // const token = queryParams.get('token');
+        const queryParams = new URLSearchParams(location.search);
+        const token = queryParams.get('token');
+        const error = queryParams.get('error');
+
+        if (error) {
+            console.error("Google login failed");
+            navigate('/login'); // Or show error toast
+            return;
+        }
 
         if (token) {
-            // Assuming user info is obtained or defined here
-            // const user = { /* user information */ };
-
             localStorage.setItem("key", token);
-            dispatch(loginSuccess({
-                user: null,
-                token,
-                role: "user",
-            }));
-
-            // Redirect to profile or home page
-            navigate('/'); // Adjust this as necessary
+            dispatch(
+                loginSuccess({
+                    user: null, // You can fetch user info if needed
+                    token,
+                    role: "user",
+                })
+            );
+            navigate('/');
         }
-    }, [location, dispatch]);
+    }, [location, dispatch, navigate]);
 
-    return <div>Loading...</div>;
+    return <div>Loading... Please wait.</div>;
 };
 
 export default GoogleAuth;

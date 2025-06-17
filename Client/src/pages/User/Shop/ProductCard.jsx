@@ -1,6 +1,5 @@
 import useProgressiveImg from '@/hooks/useProgressive.hook'
 import OfferPriceDisplay from '@/utils/calculateOfferPrice.jsx'
-import React from 'react'
 
 const ProductCard = ({ product }) => {
 
@@ -11,7 +10,18 @@ const ProductCard = ({ product }) => {
         return `${baseUrl}e_blur:30,q_70,f_auto,w_${size},h_${size}/${imagePublicId}.jpg`
     }
 
-    const [src, { blur }] = useProgressiveImg(generateLQIPUrl(product?.image, 200), product?.image);
+    let image = ""
+    if (typeof product?.image === "object") {
+        image = product?.image?.secure_url
+    } else if (typeof product?.image === "string") {
+        image = product?.image
+    } else {
+        image = ""
+    }
+    console.log(image);
+
+
+    const [src, { blur }] = useProgressiveImg(generateLQIPUrl(image, 200), image);
 
     return (
         <div className="relative bg-gray-50 break-words mb-7">

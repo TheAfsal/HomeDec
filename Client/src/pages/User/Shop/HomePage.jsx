@@ -46,14 +46,8 @@ const ShopPage = () => {
     useEffect(() => {
         Promise.allSettled([ListAllProducts(), listCategoryForUser()])
             .then((response) => {
-
-
-
-
-                setProducts(response[0].value);
+                // setProducts(response[0].value);
                 setCategories(response[1].value);
-
-
             }).catch((error) => {
                 console.error('Error fetching products:', error.message);
             })
@@ -64,20 +58,13 @@ const ShopPage = () => {
             setSearchedText(searchedText)
             setSelectedOption(selectedOption === "sortBy" ? "" : selectedOption)
             setSearchedProducts(searchedResults);
-        }).catch((error) => {
-
         })
     }, [selectedFilter])
 
     const searchProducts = async (e, filter = { value: [] }) => {
-        try {
-            setSearchedText(e.target.value)
-            const searchedResults = await fetchSearchingProducts(e.target.value, selectedOption, filter)
-
-            setSearchedProducts(searchedResults);
-        } catch (error) {
-
-        }
+        setSearchedText(e.target.value)
+        const searchedResults = await fetchSearchingProducts(e.target.value, selectedOption, filter)
+        setSearchedProducts(searchedResults);
     }
 
     const handleChange = async (e) => {
@@ -94,15 +81,15 @@ const ShopPage = () => {
     //     ? searchedProducts.slice(indexOfFirstProduct, indexOfLastProduct)
     //     : products.slice(indexOfFirstProduct, indexOfLastProduct);
 
-    // // Change page
+    // Change page
     // const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
     return (
         <div className='bg-background_grey font-nunito mt-20'>
             <div className="mx-auto p-8 max-w-5xl">
 
-                {/* <div className='flex'>
-                    <div className="flex items-center justify-between w-full  px-3 bg-white shadow-lg">
+                <div className="flex items-center">
+                    <div className="flex items-center justify-between w-full px-3 bg-white shadow-lg">
                         <div className="flex items-center w-full space-x-2">
                             <FiSearch className="text-gray-400" size={20} />
                             <input
@@ -117,31 +104,34 @@ const ShopPage = () => {
                         <button className="px-4 py-2 ml-2 w-[120px] my-2 text-white bg-green_600 hover:bg-teal-700">
                             Find Now
                         </button>
-
                     </div>
-                    <button className="p-2 w-[130px] flex justify-center items-center ml-2 text-gray-600 bg-white duration-1000 hover:bg-gray-100" onClick={() => setFilterSection(!filterSection)} >
-                        <div className='flex gap-2 justify-center items-center '>
+
+                    <button
+                        className="p-2 w-[130px] flex justify-center items-center ml-2 text-gray-600 bg-white duration-1000 hover:bg-gray-100 h-[48px]"
+                        onClick={() => {
+                            setFilterSection(!filterSection)
+                            if (filterSection === true) {
+                                setSearchedText("")
+                                setSelectedFilter({})
+                                searchedProducts([])
+                            }
+                        }}
+                    >
+                        <div className="flex gap-2 justify-center items-center">
                             <FiFilter size={20} />
-                            <span className='font-bold'>Filter</span>
+                            {
+                                filterSection ?
+                                    <span className="font-bold">Clear</span> :
+                                    <span className="font-bold">Filter</span>
+                            }
                         </div>
                     </button>
-                </div> */}
 
-                {/* Products Header Section */}
-                <div className='flex items-center justify-between gap-2'>
-                    {/* <div className='flex items-center gap-3'>
-                        <h2 className="text-3xl font-bold text-green_900 my-10">
-                            {
-                                searchedText ? "Search Results" : "Total Product"
-                            }
-                        </h2>
-                        <span className="flex items-center text-white bg-gray-400 px-2 py-1 text-xs rounded-full h-5">{products.length}</span>
-                    </div> */}
-                    <div className="relative inline-block text-left p-1">
+                    <div className="relative inline-block text-left ml-2">
                         <select
                             value={selectedOption}
                             onChange={handleChange}
-                            className="border text-xs rounded pl-3 pr-7 py-2 appearance-none bg-white focus:outline-none"
+                            className="border text-xs rounded pl-3 pr-7 py-2 appearance-none bg-white focus:outline-none h-[48px]"
                         >
                             {options.map((option, index) => (
                                 <option key={index} value={option.value}>
@@ -155,7 +145,20 @@ const ShopPage = () => {
                     </div>
                 </div>
 
-                <div className="flex w-full gap-8">
+
+                {/* Products Header Section */}
+                {/* <div className='flex items-center justify-between gap-2'> */}
+                {/* <div className='flex items-center gap-3'>
+                        <h2 className="text-3xl font-bold text-green_900 my-10">
+                            {
+                                searchedText ? "Search Results" : "Total Product"
+                            }
+                        </h2>
+                        <span className="flex items-center text-white bg-gray-400 px-2 py-1 text-xs rounded-full h-5">{products.length}</span>
+                    </div> */}
+                {/* </div> */}
+
+                <div className="flex w-full gap-8 mt-10">
                     {
                         filterSection &&
                         <FilterBar categories={categories} setSelectedFilter={setSelectedFilter} />
@@ -163,7 +166,7 @@ const ShopPage = () => {
                     <div className='w-full flex flex-wrap justify-center gap-8'>
                         {
                             <Suspense fallback={generateSkeletons(9)}>
-                                <ProductList />
+                                <ProductList searchProducts={searchedProducts} searchedText={searchedText} />
                             </Suspense>
                         }
                     </div>

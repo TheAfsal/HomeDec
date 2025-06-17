@@ -1,33 +1,48 @@
-import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import HeroImage from '../../../assets/Images/hero.webp';
 import ExperienceBanner from '../../../assets/Images/expImage.jpg';
 import Met1 from '../../../assets/Images/Met1.jpg';
 import Met2 from '../../../assets/Images/Met2.jpg';
 import Met3 from '../../../assets/Images/Met3.jpg';
 import { WhyChooseUs } from './NewHome';
-import { distinctCatForHome } from '@/api/administrator/productManagement';
+import { useNavigate } from 'react-router-dom';
 const HomePage = () => {
 
-    const [distCat, setDistCat] = useState([])
+    // const [distCat, setDistCat] = useState([])
+    const navigate = useNavigate();
+
+    // useEffect(() => {
+    //     distinctCatForHome()
+    //         .then((response) => {
+    //             setDistCat(response);
+    //         })
+    // }, [])
+
+    const handleShop = () => {
+        navigate("/shop")
+    }
+
+    const [imageLoaded, setImageLoaded] = useState(false);
 
     useEffect(() => {
-        distinctCatForHome()
-            .then((response) => {
-                setDistCat(response);
-
-            }).catch((error) => {
-
-            })
-    }, [])
+        const img = new Image();
+        img.src = HeroImage;
+        img.onload = () => setImageLoaded(true);
+    }, []);
 
     return (
         <div className="flex flex-col min-h-screen font-nunito">
             {/* Main Content */}
             <div className="flex-grow">
                 {/* Hero Section */}
-                <section className="bg-cover bg-bottom h-screen" style={{ backgroundImage: `url(${HeroImage})` }}>
+                <section
+                    className={`bg-cover bg-bottom h-screen transition-opacity duration-700 ${imageLoaded ? 'opacity-100' : 'opacity-0'
+                        }`}
+                    style={{
+                        backgroundImage: `url(${HeroImage})`,
+                        backgroundColor: '#2d3748',
+                    }}
+                >
                     <div className="flex items-center justify-center h-full bg-gray-800 bg-opacity-40">
                         <div className="text-center text-white">
                             <h1 className="text-5xl font-bold mb-4">
@@ -36,7 +51,9 @@ const HomePage = () => {
                             <p className="text-xl mb-8">
                                 Turn your room with HomeDec into a lot more minimalist <br /> and modern with ease and speed
                             </p>
-                            <button className="bg-yellow-500 hover:bg-yellow-600 text-white py-3 px-6 rounded-full">Shop Now</button>
+                            <button className="bg-yellow-500 hover:bg-yellow-600 text-white py-3 px-6 rounded-full" onClick={handleShop}>
+                                Shop Now
+                            </button>
                         </div>
                     </div>
                 </section>
@@ -64,7 +81,7 @@ const HomePage = () => {
                             are made by people who are professionals in their fields with an elegant
                             and luxurious style and with premium quality materials.
                         </p>
-                        <a href="#more-info" className="text-orange-500 flex items-center mt-5">
+                        <a href="#more-info" className="text-orange-500 flex items-center mt-5" onClick={handleShop}>
                             More Info
                             <span className="ml-2 text-xl">→</span>
                         </a>
@@ -84,7 +101,7 @@ const HomePage = () => {
                                 Because Panto was very serious about designing furniture for our environment, using a very expensive and famous capital but at a relatively low price.
                             </p>
                             <a href="#" className="text-yellow-600 font-medium flex items-center space-x-2">
-                                <span>More Info</span>
+                                <span onClick={handleShop}>More Info</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-5 h-5">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                                 </svg>
@@ -101,24 +118,22 @@ const HomePage = () => {
                     </div>
                 </div>
 
-                {/* ds */}
-
                 {/* Featured Categories */}
-                <section className="py-12">
+                {/* <section className="py-12">
                     <div className="container mx-auto">
                         <h2 className="text-3xl font-semibold text-center mb-8">Featured Categories</h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                             {
-                                distCat.map((category) =>
-                                    <div className="bg-white p-4 rounded-lg shadow-lg">
+                                distCat.map((category, i) =>
+                                    <div key={i} className="bg-white p-4 rounded-lg shadow-lg"> */}
                                         {/* <img src={HeroImage} alt="Chairs" className="w-full h-48 object-cover rounded-lg" /> */}
-                                        <h3 className="text-xl mt-4 font-medium">{category}</h3>
+                                        {/* <h3 className="text-xl mt-4 font-medium">{category}</h3>
                                     </div>
                                 )
                             }
                         </div>
                     </div>
-                </section>
+                </section> */}
 
                 {/* Latest Products */}
                 {/* <section className="py-12 bg-gray-200">

@@ -4,15 +4,15 @@ const FilterBar = ({ categories, setSelectedFilter }) => {
     // Define state for each filter option
     const [selectedCategories, setSelectedCategories] = useState([]);
     const [selectedSubCategories, setSelectedSubCategories] = useState([]);
-    // const [priceRange, setPriceRange] = useState([40, 150]);
-    // const [selectedBrands, setSelectedBrands] = useState([]);
-    // const [selectedSizes, setSelectedSizes] = useState(['XXS']);
-    // const [selectedColors, setSelectedColors] = useState([]);
-    // const [statusFilters, setStatusFilters] = useState({
-    //     inStock: true,
-    //     isSale: true,
-    //     freeDelivery: false,
-    // });
+    const [priceRange, setPriceRange] = useState([40, 150]);
+    const [selectedBrands, setSelectedBrands] = useState([]);
+    const [selectedSizes, setSelectedSizes] = useState(['XXS']);
+    const [selectedColors, setSelectedColors] = useState([]);
+    const [statusFilters, setStatusFilters] = useState({
+        inStock: true,
+        isSale: true,
+        freeDelivery: false,
+    });
 
     const toggleCategory = (e) => {
 
@@ -29,46 +29,46 @@ const FilterBar = ({ categories, setSelectedFilter }) => {
         setSelectedFilter({ option: "category", value: tempCategories })
     };
 
-    // const toggleSubCategory = (subCategory) => {
-    //     if (selectedSubCategories.includes(subCategory)) {
-    //         setSelectedSubCategories(selectedSubCategories.filter((cat) => cat !== subCategory));
-    //     } else {
-    //         setSelectedSubCategories([...selectedSubCategories, subCategory]);
-    //     }
-    // };
+    const toggleSubCategory = (subCategory) => {
+        if (selectedSubCategories.includes(subCategory)) {
+            setSelectedSubCategories(selectedSubCategories.filter((cat) => cat !== subCategory));
+        } else {
+            setSelectedSubCategories([...selectedSubCategories, subCategory]);
+        }
+    };
 
-    // const handlePriceChange = (event) => {
-    //     const value = Number(event.target.value);
-    //     setPriceRange([priceRange[0], value]);
-    // };
+    const handlePriceChange = (event) => {
+        const value = Number(event.target.value);
+        setPriceRange([priceRange[0], value]);
+    };
 
-    // const toggleBrand = (brand) => {
-    //     if (selectedBrands.includes(brand)) {
-    //         setSelectedBrands(selectedBrands.filter((b) => b !== brand));
-    //     } else {
-    //         setSelectedBrands([...selectedBrands, brand]);
-    //     }
-    // };
+    const toggleBrand = (brand) => {
+        if (selectedBrands.includes(brand)) {
+            setSelectedBrands(selectedBrands.filter((b) => b !== brand));
+        } else {
+            setSelectedBrands([...selectedBrands, brand]);
+        }
+    };
 
-    // const toggleSize = (size) => {
-    //     if (selectedSizes.includes(size)) {
-    //         setSelectedSizes(selectedSizes.filter((s) => s !== size));
-    //     } else {
-    //         setSelectedSizes([...selectedSizes, size]);
-    //     }
-    // };
+    const toggleSize = (size) => {
+        if (selectedSizes.includes(size)) {
+            setSelectedSizes(selectedSizes.filter((s) => s !== size));
+        } else {
+            setSelectedSizes([...selectedSizes, size]);
+        }
+    };
 
-    // const toggleColor = (color) => {
-    //     if (selectedColors.includes(color)) {
-    //         setSelectedColors(selectedColors.filter((c) => c !== color));
-    //     } else {
-    //         setSelectedColors([...selectedColors, color]);
-    //     }
-    // };
+    const toggleColor = (color) => {
+        if (selectedColors.includes(color)) {
+            setSelectedColors(selectedColors.filter((c) => c !== color));
+        } else {
+            setSelectedColors([...selectedColors, color]);
+        }
+    };
 
-    // const toggleStatus = (status) => {
-    //     setStatusFilters((prev) => ({ ...prev, [status]: !prev[status] }));
-    // };
+    const toggleStatus = (status) => {
+        setStatusFilters((prev) => ({ ...prev, [status]: !prev[status] }));
+    };
 
     return (
         <div className="p-4 bg-gray-100 rounded-lg w-[25vw]">
@@ -94,7 +94,7 @@ const FilterBar = ({ categories, setSelectedFilter }) => {
             </div>
 
             {/* Sub Categories */}
-            {/* <div className="mb-4">
+            <div className="mb-4">
                 <h3 className="font-bold text-lg">Sub Categories</h3>
                 <hr className='my-2' />
                 <div className='flex flex-col gap-1'>
@@ -114,7 +114,7 @@ const FilterBar = ({ categories, setSelectedFilter }) => {
                         ))
                     ))}
                 </div>
-            </div> */}
+            </div>
 
             {/* Price */}
             {/* <div className="mb-4">

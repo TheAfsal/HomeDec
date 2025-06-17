@@ -1,20 +1,18 @@
 const express = require("express");
-
 const passport = require("passport");
 const { createUser } = require("../services/authServices");
 const userModel = require("../models/userModel");
 const generateToken = require("../Utils/jwt");
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
 
 const router = express.Router();
-
-const GoogleStrategy = require("passport-google-oauth20").Strategy;
 
 passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: `${process.env.FRONTEND_URL}/auth/google/callback`,
+      callbackURL: `${process.env.BACKEND_URL}/auth/google/callback`,
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -22,15 +20,17 @@ passport.use(
           firstName: profile.name.familyName,
           lastName: profile.name.givenName,
           email: profile.emails[0].value,
-          password: "123456",
+          password: "123456", 
         });
-      } catch (error) {}
-
+      } catch (error) {
+        console.log("OAuth user creation error:", error.message);
+      }
       return done(null, profile);
     }
   )
 );
 
+// Step 1: Redirect user to Google
 router.get(
   "/google",
   passport.authenticate("google", {
@@ -38,27 +38,34 @@ router.get(
   })
 );
 
+// Step 2: Google callback hits this route
 router.get(
   "/google/callback",
   passport.authenticate("google", { session: false }),
   async (req, res) => {
-    const userDetails = await userModel.find({
-      email: req.user.emails[0].value,
-    });
+    try {
+      const userDetails = await userModel.findOne({
+        email: req.user.emails[0].value,
+      });
 
-    const token = generateToken(
-      {
-        _id: userDetails[0]._id,
-        email: userDetails[0].email,
-        cartId: userDetails[0].cartId,
-        addressId: userDetails[0].addressId,
-        wishlistId: userDetails[0].wishlistId,
-      },
-      false,
-      true
-    );
+      const token = generateToken(
+        {
+          _id: userDetails._id,
+          email: userDetails.email,
+          cartId: userDetails.cartId,
+          addressId: userDetails.addressId,
+          wishlistId: userDetails.wishlistId,
+        },
+        false,
+        true
+      );
 
-    res.redirect(`${process.env.FRONTEND_URL}/auth/google/${token}`);
+      // Redirect back to the frontend with the token
+      res.redirect(`${process.env.FRONTEND_URL}/auth/google/callback?token=${token}`);
+    } catch (error) {
+      console.log("Callback error:", error.message);
+      res.redirect(`${process.env.FRONTEND_URL}/auth/google/callback?error=oauth_failed`);
+    }
   }
 );
 

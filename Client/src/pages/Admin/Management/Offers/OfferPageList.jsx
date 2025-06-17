@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux';
 import IsAdmin from '../../../../components/Admin/IsAdmin';
 import TableHeader from '../../../../components/Table/TableHeader';

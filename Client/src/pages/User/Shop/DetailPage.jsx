@@ -14,7 +14,6 @@ import { addToWishList } from '../../../api/user/account';
 import OfferPriceDisplay from '../../../utils/calculateOfferPrice.jsx';
 import CircularLoader from '../../../components/Loading/CircularLoader.jsx';
 import { toast } from "sonner"
-import { useQuery } from '@tanstack/react-query';
 
 const DetailPage = () => {
   const [product, setProduct] = useState({});
@@ -33,20 +32,20 @@ const DetailPage = () => {
   const { productId } = useParams();
   const { role } = useSelector(state => state.auth)
 
-  // const { isPending, error, data } = useQuery({
-  //   queryKey: ['productData'],
-  //   queryFn: () => fetchDetails(productId)
-  //   .then((list) => {
-  //     setSelectedVariant(list.product.variants[0]);
-  //     setSelectedImage(list.product.variants[0].images[0])
-  //     setProduct(list.product);
-  //     setBestOffer(list.bestOffer);
-  //   })
-  // })
+  const { isPending, error, data } = useQuery({
+    queryKey: ['productData'],
+    queryFn: () => fetchDetails(productId)
+      .then((list) => {
+        setSelectedVariant(list.product.variants[0]);
+        setSelectedImage(list.product.variants[0].images[0])
+        setProduct(list.product);
+        setBestOffer(list.bestOffer);
+      })
+  })
 
-  // if (isPending) return 'Loading...'
+  if (isPending) return 'Loading...'
 
-  // if (error) return 'An error has occurred: ' + error.message
+  if (error) return 'An error has occurred: ' + error.message
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -256,6 +255,7 @@ const DetailPage = () => {
           <div className="flex gap-3 justify-start mt-3">
             {selectedVariant.images.map((url, index) => (
               <img
+                key={index}
                 src={url.secure_url}
                 alt={`Thumbnail ${index + 1}`}
                 className={`w-20 h-20 object-cover border-2 ${selectedImage.secure_url === url.secure_url ? "border-green_500" : "border-gray-200"}`}

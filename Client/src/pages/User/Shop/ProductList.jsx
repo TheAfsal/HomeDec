@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { ListAllProducts } from '@/api/administrator/productManagement'
 import { USER_ROUTES } from '@/config/routerConstants'
@@ -7,7 +7,7 @@ import { generateSkeletons } from '@/utils/generateSkeletons'
 const ProductCard = React.lazy(() => import('./ProductCard'));
 
 
-const ProductList = () => {
+const ProductList = ({ searchProducts,searchedText }) => {
 
     const { data,
         error,
@@ -59,19 +59,33 @@ const ProductList = () => {
         );
     }
 
+    console.log(data);
+    
+
 
     return (
         <div className='w-full'>
             <div className='flex flex-wrap justify-center gap-8'>
-                {data?.pages.map((group) => (
-                    group.products.map((product) => (
-                        <React.Fragment key={product._id}>
-                            <Link to={`/${USER_ROUTES.SHOP}/${product._id}`}>
-                                <ProductCard product={product} />
-                            </Link>
-                        </React.Fragment>
-                    ))
-                ))}
+                {
+                    !searchProducts.length && searchedText === "" ?
+                        data?.pages.map((group) => (
+                            group.products.map((product) => (
+                                <React.Fragment key={product._id}>
+                                    <Link to={`/${USER_ROUTES.SHOP}/${product._id}`}>
+                                        <ProductCard product={product} />
+                                    </Link>
+                                </React.Fragment>
+                            ))
+                        )):(
+                            searchProducts.map((product) => (
+                                <React.Fragment key={product._id}>
+                                    <Link to={`/${USER_ROUTES.SHOP}/${product._id}`}>
+                                        <ProductCard product={product} />
+                                    </Link>
+                                </React.Fragment>
+                            ))
+                        )
+                    }
             </div>
 
             {/* Pagination and Loading Button */}

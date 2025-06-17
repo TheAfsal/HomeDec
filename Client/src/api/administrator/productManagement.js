@@ -1,3 +1,4 @@
+import { debounce } from "@/utils/debounce";
 import api from "../apiConfigAdmin";
 import userAPI from "../apiConfigUser";
 
@@ -76,19 +77,20 @@ export const changeProductStatus = async ({ pId, index }) => {
   }
 };
 
-export const fetchSearchingProducts = async (query, sort, filter) => {
+const _fetchSearchingProducts = async (query, sort, filter) => {
   try {
-    filter?.value.length !== 0 && filter?.value.join(",");
-
+    const filterValue = filter?.value?.length ? filter.value.join(",") : "";
     const response = await userAPI.get(
-      `/products/search?q=${query}&sort=${sort}&option=category&value=${filter?.value}`
+      `/products/search?q=${query}&sort=${sort}&option=category&value=${filterValue}`
     );
-
     return response.data;
   } catch (error) {
-    throw new Error(error?.response?.data?.error);
+    throw new Error(error?.response?.data?.error || "Failed to fetch products");
   }
 };
+
+export const fetchSearchingProducts = debounce(_fetchSearchingProducts, 500);
+
 
 export const addProductImage = async (
   formData,
